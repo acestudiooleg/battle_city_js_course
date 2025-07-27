@@ -32,7 +32,7 @@ npm run docs:preview
 
 Сайт автоматично деплоїться на GitHub Pages при пуші в гілку `main`.
 
-🌐 **Живий сайт**: https://[your-username].github.io/battle_city_js_course/
+🌐 **Живий сайт**: https://acestudiooleg.github.io/battle_city_js_course/
 
 ## 📚 Структура курсу
 
