@@ -9,15 +9,43 @@ export default defineConfig({
     root: {
       label: 'Українська',
       lang: 'uk',
-    }
+    },
   },
 
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
-    nav: [
-      { text: 'Головна', link: '/' },
-      { text: 'Уроки', link: '/markdown-examples' },
-    ],
+    nav: [{ text: 'Головна', link: '/' }],
+
+    search: {
+      provider: 'local',
+      options: {
+        locales: {
+          root: {
+            translations: {
+              button: {
+                buttonText: 'Пошук',
+                buttonAriaLabel: 'Пошук',
+              },
+              modal: {
+                displayDetails: 'Показати детальний список',
+                resetButtonTitle: 'Скинути пошук',
+                backButtonTitle: 'Закрити пошук',
+                noResultsText: 'Немає результатів',
+                footer: {
+                  selectText: 'Вибрати',
+                  selectKeyAriaLabel: 'Ввести',
+                  navigateText: 'Навігація',
+                  navigateUpKeyAriaLabel: 'Вгору',
+                  navigateDownKeyAriaLabel: 'Вниз',
+                  closeText: 'Закрити',
+                  closeKeyAriaLabel: 'esc',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
 
     sidebar: [
       {
@@ -61,7 +89,8 @@ export default defineConfig({
     langMenuLabel: 'Змінити мову',
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/vuejs/vitepress' },
+      { icon: 'instagram', link: 'https://www.instagram.com/ai_magic_ua/' },
+      { icon: 'telegram', link: 'https://t.me/acestudiooleg_channel' },
     ],
 
     footer: {
