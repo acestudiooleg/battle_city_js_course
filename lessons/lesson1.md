@@ -262,4 +262,4 @@
 
 ## Результат
 
-[Подивитись Результат](/battle_city_js_course/moja/index.html){target="_blank"}
+[ДЕМО  - Урок 1](/battle_city_js_course/moja/index.html){target="_blank"}
