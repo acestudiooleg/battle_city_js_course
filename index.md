@@ -12,7 +12,7 @@ hero:
   actions:
     - theme: brand
       text: Почати курс
-      link: /lessons/lesson1/lesson1
+      link: /lessons/lesson1
 
 features:
   - title: День 1 <br> Налаштування середовища

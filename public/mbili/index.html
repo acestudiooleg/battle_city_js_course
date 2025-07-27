@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Танчики - Урок 2: Малювання поля та танків</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #2c3e50;
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        h1 {
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        .lesson-info {
+            background-color: #34495e;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .game-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        
+        canvas {
+            border: 3px solid #3498db;
+            border-radius: 8px;
+            background-color: #000;
+            flex-shrink: 0;
+        }
+        
+        .game-log {
+            width: 300px;
+            height: 600px;
+            background-color: #2c3e50;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .log-header {
+            background-color: #34495e;
+            padding: 10px;
+            border-bottom: 1px solid #3498db;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .log-header h3 {
+            margin: 0;
+            font-size: 16px;
+        }
+        
+        .clear-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .clear-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        .log-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 5px;
+            border-radius: 4px;
+            word-wrap: break-word;
+        }
+        
+        .log-entry.info {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .log-entry.success {
+            background-color: #27ae60;
+            color: white;
+        }
+        
+        .log-entry.warning {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .log-entry.error {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .log-entry.debug {
+            background-color: #95a5a6;
+            color: white;
+        }
+        
+        .test-buttons {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #34495e;
+            border-radius: 8px;
+        }
+        
+        .test-buttons h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        
+        .test-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .test-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .controls {
+            margin-top: 20px;
+            background-color: #34495e;
+            padding: 15px;
+            border-radius: 8px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px;
+            background-color: #2c3e50;
+            border-radius: 5px;
+        }
+        
+        .color-box {
+            width: 20px;
+            height: 20px;
+            border: 1px solid #fff;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎮 Танчики - Урок 2</h1>
+    <div class="lesson-info">
+        <h2>Малювання поля та танків</h2>
+        <p>У цьому уроці ми створимо основні графічні елементи:</p>
+        <ul style="text-align: left;">
+            <li>✅ Створили ігрове поле з сіткою</li>
+            <li>✅ Додали танк гравця (жовтий квадрат)</li>
+            <li>✅ Додали ворожий танк (червоний квадрат)</li>
+            <li>✅ Створили базову структуру класів</li>
+        </ul>
+    </div>
+    
+    <div class="game-container">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div class="game-log">
+            <div class="log-header">
+                <h3>📋 Лог подій гри</h3>
+                <button id="clearLog" class="clear-btn">Очистити</button>
+            </div>
+            <div id="logContent" class="log-content"></div>
+        </div>
+    </div>
+    
+    <div class="controls">
+        <h3>Легенда гри:</h3>
+        <div class="legend">
+            <div class="legend-item">
+                <div class="color-box" style="background-color: #f1c40f;"></div>
+                <span>Жовтий квадрат - Танк гравця</span>
+            </div>
+            <div class="legend-item">
+                <div class="color-box" style="background-color: #e74c3c;"></div>
+                <span>Червоний квадрат - Ворожий танк</span>
+            </div>
+            <div class="legend-item">
+                <div class="color-box" style="background-color: #34495e;"></div>
+                <span>Сірий квадрат - Стіна</span>
+            </div>
+            <div class="legend-item">
+                <div class="color-box" style="background-color: #27ae60;"></div>
+                <span>Зелений квадрат - База гравця</span>
+            </div>
+        </div>
+        
+        <div class="test-buttons">
+            <h3>Тестування логування:</h3>
+            <button id="testLog" class="test-btn">Тест логування</button>
+            <button id="testPlayer" class="test-btn">Тест гравця</button>
+            <button id="testEnemy" class="test-btn">Тест ворога</button>
+        </div>
+    </div>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html> 
