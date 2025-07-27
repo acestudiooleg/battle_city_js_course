@@ -4,6 +4,7 @@ import { defineConfig } from 'vitepress';
 export default defineConfig({
   title: 'BattleCity JS Course',
   description: 'Марафон з розробки класичної гри "Танчики" на JavaScript',
+  base: '/battle_city_js_course/',
   locales: {
     root: {
       label: 'Українська',
