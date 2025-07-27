@@ -10,6 +10,7 @@ export default defineConfig({
       lang: 'uk',
     }
   },
+  outDir: 'docs',
 
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
