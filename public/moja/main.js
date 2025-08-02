@@ -8,9 +8,6 @@
  */
 
 // Отримуємо Canvas елемент з HTML
-/**
- * @type {HTMLCanvasElement}
- */
 const canvas = document.getElementById('gameCanvas');
 
 // Отримуємо контекст для малювання (2D)
@@ -24,59 +21,87 @@ const GAME_CONFIG = {
     FPS: 60 // Кількість кадрів за секунду
 };
 
-/**
- * Функція ініціалізації гри
- * Викликається один раз при запуску
- */
 function initGame() {
     console.log('🎮 Гра "Танчики" ініціалізована!');
     console.log('📐 Розмір Canvas:', GAME_CONFIG.CANVAS_WIDTH, 'x', GAME_CONFIG.CANVAS_HEIGHT);
     console.log('🔲 Розмір клітинки:', GAME_CONFIG.TILE_SIZE, 'пікселів');
     
     // Малюємо привітання на Canvas
-    drawWelcomeMessage();
+    drawTitleScreen();
 }
 
-/**
- * Функція для малювання привітання
- * Показує, що Canvas працює правильно
- */
-function drawWelcomeMessage() {
+// Battle City (Namco) NES palette
+const black = '#000000';
+const white = '#fcfcfc';
+const gray = '#a4a7a7';
+const darkGray = '#545454';
+const red = '#e04038';
+const orange = '#f8b800';
+const yellow = '#f8f858';
+const green = '#38a038';
+const darkGreen = '#005c00';
+const blue = '#3858d8';
+const brown = '#a86c30';
+const brick = '#bd4400';
+const steel = '#a4a7a7';
+const water = '#4f00ff';
+const forest = '#38a038';
+const ice = '#fcfcfc';
+
+
+function drawTitleScreen() {
     // Очищаємо Canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Налаштовуємо стиль тексту
-    ctx.fillStyle = '#3498db'; // Синій колір
-    ctx.font = 'bold 48px Arial';
+    // Встановлюємо чорний фон
+    ctx.fillStyle = black;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Малюємо інформацію про гравця (I- 00 HI- 20000)
+    ctx.fillStyle = white;
+    ctx.font = 'bold 16px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('I- 00 HI- 20000', 20, 30);
+    
+    // Малюємо заголовок BATTLE CITY
+    ctx.fillStyle = brick;
+    ctx.font = 'bold 64px monospace';
     ctx.textAlign = 'center';
     
-    // Малюємо заголовок
-    ctx.fillText('ТАНЧИКИ', canvas.width / 2, canvas.height / 2 - 50);
+    // Малюємо BATTLE
+    ctx.fillText('BATTLE', canvas.width / 2, canvas.height / 2 - 80);
+    // Малюємо CITY
+    ctx.fillText('CITY', canvas.width / 2, canvas.height / 2 - 20);
     
-    // Малюємо підзаголовок
-    ctx.fillStyle = '#ecf0f1'; // Світло-сірий колір
-    ctx.font = '24px Arial';
-    ctx.fillText('Урок 1: Налаштування середовища', canvas.width / 2, canvas.height / 2);
+    // Малюємо опції меню
+    ctx.fillStyle = white;
+    ctx.font = 'bold 24px monospace';
+    ctx.textAlign = 'center';
     
-    // Малюємо інструкцію
-    ctx.fillStyle = '#95a5a6'; // Темно-сірий колір
-    ctx.font = '18px Arial';
-    ctx.fillText('Canvas готовий для розробки!', canvas.width / 2, canvas.height / 2 + 50);
+    // Малюємо танк-іконку перед "1 PLAYER"
+    ctx.fillStyle = yellow;
+    ctx.fillRect(canvas.width / 2 - 120, canvas.height / 2 + 20, 16, 12);
+    ctx.fillStyle = yellow;
+    ctx.fillRect(canvas.width / 2 - 116, canvas.height / 2 + 16, 8, 4);
     
-    // Малюємо простий квадрат для демонстрації
-    ctx.fillStyle = '#e74c3c'; // Червоний колір
-    ctx.fillRect(canvas.width / 2 - 25, canvas.height / 2 + 80, 50, 50);
+    // Малюємо текст меню
+    ctx.fillStyle = white;
+    ctx.fillText('1 PLAYER', canvas.width / 2, canvas.height / 2 + 35);
+    ctx.fillText('2 PLAYERS', canvas.width / 2, canvas.height / 2 + 65);
+    ctx.fillText('CONSTRUCTION', canvas.width / 2, canvas.height / 2 + 95);
     
-    // Малюємо рамку навколо квадрата
-    ctx.strokeStyle = '#f39c12'; // Помаранчевий колір
-    ctx.lineWidth = 3;
-    ctx.strokeRect(canvas.width / 2 - 25, canvas.height / 2 + 80, 50, 50);
+    // Малюємо логотип namcoT
+    ctx.fillStyle = brown;
+    ctx.font = 'bold 20px monospace';
+    ctx.fillText('namcoT', canvas.width / 2, canvas.height / 2 + 150);
+    
+    // Малюємо копірайт
+    ctx.fillStyle = white;
+    ctx.font = '12px monospace';
+    ctx.fillText('© 1980 1985 NAMCO LTD.', canvas.width / 2, canvas.height - 40);
+    ctx.fillText('ALL RIGHTS RESERVED', canvas.width / 2, canvas.height - 25);
 }
 
-/**
- * Головний ігровий цикл
- * Ця функція буде викликатися багато разів для оновлення гри
- */
 function gameLoop() {
     // Поки що просто викликаємо requestAnimationFrame
     // В наступних уроках тут буде логіка гри
@@ -89,6 +114,3 @@ document.addEventListener('DOMContentLoaded', () => {
     initGame();
     gameLoop();
 });
-
-// Експортуємо основні змінні для використання в інших файлах
-export { canvas, ctx, GAME_CONFIG }; 
