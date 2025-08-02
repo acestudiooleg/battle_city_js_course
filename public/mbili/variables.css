@@ -1,0 +1,57 @@
+:root {
+  /*Світлі кольори */
+  --bg: #ffffff;
+  --bg-secondary: #f6f6f7;
+  --bg-elevated: #ffffff;
+  --bg-soft: #f6f6f7;
+  
+  /* Кольори тексту */
+  --text: #3c3c43;
+  --text-secondary: #67676c;
+  --text-muted: #929295;
+  
+  /* Основні кольори */
+  --primary: #3451b2;
+  --primary-hover: #3a5ccc;
+  --primary-bg: #5672cd;
+  --primary-soft: rgba(100, 108, 255, 0.14);
+  
+  /* Кольори успіху */
+  --success: #18794e;
+  --success-hover: #299764;
+  --success-bg: #30a46c;
+  --success-soft: rgba(16, 185, 129, 0.14);
+  
+  /* Кольори попередження */
+  --warning: #915930;
+  --warning-hover: #946300;
+  --warning-bg: #9f6a00;
+  --warning-soft: rgba(234, 179, 8, 0.14);
+  
+  /* Кольори небезпеки */
+  --danger: #b8272c;
+  --danger-hover: #d5393e;
+  --danger-bg: #e0575b;
+  --danger-soft: rgba(244, 63, 94, 0.14);
+  
+  /* Кольори фіолетових */
+  --purple: #6f42c1;
+  --purple-hover: #7e4cc9;
+  --purple-bg: #8e5cd9;
+  --purple-soft: rgba(159, 122, 234, 0.14);
+  
+  /* Кольори сірих */
+  --gray: #dddde3;
+  --gray-hover: #e4e4e9;
+  --gray-bg: #ebebef;
+  --gray-soft: rgba(142, 150, 170, 0.14);
+  
+  /* Кольори рамки */
+  --border: #c2c2c4;
+  --border-divider: #e2e2e3;
+  --border-gutter: #e2e2e3;
+  
+  /* Кольори утиліт */
+  --black: #000000;
+  --white: #ffffff;
+} 
