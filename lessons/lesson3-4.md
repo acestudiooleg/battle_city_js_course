@@ -44,13 +44,13 @@ export class Player extends Tank {
     this.movementState = {
       isMoving: false,
       lastDirection: 'up',
+      initialized: false, // Флаг для відстеження ініціалізації
     };
-    
 
     // записуємо в лог
     this.logger.playerAction(
       'Гравець створений',
-      `позиція: (${this.x}, ${this.y})`
+      `позиція: (${this.x}, ${this.y}), життя: ${this.lives}`
     );
   }
 
@@ -60,21 +60,60 @@ export class Player extends Tank {
    */
   setInputManager(inputManager) {
     this.inputManager = inputManager;
+    this.movementState.initialized = true; // Позначаємо що гравець ініціалізований
     this.logger.info('Система керування підключена до гравця');
   }
 
   /**
-   * Оновлення стану гравця
-   * @param {number} deltaTime - Час з останнього оновлення
+   * Встановлення руху гравця
+   * @param {Object} movement - Об'єкт з напрямками руху
    */
-  update(deltaTime) {
-    if (!this.isAlive) return;
+  setMovement(movement) {
+    // Розраховуємо нову позицію
+    let newX = this.x;
+    let newY = this.y;
+    let isMoving = false;
 
-    // Оновлюємо рух
-    this.updateMovement(deltaTime);
+    // Рух вгору
+    if (movement.up) {
+      newY -= this.speed;
+      isMoving = true;
+      this.direction = 'up';
+      this.movementState.lastDirection = 'up';
+    }
 
-    // Оновлюємо напрямок дула
-    this.updateDirection();
+    // Рух вниз
+    if (movement.down) {
+      newY += this.speed;
+      isMoving = true;
+      this.direction = 'down';
+      this.movementState.lastDirection = 'down';
+    }
+
+    // Рух вліво
+    if (movement.left) {
+      newX -= this.speed;
+      isMoving = true;
+      this.direction = 'left';
+      this.movementState.lastDirection = 'left';
+    }
+
+    // Рух вправо
+    if (movement.right) {
+      newX += this.speed;
+      isMoving = true;
+      this.direction = 'right';
+      this.movementState.lastDirection = 'right';
+    }
+
+    // Перевіряємо межі руху (метод з базового класу Tank)
+    if (this.checkBounds(newX, newY)) {
+      this.x = newX;
+      this.y = newY;
+    }
+
+    // Оновлюємо стан руху
+    this.movementState.isMoving = isMoving;
   }
 
   /**
@@ -120,21 +159,23 @@ export class Player extends Tank {
       this.movementState.lastDirection = 'right';
     }
 
-    // Перевіряємо межі руху (метод з базового класу Tank)
+    // Перевіряємо межі руху
     if (this.checkBounds(newX, newY)) {
       this.x = newX;
       this.y = newY;
     }
 
-    // Оновлюємо стан руху
+    // Просте логування - GameLogger сам згрупує повідомлення
+    const wasMoving = this.movementState.isMoving;
     this.movementState.isMoving = isMoving;
 
-    // Логуємо рух (тільки при зміні стану)
-    if (isMoving && !this.movementState.isMoving) {
-      logger.playerAction(
+    if (isMoving && !wasMoving) {
+      this.logger.playerAction(
         'Гравець почав рухатися',
         `напрямок: ${this.movementState.lastDirection}`
       );
+    } else if (!isMoving && wasMoving) {
+      this.logger.playerAction('Гравець зупинився');
     }
   }
 
@@ -156,7 +197,6 @@ export class Player extends Tank {
     } else if (direction.right) {
       this.direction = 'right';
     }
-    // Якщо не рухається, залишаємо попередній напрямок
   }
 
   /**
@@ -166,7 +206,6 @@ export class Player extends Tank {
   render(ctx) {
     // Викликаємо базовий метод render з батьківського класу
     super.render(ctx);
-    
     // Малюємо індикатор руху (якщо рухається)
     if (this.movementState.isMoving) {
       this.drawMovementIndicator(ctx);
@@ -220,16 +259,33 @@ export class Player extends Tank {
   getMovementState() {
     return { ...this.movementState };
   }
+
+  /**
+   * Оновлення стану гравця
+   * @param {number} deltaTime - Час з останнього оновлення
+   */
+  update(deltaTime) {
+    // Якщо гравець мертвий, не оновлюємо
+    if (!this.isAlive) return;
+
+    // Оновлюємо рух
+    this.updateMovement(deltaTime);
+
+    // Оновлюємо напрямок дула
+    this.updateDirection();
+  }
 }
 ```
 
 ## Що додано до класу Player?
 
 ### Нові властивості:
+
 - **`inputManager`** - посилання на систему керування
 - **`movementState`** - стан руху (чи рухається, останній напрямок)
 
 ### Нові методи:
+
 - **`setInputManager()`** - встановлення системи керування
 - **`updateMovement()`** - оновлення руху за клавішами
 - **`updateDirection()`** - оновлення напрямку дула
@@ -237,18 +293,20 @@ export class Player extends Tank {
 - **`getMovementState()`** - отримання стану руху
 
 ### Використання методів з базового класу:
+
 - **`checkBounds()`** - перевірка меж руху (з Tank.js)
 - **`setBounds()`** - встановлення меж руху (з Tank.js)
-- **`getShootPosition()`** - позиція для стрільби (з Tank.js)
 
 ## Особливості руху
 
 ### Керування:
+
 - **WASD** або **стрілки** для руху
 - **Автоматичне оновлення** напрямку дула
 - **Обмеження руху** межами Canvas
 
 ### Візуальні ефекти:
+
 - **Зелений індикатор** руху в правому нижньому куті
 - **Логування** початку руху
 - **Плавний рух** з урахуванням швидкості
@@ -259,8 +317,8 @@ export class Player extends Tank {
 ```javascript
 // Використовуємо метод з базового класу Tank
 if (this.checkBounds(newX, newY)) {
-    this.x = newX;
-    this.y = newY;
+  this.x = newX;
+  this.y = newY;
 }
 ```
 
@@ -269,13 +327,6 @@ if (this.checkBounds(newX, newY)) {
 - **Налаштовується** через `setBounds()` (з Tank.js)
 - **Запобігає виходу** за межі екрану
 
-## Позиція стрільби
-
-### Розрахунок позиції:
-```javascript
-// Використовуємо метод з базового класу Tank
-const shootPos = this.getShootPosition();
-```
 
 ### Логіка розрахунку:
 - **Вгору**: центр танка, вище танка
@@ -306,8 +357,8 @@ player.setBounds({
 // Оновлення в ігровому циклі
 player.update(deltaTime);
 
-// Отримання позиції для стрільби (метод з базового класу)
-const shootPos = player.getShootPosition();
+// Отримання стану руху
+const movementState = player.getMovementState();
 ```
 
 ## Результат
@@ -318,7 +369,6 @@ const shootPos = player.getShootPosition();
 - ✅ Автоматичне оновлення напрямку дула
 - ✅ Обмеження руху межами екрану
 - ✅ Візуальні індикатори руху
-- ✅ Готовність для стрільби
 - ✅ Використання спільних методів з базового класу
 
 ## Що далі?

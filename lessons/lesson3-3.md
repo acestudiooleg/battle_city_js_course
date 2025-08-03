@@ -13,7 +13,7 @@ import { orange, red, white } from './colors.js';
 
 /**
  * 🎮 Клас Bullet - представляє кулю
- * 
+ *
  * Відповідає за:
  * - Зберігання позиції кулі
  * - Рух кулі в заданому напрямку
@@ -22,181 +22,186 @@ import { orange, red, white } from './colors.js';
  */
 
 export class Bullet {
-    constructor(options = {}, logger) {
-        // Позиція кулі
-        this.x = options.x || 0;
-        this.y = options.y || 0;
-        
-        // Розмір кулі
-        this.width = options.width || 4;
-        this.height = options.height || 4;
-        
-        // Напрямок руху
-        this.direction = options.direction || 'up';
-        
-        // Швидкість кулі
-        this.speed = options.speed || 5;
-        
-        // Власник кулі ('player' або 'enemy')
-        this.owner = options.owner || 'player';
-        
-        // Колір кулі
-        this.color = this.owner === 'player' ? orange : red;
-        
-        // Стан кулі
-        this.isActive = true;
-        
-        // Час життя кулі (в мілісекундах)
-        this.lifetime = 3000; // 3 секунди
-        this.age = 0;
-        
-        // Логгер для запису подій
-        this.logger = logger;
-        
-        this.logger.gameEvent('Куля створена', `власник: ${this.owner}, позиція: (${this.x}, ${this.y})`);
+  constructor(options = {}, logger) {
+    // Позиція кулі
+    this.x = options.x || 0;
+    this.y = options.y || 0;
+
+    // Розмір кулі
+    this.width = options.width || 4;
+    this.height = options.height || 4;
+
+    // Напрямок руху
+    this.direction = options.direction || 'up';
+
+    // Швидкість кулі
+    this.speed = options.speed || 5;
+
+    // Власник кулі ('player' або 'enemy')
+    this.owner = options.owner || 'player';
+
+    // Колір кулі
+    this.color = this.owner === 'player' ? orange : red;
+
+    // Стан кулі
+    this.isActive = true;
+
+    // Час життя кулі (в мілісекундах)
+    this.lifetime = 3000; // 3 секунди
+    this.age = 0;
+
+    // Логгер для запису подій
+    this.logger = logger;
+
+    this.logger.gameEvent(
+      'Куля створена',
+      `власник: ${this.owner}, позиція: (${this.x}, ${this.y})`
+    );
+  }
+
+  /**
+   * Оновлення стану кулі
+   * Викликається кожен кадр
+   * @param {number} deltaTime - Час з останнього оновлення
+   */
+  update(deltaTime) {
+    if (!this.isActive) return;
+
+    // Оновлюємо час життя
+    this.age += deltaTime;
+
+    // Перевіряємо чи куля не застаріла
+    if (this.age >= this.lifetime) {
+      this.destroy();
+      return;
     }
-    
-    /**
-     * Оновлення стану кулі
-     * Викликається кожен кадр
-     * @param {number} deltaTime - Час з останнього оновлення
-     */
-    update(deltaTime) {
-        if (!this.isActive) return;
-        
-        // Оновлюємо час життя
-        this.age += deltaTime;
-        
-        // Перевіряємо чи куля не застаріла
-        if (this.age >= this.lifetime) {
-            this.destroy();
-            return;
-        }
-        
-        // Рухаємо кулю
-        this.move();
+
+    // Рухаємо кулю
+    this.move();
+  }
+
+  /**
+   * Рух кулі в заданому напрямку
+   */
+  move() {
+    switch (this.direction) {
+      case 'up':
+        this.y -= this.speed;
+        break;
+      case 'down':
+        this.y += this.speed;
+        break;
+      case 'left':
+        this.x -= this.speed;
+        break;
+      case 'right':
+        this.x += this.speed;
+        break;
     }
-    
-    /**
-     * Рух кулі в заданому напрямку
-     */
-    move() {
-        switch (this.direction) {
-            case 'up':
-                this.y -= this.speed;
-                break;
-            case 'down':
-                this.y += this.speed;
-                break;
-            case 'left':
-                this.x -= this.speed;
-                break;
-            case 'right':
-                this.x += this.speed;
-                break;
-        }
-    }
-    
-    /**
-     * Малювання кулі на екрані
-     * @param {CanvasRenderingContext2D} ctx - Контекст для малювання
-     */
-    render(ctx) {
-        if (!this.isActive) return;
-        
-        // Зберігаємо поточний стан контексту
-        ctx.save();
-        
-        // Малюємо кулю як маленький квадрат
-        ctx.fillStyle = this.color;
-        ctx.fillRect(this.x, this.y, this.width, this.height);
-        
-        // Малюємо рамку навколо кулі
-        ctx.strokeStyle = white;
-        ctx.lineWidth = 1;
-        ctx.strokeRect(this.x, this.y, this.width, this.height);
-        
-        // Відновлюємо стан контексту
-        ctx.restore();
-    }
-    
-    /**
-     * Перевірка чи куля активна
-     * @returns {boolean} - true якщо куля активна
-     */
-    isBulletActive() {
-        return this.isActive;
-    }
-    
-    /**
-     * Знищення кулі
-     */
-    destroy() {
-        this.isActive = false;
-        console.log('💥 Куля знищена');
-    }
-    
-    /**
-     * Отримання меж кулі для перевірки колізій
-     * @returns {Object} - Об'єкт з межами кулі
-     */
-    getBounds() {
-        return {
-            x: this.x,
-            y: this.y,
-            width: this.width,
-            height: this.height
-        };
-    }
-    
-    /**
-     * Перевірка колізії з іншим об'єктом
-     * @param {Object} object - Об'єкт для перевірки колізії
-     * @returns {boolean} - true якщо є колізія
-     */
-    checkCollision(object) {
-        return this.x < object.x + object.width &&
-               this.x + this.width > object.x &&
-               this.y < object.y + object.height &&
-               this.y + this.height > object.y;
-    }
-    
-    /**
-     * Перевірка чи куля вийшла за межі екрану
-     * @param {number} canvasWidth - Ширина Canvas
-     * @param {number} canvasHeight - Висота Canvas
-     * @returns {boolean} - true якщо куля за межами екрану
-     */
-    isOutOfBounds(canvasWidth, canvasHeight) {
-        return this.x < 0 || 
-               this.x > canvasWidth || 
-               this.y < 0 || 
-               this.y > canvasHeight;
-    }
-    
-    /**
-     * Встановлення позиції кулі
-     * @param {number} x - Нова X координата
-     * @param {number} y - Нова Y координата
-     */
-    setPosition(x, y) {
-        this.x = x;
-        this.y = y;
-    }
-    
-    /**
-     * Встановлення напрямку кулі
-     * @param {string} direction - Напрямок ('up', 'down', 'left', 'right')
-     */
-    setDirection(direction) {
-        this.direction = direction;
-    }
+  }
+
+  /**
+   * Малювання кулі на екрані
+   * @param {CanvasRenderingContext2D} ctx - Контекст для малювання
+   */
+  render(ctx) {
+    if (!this.isActive) return;
+
+    // Зберігаємо поточний стан контексту
+    ctx.save();
+
+    // Малюємо кулю як маленький квадрат
+    ctx.fillStyle = this.color;
+    ctx.fillRect(this.x, this.y, this.width, this.height);
+
+    // Малюємо рамку навколо кулі
+    ctx.strokeStyle = white;
+    ctx.lineWidth = 1;
+    ctx.strokeRect(this.x, this.y, this.width, this.height);
+
+    // Відновлюємо стан контексту
+    ctx.restore();
+  }
+
+  /**
+   * Перевірка чи куля активна
+   * @returns {boolean} - true якщо куля активна
+   */
+  isBulletActive() {
+    return this.isActive;
+  }
+
+  /**
+   * Знищення кулі
+   */
+  destroy() {
+    this.isActive = false;
+    this.logger.gameEvent('💥 Куля знищена');
+  }
+
+  /**
+   * Отримання меж кулі для перевірки колізій
+   * @returns {Object} - Об'єкт з межами кулі
+   */
+  getBounds() {
+    return {
+      x: this.x,
+      y: this.y,
+      width: this.width,
+      height: this.height,
+    };
+  }
+
+  /**
+   * Перевірка колізії з іншим об'єктом
+   * @param {Object} object - Об'єкт для перевірки колізії
+   * @returns {boolean} - true якщо є колізія
+   */
+  checkCollision(object) {
+    return (
+      this.x < object.x + object.width &&
+      this.x + this.width > object.x &&
+      this.y < object.y + object.height &&
+      this.y + this.height > object.y
+    );
+  }
+
+  /**
+   * Перевірка чи куля вийшла за межі екрану
+   * @param {number} canvasWidth - Ширина Canvas
+   * @param {number} canvasHeight - Висота Canvas
+   * @returns {boolean} - true якщо куля за межами екрану
+   */
+  isOutOfBounds(canvasWidth, canvasHeight) {
+    return (
+      this.x < 0 || this.x > canvasWidth || this.y < 0 || this.y > canvasHeight
+    );
+  }
+
+  /**
+   * Встановлення позиції кулі
+   * @param {number} x - Нова X координата
+   * @param {number} y - Нова Y координата
+   */
+  setPosition(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  /**
+   * Встановлення напрямку кулі
+   * @param {string} direction - Напрямок ('up', 'down', 'left', 'right')
+   */
+  setDirection(direction) {
+    this.direction = direction;
+  }
 }
 ```
 
 ## Що робить цей клас?
 
 ### Основні властивості:
+
 - **`x`, `y`** - позиція кулі на екрані
 - **`width`, `height`** - розміри кулі (4x4 пікселі)
 - **`direction`** - напрямок руху кулі
@@ -208,6 +213,7 @@ export class Bullet {
 - **`age`** - поточний вік кулі
 
 ### Основні методи:
+
 - **`update(deltaTime)`** - оновлення стану кулі
 - **`move()`** - рух кулі в заданому напрямку
 - **`render(ctx)`** - малювання кулі на екрані
@@ -218,18 +224,21 @@ export class Bullet {
 ## Особливості руху
 
 ### Напрямки руху:
+
 - **`up`** - рух вгору (зменшення Y)
 - **`down`** - рух вниз (збільшення Y)
 - **`left`** - рух вліво (зменшення X)
 - **`right`** - рух вправо (збільшення X)
 
 ### Швидкість:
+
 - **5 пікселів за кадр** за замовчуванням
 - **Налаштовується** через параметр `speed`
 
 ## Особливості малювання
 
 ### Візуальний стиль:
+
 - **Маленький квадрат** 4x4 пікселі
 - **Колір залежить від власника**:
   - Жовтий (`#f39c12`) для гравця
@@ -237,6 +246,7 @@ export class Bullet {
 - **Біла рамка** навколо кулі
 
 ### Порядок малювання:
+
 1. **Збереження контексту** (`ctx.save()`)
 2. **Малювання квадрата** (`fillRect()`)
 3. **Малювання рамки** (`strokeRect()`)
@@ -245,11 +255,13 @@ export class Bullet {
 ## Система життя кулі
 
 ### Час життя:
+
 - **3 секунди** за замовчуванням
 - **Автоматичне знищення** після закінчення часу
 - **Відстеження віку** кулі
 
 ### Умови знищення:
+
 1. **Завершення часу життя** (`age >= lifetime`)
 2. **Вихід за межі екрану** (`isOutOfBounds()`)
 3. **Колізія з об'єктом** (через `checkCollision()`)
@@ -257,14 +269,16 @@ export class Bullet {
 ## Система колізій
 
 ### Алгоритм перевірки:
+
 ```javascript
 this.x < object.x + object.width &&
-this.x + this.width > object.x &&
-this.y < object.y + object.height &&
-this.y + this.height > object.y
+  this.x + this.width > object.x &&
+  this.y < object.y + object.height &&
+  this.y + this.height > object.y;
 ```
 
 ### Використання:
+
 - **Перевірка з танками** (гравець, ворог)
 - **Перевірка з перешкодами** (стіни, блоки)
 - **Перевірка з іншими кулями**
@@ -273,22 +287,28 @@ this.y + this.height > object.y
 
 ```javascript
 // Створення кулі гравця з логгером
-const playerBullet = new Bullet({
+const playerBullet = new Bullet(
+  {
     x: 100,
     y: 100,
     direction: 'up',
     owner: 'player',
-    speed: 6
-}, logger);
+    speed: 6,
+  },
+  logger
+);
 
 // Створення кулі ворога з логгером
-const enemyBullet = new Bullet({
+const enemyBullet = new Bullet(
+  {
     x: 300,
     y: 200,
     direction: 'down',
     owner: 'enemy',
-    speed: 4
-}, logger);
+    speed: 4,
+  },
+  logger
+);
 
 // Оновлення кулі
 playerBullet.update(deltaTime);
@@ -298,8 +318,8 @@ playerBullet.render(ctx);
 
 // Перевірка колізії
 if (playerBullet.checkCollision(enemy)) {
-    playerBullet.destroy();
-    enemy.takeDamage();
+  playerBullet.destroy();
+  enemy.takeDamage();
 }
 ```
 
@@ -316,17 +336,21 @@ if (playerBullet.checkCollision(enemy)) {
   - `error(message, details)` - помилки
 
 **Приклад використання**:
+
 ```javascript
 // Створення логгера
 const logger = new GameLogger();
 
 // Створення кулі з логгером
-const bullet = new Bullet({
+const bullet = new Bullet(
+  {
     x: 100,
     y: 100,
     direction: 'up',
-    owner: 'player'
-}, logger);
+    owner: 'player',
+  },
+  logger
+);
 
 // Автоматичне логування створення кулі
 // logger.gameEvent('Куля створена', 'власник: player, позиція: (100, 100)')
@@ -335,6 +359,7 @@ const bullet = new Bullet({
 ## Результат
 
 Після створення цього класу у вас буде:
+
 - ✅ Повноцінна система куль
 - ✅ Рух у всіх напрямках
 - ✅ Система колізій
@@ -343,4 +368,4 @@ const bullet = new Bullet({
 
 ## Що далі?
 
-У наступному підрозділі ми оновимо клас гравця для додавання руху за клавішами. 
+У наступному підрозділі ми оновимо клас гравця для додавання руху за клавішами.
