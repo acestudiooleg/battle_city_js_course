@@ -128,14 +128,36 @@ export class InputManager {
 
   /**
    * Отримання напрямку руху
+   * При одночасному натисканні двох клавіш пріоритет має горизонтальний рух
    * @returns {Object} - Об'єкт з напрямками
    */
   getMovementDirection() {
+    const up = this.isKeyPressed('UP');
+    const down = this.isKeyPressed('DOWN');
+    const left = this.isKeyPressed('LEFT');
+    const right = this.isKeyPressed('RIGHT');
+
+    // Якщо натиснуті і горизонтальні і вертикальні клавіші,
+    // то пріоритет має горизонтальний рух
+    const hasHorizontal = left || right;
+    const hasVertical = up || down;
+
+    if (hasHorizontal && hasVertical) {
+      // Повертаємо тільки горизонтальний рух
+      return {
+        up: false,
+        down: false,
+        left: left,
+        right: right,
+      };
+    }
+
+    // Інакше повертаємо всі натиснуті клавіші
     return {
-      up: this.isKeyPressed('UP'),
-      down: this.isKeyPressed('DOWN'),
-      left: this.isKeyPressed('LEFT'),
-      right: this.isKeyPressed('RIGHT'),
+      up: up,
+      down: down,
+      left: left,
+      right: right,
     };
   }
 
