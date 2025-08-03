@@ -280,19 +280,13 @@ export class Player extends Tank {
    * @param {number} deltaTime - Час з останнього оновлення
    */
   updateShooting(deltaTime) {
-    if (!this.inputManager) return;
-
-    // Перевіряємо чи натиснута клавіша стрільби
-    if (this.inputManager.isShootPressed() && this.shooting.canShoot) {
-      this.shoot();
-    }
-
     // Оновлюємо час останнього пострілу
     this.shooting.lastShotTime += deltaTime;
 
     // Перевіряємо чи можна стріляти знову
     if (this.shooting.lastShotTime >= this.shooting.shootCooldown) {
       this.shooting.canShoot = true;
+      console.log('✅ Гравець може стріляти знову');
     }
   }
 
@@ -300,6 +294,13 @@ export class Player extends Tank {
    * Стрільба
    */
   shoot() {
+    console.log('🎯 Гравець стріляє, canShoot:', this.shooting.canShoot);
+    // Перевіряємо чи можна стріляти
+    if (!this.shooting.canShoot) {
+      console.log('❌ Гравець не може стріляти');
+      return;
+    }
+    
     // Отримуємо позицію для стрільби (метод з базового класу Tank)
     const shootPos = this.getShootPosition();
 

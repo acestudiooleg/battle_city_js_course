@@ -417,6 +417,11 @@ export class Enemy extends Tank {
    */
   shoot() {
     if (!this.ai.chase.target) return;
+    
+    // Перевіряємо чи можна стріляти
+    if (!this.shooting.canShoot) {
+      return;
+    }
 
     // Отримуємо позицію для стрільби (метод з базового класу Tank)
     const shootPos = this.getShootPosition();

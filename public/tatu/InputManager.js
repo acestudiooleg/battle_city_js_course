@@ -2,6 +2,9 @@ export class InputManager {
   constructor(logger) {
     // Стан клавіш (натиснуті/не натиснуті)
     this.keys = {};
+    
+    // Клавіші, які були натиснуті в цьому кадрі (для одноразових дій)
+    this.pressedThisFrame = {};
 
     // Налаштування керування
     this.controls = {
@@ -66,10 +69,14 @@ export class InputManager {
 
     // Встановлюємо стан клавіші як натиснуту
     this.keys[keyCode] = true;
+    
+    // Позначаємо клавішу як натиснуту в цьому кадрі
+    this.pressedThisFrame[keyCode] = true;
 
     // Обробляємо спеціальні клавіші
     this.handleSpecialKeys(keyCode);
 
+    console.log('⌨️ Клавіша натиснута:', keyCode, 'pressedThisFrame:', this.pressedThisFrame);
     this.logger.gameEvent(`⌨️ Клавіша натиснута: ${keyCode}`);
   }
 
@@ -133,11 +140,18 @@ export class InputManager {
   }
 
   /**
-   * Перевірка чи натиснута клавіша стрільби
-   * @returns {boolean} - true якщо натиснута
+   * Перевірка чи натиснута клавіша стрільби (одноразово)
+   * @returns {boolean} - true якщо натиснута в цьому кадрі
    */
   isShootPressed() {
-    return this.isKeyPressed('SHOOT');
+    const keys = this.controls.SHOOT;
+    if (!keys) return false;
+
+    const result = keys.some((key) => this.pressedThisFrame[key]);
+    if (result) {
+      console.log('⌨️ Клавіша стрільби натиснута, pressedThisFrame:', this.pressedThisFrame);
+    }
+    return result;
   }
 
   /**
@@ -230,6 +244,14 @@ export class InputManager {
    */
   clearKeys() {
     this.keys = {};
+  }
+  
+  /**
+   * Очищення клавіш, натиснутих в цьому кадрі
+   * Викликається в кінці кожного кадру
+   */
+  clearPressedThisFrame() {
+    this.pressedThisFrame = {};
   }
 
   /**

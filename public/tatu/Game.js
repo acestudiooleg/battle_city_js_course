@@ -158,6 +158,9 @@ export class Game {
             enemy: this.enemy,
             gameField: this.gameField
         });
+        
+        // Очищаємо клавіші, натиснуті в цьому кадрі
+        this.inputManager.clearPressedThisFrame();
     }
     
     /**
@@ -172,6 +175,7 @@ export class Game {
         
         // Перевіряємо стрільбу
         if (this.inputManager.isShootPressed()) {
+            console.log('🎯 Спроба стрільби гравця');
             this.player.shoot();
         }
     }
