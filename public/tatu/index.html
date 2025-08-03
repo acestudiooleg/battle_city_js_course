@@ -1,143 +1,38 @@
 <!DOCTYPE html>
 <html lang="uk">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Танчики - Урок 3: Рух та стрільба</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #2c3e50;
-            color: white;
-            margin: 0;
-            padding: 20px;
-        }
-        
-        h1 {
-            color: #3498db;
-            margin-bottom: 10px;
-        }
-        
-        .lesson-info {
-            background-color: #34495e;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        canvas {
-            border: 3px solid #3498db;
-            border-radius: 8px;
-            background-color: #000;
-            display: block;
-            margin: 0 auto;
-        }
-        
-        .controls {
-            margin-top: 20px;
-            background-color: #34495e;
-            padding: 15px;
-            border-radius: 8px;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        .control-section {
-            margin-bottom: 15px;
-        }
-        
-        .key {
-            display: inline-block;
-            background-color: #e74c3c;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            margin: 2px;
-            font-weight: bold;
-            min-width: 30px;
-        }
-        
-        .legend {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 5px;
-            background-color: #2c3e50;
-            border-radius: 5px;
-        }
-        
-        .color-box {
-            width: 20px;
-            height: 20px;
-            border: 1px solid #fff;
-        }
-    </style>
-</head>
-<body>
-    <h1>🎮 Танчики - Урок 3</h1>
-    <div class="lesson-info">
-        <h2>Рух та стрільба</h2>
-        <p>У цьому уроці ми додали керування та стрільбу:</p>
-        <ul style="text-align: left;">
-            <li>✅ Керування танком гравця (WASD)</li>
-            <li>✅ Стрільба (Пробіл)</li>
-            <li>✅ Система куль</li>
-            <li>✅ Колізії зі стінами</li>
-        </ul>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <h1>Урок 3: Рух та стрільба</h1>
+    <div class="lesson_info">
+      <h2 class="lesson_info__title">🎮 Рух та стрільба</h2>
+      <p>У цьому уроці ми додамо:</p>
+      <ul style="text-align: left">
+        <li>✅ Систему керування клавішами (як пульт від телевізора!)</li>
+        <li>✅ Рух гравця та ворога (як переміщення фігурок!)</li>
+        <li>✅ Стрільбу кулями (як стрільба з водяного пістолета!)</li>
+        <li>✅ Систему колізій (як перевірка чи стикаються машини!)</li>
+        <li>✅Керування клавішами WASD</li>
+        <li>✅Стрільба ПРОБІЛ</li>
+        <li>✅Пауза P</li>
+      </ul>
     </div>
-    
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
-    
-    <div class="controls">
-        <div class="control-section">
-            <h3>🎮 Керування гравцем:</h3>
-            <div>
-                <span class="key">W</span> або <span class="key">↑</span> - Рух вгору<br>
-                <span class="key">S</span> або <span class="key">↓</span> - Рух вниз<br>
-                <span class="key">A</span> або <span class="key">←</span> - Рух вліво<br>
-                <span class="key">D</span> або <span class="key">→</span> - Рух вправо<br>
-                <span class="key">Пробіл</span> - Стрільба
-            </div>
+    <div class="game_container">
+      <canvas id="gameCanvas" width="800" height="600"></canvas>
+      <div class="game_log">
+        <div class="game_log__header">
+          <h3>🎮 Ігровий лог</h3>
+          <button class="game_log__clear" onclick="clearLog()">Очистити</button>
         </div>
-        
-        <div class="control-section">
-            <h3>🎯 Що нового:</h3>
-            <p>Тепер ви можете керувати жовтим танком за допомогою клавіш WASD або стрілок.</p>
-            <p>Натисніть пробіл для стрільби. Кулі з'являються як маленькі жовті квадратики.</p>
+        <div class="game_log__content" id="logContent">
+          <!-- Тут будуть з'являтися записи логу -->
         </div>
-        
-        <div class="legend">
-            <div class="legend-item">
-                <div class="color-box" style="background-color: #f1c40f;"></div>
-                <span>Жовтий квадрат - Танк гравця</span>
-            </div>
-            <div class="legend-item">
-                <div class="color-box" style="background-color: #e74c3c;"></div>
-                <span>Червоний квадрат - Ворожий танк</span>
-            </div>
-            <div class="legend-item">
-                <div class="color-box" style="background-color: #f39c12;"></div>
-                <span>Помаранчевий квадрат - Куля</span>
-            </div>
-            <div class="legend-item">
-                <div class="color-box" style="background-color: #34495e;"></div>
-                <span>Сірий квадрат - Стіна</span>
-            </div>
-        </div>
+      </div>
     </div>
-
     <script type="module" src="main.js"></script>
-</body>
-</html> 
+  </body>
+</html>
