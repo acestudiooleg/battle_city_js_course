@@ -2,7 +2,7 @@
 
 ## Що ми будемо робити?
 
-У цьому підрозділі ми оновимо клас `Enemy.js`, додавши базовий штучний інтелект для руху ворога.
+У цьому підрозділі ми оновимо клас `Enemy.js`, додавши базовий штучний інтелект для руху ворога. Тепер ворожий танк буде рухатися самостійно!
 
 ## Оновлення класу Enemy.js
 
@@ -58,8 +58,6 @@ export class Enemy extends Tank {
     this.logger.enemyAction('Ворог створений');
   }
 
-
-
   /**
    * Оновлення стану ворога
    * @param {number} deltaTime - Час з останнього оновлення
@@ -97,8 +95,6 @@ export class Enemy extends Tank {
       this.changePatrolDirection();
     }
   }
-
-
 
   /**
    * Оновлення руху ворога
@@ -255,7 +251,6 @@ export class Enemy extends Tank {
       directionRepeatCount: this.ai.patrol.directionRepeatCount,
     };
   }
-
 }
 ```
 
