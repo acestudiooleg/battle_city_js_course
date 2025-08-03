@@ -30,28 +30,26 @@ export class Enemy extends Tank {
     // Штучний інтелект
     this.ai = {
       // Поточний стан AI
-      state: 'patrol', // 'patrol', 'chase', 'attack', 'retreat'
+      state: 'patrol', // 'patrol', 'attack', 'moveToBase'
 
       // Налаштування патрулювання
       patrol: {
-        targetX: this.x,
-        targetY: this.y,
-        changeDirectionTime: 3000, // 3 секунди
+        changeDirectionTime: 2000, // 2 секунди
         lastDirectionChange: 0,
-      },
-
-      // Налаштування переслідування
-      chase: {
-        target: null, // ціль для переслідування
-        detectionRange: 150, // радіус виявлення
-        maxChaseTime: 10000, // 10 секунд переслідування
       },
 
       // Налаштування атаки
       attack: {
-        attackRange: 200, // збільшена дистанція атаки
-        attackCooldown: 2000, // 2 секунди між атаками
+        attackRange: 150, // дистанція атаки
+        attackCooldown: 1500, // 1.5 секунди між атаками
         lastAttackTime: 0,
+      },
+
+      // Налаштування руху до штабу
+      base: {
+        x: 400, // позиція штабу по X (центр поля)
+        y: 550, // позиція штабу по Y (внизу поля)
+        approachDistance: 50, // відстань до штабу для зупинки
       },
 
       // Таймери
@@ -72,8 +70,6 @@ export class Enemy extends Tank {
       lastShotTime: 0,
       shootCooldown: 1000, // 1 секунда між пострілами
       bullets: [], // масив активних куль
-      accuracy: 0.8, // точність стрільби (80%)
-      lastAimTime: 0, // час останнього повороту дула
     };
 
     // записуємо в лог
@@ -85,6 +81,7 @@ export class Enemy extends Tank {
    * @param {Object} target - Ціль (гравець)
    */
   setTarget(target) {
+    this.ai.chase = this.ai.chase || {};
     this.ai.chase.target = target;
   }
 
@@ -120,11 +117,6 @@ export class Enemy extends Tank {
     this.ai.timers.directionChange += deltaTime;
     this.ai.patrol.lastDirectionChange += deltaTime;
     this.ai.attack.lastAttackTime += deltaTime;
-    
-    // Оновлюємо час останнього повороту дула
-    if (this.ai.state === 'attack') {
-      this.shooting.lastAimTime += deltaTime;
-    }
   }
 
   /**
@@ -132,32 +124,19 @@ export class Enemy extends Tank {
    * @param {number} deltaTime - Час з останнього оновлення
    */
   updateAI(deltaTime) {
-    const target = this.ai.chase.target;
+    const target = this.ai.chase?.target;
+    const distanceToBase = this.getDistanceToBase();
 
-    if (target && this.isTargetInRange(target, this.ai.chase.detectionRange)) {
-      // Ціль виявлена - переходимо в режим переслідування
-      if (this.ai.state !== 'chase') {
-        this.changeAIState('chase');
-      }
-
-      // Перевіряємо чи ціль в зоні атаки
-      const distance = this.getDistanceToTarget(target);
-      if (this.isTargetInRange(target, this.ai.attack.attackRange)) {
-        if (this.ai.state !== 'attack') {
-          this.logger.enemyAction('Перехід в режим атаки', `відстань: ${distance}`);
-          this.changeAIState('attack');
-        }
-      } else {
-        // Якщо вийшли з зони атаки, повертаємося до переслідування
-        if (this.ai.state === 'attack') {
-          this.logger.enemyAction('Вийшли з зони атаки', `відстань: ${distance}`);
-          this.changeAIState('chase');
-        }
+    // Перевіряємо чи ворог досить близько до штабу
+    if (distanceToBase <= this.ai.base.approachDistance) {
+      // Ворог біля штабу - атакуємо
+      if (this.ai.state !== 'attack') {
+        this.changeAIState('attack');
       }
     } else {
-      // Ціль не виявлена - повертаємося до патрулювання
-      if (this.ai.state !== 'patrol') {
-        this.changeAIState('patrol');
+      // Ворог далеко від штабу - рухаємося до нього
+      if (this.ai.state !== 'moveToBase') {
+        this.changeAIState('moveToBase');
       }
     }
 
@@ -186,12 +165,11 @@ export class Enemy extends Tank {
       case 'patrol':
         this.setPatrolTarget();
         break;
-      case 'chase':
-        // Починаємо переслідування
+      case 'moveToBase':
+        this.logger.enemyAction('Ворог рухається до штабу');
         break;
       case 'attack':
-        // Готові до атаки - скидаємо час останнього повороту дула
-        this.shooting.lastAimTime = 0;
+        this.logger.enemyAction('Ворог атакує штаб');
         break;
     }
   }
@@ -207,64 +185,59 @@ export class Enemy extends Tank {
 
     switch (this.ai.state) {
       case 'patrol':
-        // Патрулювання - рух до цілі
-        const patrolTarget = this.ai.patrol;
-        if (this.x < patrolTarget.targetX - 5) {
-          newX += this.speed;
-          this.direction = 'right';
-          isMoving = true;
-        } else if (this.x > patrolTarget.targetX + 5) {
-          newX -= this.speed;
-          this.direction = 'left';
-          isMoving = true;
-        } else if (this.y < patrolTarget.targetY - 5) {
-          newY += this.speed;
-          this.direction = 'down';
-          isMoving = true;
-        } else if (this.y > patrolTarget.targetY + 5) {
-          newY -= this.speed;
-          this.direction = 'up';
-          isMoving = true;
+        // Патрулювання - випадковий рух
+        const directions = ['up', 'down', 'left', 'right'];
+        const randomDirection = directions[Math.floor(Math.random() * directions.length)];
+        
+        switch (randomDirection) {
+          case 'up':
+            newY -= this.speed;
+            this.direction = 'up';
+            break;
+          case 'down':
+            newY += this.speed;
+            this.direction = 'down';
+            break;
+          case 'left':
+            newX -= this.speed;
+            this.direction = 'left';
+            break;
+          case 'right':
+            newX += this.speed;
+            this.direction = 'right';
+            break;
         }
+        isMoving = true;
         break;
 
-      case 'chase':
-        // Переслідування гравця
-        if (this.ai.chase.target) {
-          const target = this.ai.chase.target;
-          const dx = target.x - this.x;
-          const dy = target.y - this.y;
+      case 'moveToBase':
+        // Рух до штабу
+        const dx = this.ai.base.x - this.x;
+        const dy = this.ai.base.y - this.y;
 
-          // Рухаємося до гравця
-          if (Math.abs(dx) > Math.abs(dy)) {
-            if (dx > 0) {
-              newX += this.speed;
-              this.direction = 'right';
-            } else {
-              newX -= this.speed;
-              this.direction = 'left';
-            }
+        if (Math.abs(dx) > Math.abs(dy)) {
+          if (dx > 0) {
+            newX += this.speed;
+            this.direction = 'right';
           } else {
-            if (dy > 0) {
-              newY += this.speed;
-              this.direction = 'down';
-            } else {
-              newY -= this.speed;
-              this.direction = 'up';
-            }
+            newX -= this.speed;
+            this.direction = 'left';
           }
-          isMoving = true;
-          
-          // Під час переслідування також повертаємо дуло в напрямок гравця
-          this.aimAtTarget();
+        } else {
+          if (dy > 0) {
+            newY += this.speed;
+            this.direction = 'down';
+          } else {
+            newY -= this.speed;
+            this.direction = 'up';
+          }
         }
+        isMoving = true;
         break;
 
       case 'attack':
         // Атака - зупиняємося і стріляємо
         isMoving = false;
-        // Не змінюємо напрямок дула під час атаки - він буде встановлений в updateShooting
-        // Напрямок дула контролюється тільки в aimAtTarget()
         break;
     }
 
@@ -285,29 +258,13 @@ export class Enemy extends Tank {
   }
 
   /**
-   * Розрахунок відстані до цілі
-   * @param {Object} target - Ціль
-   * @returns {number} - Відстань до цілі
+   * Розрахунок відстані до штабу
+   * @returns {number} - Відстань до штабу
    */
-  getDistanceToTarget(target) {
-    if (!target) return Infinity;
-
-    const dx = target.x - this.x;
-    const dy = target.y - this.y;
+  getDistanceToBase() {
+    const dx = this.ai.base.x - this.x;
+    const dy = this.ai.base.y - this.y;
     return Math.sqrt(dx * dx + dy * dy);
-  }
-
-  /**
-   * Перевірка чи ціль в діапазоні
-   * @param {Object} target - Ціль
-   * @param {number} range - Діапазон
-   * @returns {boolean} - true якщо ціль в діапазоні
-   */
-  isTargetInRange(target, range) {
-    if (!target) return false;
-
-    const distance = this.getDistanceToTarget(target);
-    return distance <= range;
   }
 
   /**
@@ -335,9 +292,6 @@ export class Enemy extends Tank {
 
     this.direction = randomDirection;
     this.ai.patrol.lastDirectionChange = 0;
-
-    // Встановлюємо нову ціль патрулювання
-    this.setPatrolTarget();
 
     this.logger.enemyAction(
       'Ворог змінив напрямок патрулювання',
@@ -389,9 +343,8 @@ export class Enemy extends Tank {
     // Кольори для різних станів
     const stateColors = {
       patrol: blue, // синій
-      chase: orange, // помаранчевий
+      moveToBase: orange, // помаранчевий
       attack: red, // червоний
-      retreat: water, // фіолетовий
     };
 
     const color = stateColors[this.ai.state] || gray;
@@ -415,6 +368,7 @@ export class Enemy extends Tank {
       state: this.ai.state,
       isMoving: this.movementState.isMoving,
       direction: this.direction,
+      distanceToBase: this.getDistanceToBase(),
     };
   }
 
@@ -431,26 +385,10 @@ export class Enemy extends Tank {
       this.shooting.canShoot = true;
     }
 
-    // Діагностика стрільби (тільки кожні 5 секунд)
-    if (this.ai.state === 'attack' && this.ai.chase.target && 
-        this.shooting.lastShotTime % 5000 < 16) {
-      this.logger.enemyAction('Діагностика стрільби', 
-        `canShoot: ${this.shooting.canShoot}, ` +
-        `lastShotTime: ${this.shooting.lastShotTime}, ` +
-        `cooldown: ${this.shooting.shootCooldown}`
-      );
-    }
-
-    // Якщо ворог в режимі атаки і є ціль
-    if (
-      this.ai.state === 'attack' &&
-      this.ai.chase.target
-    ) {
-      // Повертаємо дуло в напрямок гравця
-      this.aimAtTarget();
-      
-      // Стріляємо тільки якщо дуло спрямоване на гравця
-      if (this.shooting.canShoot && this.isAimingAtTarget()) {
+    // Стріляємо в режимі атаки або випадково під час патрулювання
+    if (this.ai.state === 'attack' || 
+        (this.ai.state === 'patrol' && Math.random() < 0.01)) { // 1% шанс стріляти під час патрулювання
+      if (this.shooting.canShoot) {
         this.shoot();
       }
     }
@@ -460,8 +398,6 @@ export class Enemy extends Tank {
    * Стрільба ворога
    */
   shoot() {
-    if (!this.ai.chase.target) return;
-
     // Перевіряємо чи можна стріляти
     if (!this.shooting.canShoot) {
       return;
@@ -470,7 +406,7 @@ export class Enemy extends Tank {
     // Отримуємо позицію для стрільби (метод з базового класу Tank)
     const shootPos = this.getShootPosition();
 
-    // Використовуємо поточний напрямок дула (без змін)
+    // Використовуємо поточний напрямок дула
     const finalDirection = this.direction;
 
     // Створюємо нову кулю
@@ -480,7 +416,7 @@ export class Enemy extends Tank {
         y: shootPos.y,
         direction: finalDirection,
         owner: 'enemy',
-        speed: 4, // швидкість кулі ворога (повільніше за гравця)
+        speed: 3, // швидкість кулі ворога
       },
       this.logger
     );
@@ -493,84 +429,12 @@ export class Enemy extends Tank {
     this.shooting.lastShotTime = 0;
 
     // Логуємо стрільбу
-    this.logger.enemyAction('Ворог стріляє', `дуло: ${this.direction}, куля: ${finalDirection}`);
+    this.logger.enemyAction('Ворог стріляє', `напрямок: ${finalDirection}`);
 
     this.logger.gameEvent(
       'Ворог вистрілив кулю',
       `позиція: (${bullet.x}, ${bullet.y}), напрямок: ${finalDirection}`
     );
-  }
-
-  /**
-   * Розрахунок напрямку до цілі
-   * @returns {string} - Напрямок до гравця
-   */
-  calculateTargetDirection() {
-    if (!this.ai.chase.target) return this.direction;
-
-    const target = this.ai.chase.target;
-    const dx = target.x - this.x;
-    const dy = target.y - this.y;
-
-    // Визначаємо основний напрямок
-    if (Math.abs(dx) > Math.abs(dy)) {
-      return dx > 0 ? 'right' : 'left';
-    } else {
-      return dy > 0 ? 'down' : 'up';
-    }
-  }
-
-  /**
-   * Поворот дула в напрямок цілі
-   * 
-   * Виправлено: тепер дуло завжди спрямоване в правильному напрямку
-   * перед стрільбою
-   */
-  aimAtTarget() {
-    if (!this.ai.chase.target) return;
-
-    const targetDirection = this.calculateTargetDirection();
-    
-    // Повертаємо дуло в напрямок гравця
-    if (this.direction !== targetDirection) {
-      const oldDirection = this.direction;
-      this.direction = targetDirection;
-      this.shooting.lastAimTime = 0; // Скидаємо час останнього повороту
-      this.logger.enemyAction('Ворог повернув дуло', `${oldDirection} → ${targetDirection}`);
-    }
-  }
-
-  /**
-   * Перевірка чи дуло спрямоване на ціль
-   * @returns {boolean} - true якщо дуло спрямоване на гравця
-   */
-  isAimingAtTarget() {
-    if (!this.ai.chase.target) return false;
-
-    const targetDirection = this.calculateTargetDirection();
-    return this.direction === targetDirection;
-  }
-
-  /**
-   * Додавання неточності до стрільби
-   * @param {string} direction - Початковий напрямок
-   * @returns {string} - Фінальний напрямок з неточністю
-   */
-  addShootingInaccuracy(direction) {
-    // Якщо точність 100%, повертаємо точний напрямок
-    if (this.shooting.accuracy >= 1.0) {
-      return direction;
-    }
-
-    // Шанс неточної стрільби
-    if (Math.random() > this.shooting.accuracy) {
-      const directions = ['up', 'down', 'left', 'right'];
-      const randomDirection =
-        directions[Math.floor(Math.random() * directions.length)];
-      return randomDirection;
-    }
-
-    return direction;
   }
 
   /**
@@ -641,14 +505,6 @@ export class Enemy extends Tank {
   }
 
   /**
-   * Встановлення точності стрільби
-   * @param {number} accuracy - Точність (0.0 - 1.0)
-   */
-  setShootingAccuracy(accuracy) {
-    this.shooting.accuracy = Math.max(0.0, Math.min(1.0, accuracy));
-  }
-
-  /**
    * Отримання інформації про стрільбу
    * @returns {Object} - Інформація про стрільбу
    */
@@ -657,7 +513,6 @@ export class Enemy extends Tank {
       canShoot: this.shooting.canShoot,
       bulletsCount: this.shooting.bullets.length,
       cooldown: this.shooting.shootCooldown,
-      accuracy: this.shooting.accuracy,
       lastShotTime: this.shooting.lastShotTime,
     };
   }

@@ -146,6 +146,12 @@ export class Game {
             return;
         }
         
+        // Перевіряємо чи штаб знищений
+        if (this.gameField.isBaseDestroyed()) {
+            this.handleBaseDestroyed();
+            return;
+        }
+        
         // оновлюємо стан поля
         this.gameField.update(deltaTime);
         
@@ -216,7 +222,7 @@ export class Game {
         this.renderLivesInfo();
         
         // малюємо екран кінця гри
-        if (this.player.isGameOver()) {
+        if (this.player.isGameOver() || this.gameField.isBaseDestroyed()) {
             this.renderGameOverScreen();
         }
     }
@@ -251,6 +257,15 @@ export class Game {
         // Зупиняємо гру
         this.stop();
         this.logger.gameEvent('🎮 Гра закінчена!');
+    }
+
+    /**
+     * Обробка знищення штабу
+     */
+    handleBaseDestroyed() {
+        // Зупиняємо гру
+        this.stop();
+        this.logger.gameEvent('💥 Штаб знищений! Гра закінчена!');
     }
 
     /**
@@ -306,11 +321,29 @@ export class Game {
         this.ctx.font = '48px Arial';
         this.ctx.textAlign = 'center';
         
+        // Визначаємо причину кінця гри
+        let title = 'ГРА ЗАКІНЧЕНА';
+        let subtitle = '';
+        
+        if (this.gameField.isBaseDestroyed()) {
+            title = 'ШТАБ ЗНИЩЕНО!';
+            subtitle = 'Ворог досяг бази';
+        } else if (this.player.isGameOver()) {
+            title = 'ГРА ЗАКІНЧЕНА';
+            subtitle = 'У гравця не залишилось життів';
+        }
+        
         // Малюємо заголовок
-        this.ctx.fillText('ГРА ЗАКІНЧЕНА', this.canvas.width / 2, this.canvas.height / 2 - 50);
+        this.ctx.fillText(title, this.canvas.width / 2, this.canvas.height / 2 - 50);
+        
+        // Малюємо підзаголовок
+        if (subtitle) {
+            this.ctx.font = '24px Arial';
+            this.ctx.fillText(subtitle, this.canvas.width / 2, this.canvas.height / 2);
+        }
         
         // Менший текст
-        this.ctx.font = '24px Arial';
-        this.ctx.fillText('Натисніть F5 для перезапуску', this.canvas.width / 2, this.canvas.height / 2 + 20);
+        this.ctx.font = '20px Arial';
+        this.ctx.fillText('Натисніть F5 для перезапуску', this.canvas.width / 2, this.canvas.height / 2 + 50);
     }
 }

@@ -38,6 +38,9 @@ export class CollisionManager {
     // Перевіряємо колізії куль ворога з гравцем
     this.checkEnemyBulletsCollisions(enemy, player, gameField);
 
+    // Перевіряємо колізії куль ворога зі штабом
+    this.checkEnemyBulletsWithBaseCollisions(enemy, gameField);
+
     // Перевіряємо колізії куль між собою
     this.checkBulletToBulletCollisions(player, enemy);
 
@@ -95,6 +98,28 @@ export class CollisionManager {
       // Перевіряємо чи куля вийшла за межі поля
       if (this.isBulletOutOfBounds(bullet, gameField)) {
         enemy.removeBullet(bullet);
+      }
+    }
+  }
+
+  /**
+   * Перевірка колізій куль ворога зі штабом
+   * @param {Enemy} enemy - Ворог
+   * @param {GameField} gameField - Ігрове поле
+   */
+  checkEnemyBulletsWithBaseCollisions(enemy, gameField) {
+    if (!enemy.isAlive || gameField.isBaseDestroyed()) return;
+
+    const enemyBullets = enemy.getBullets();
+    const base = gameField.getBase();
+
+    for (let i = enemyBullets.length - 1; i >= 0; i--) {
+      const bullet = enemyBullets[i];
+
+      // Перевіряємо колізію кулі зі штабом
+      if (this.checkBulletBaseCollision(bullet, base)) {
+        this.handleEnemyHitBase(enemy, gameField, bullet);
+        break; // Виходимо після першого попадання
       }
     }
   }
@@ -211,6 +236,26 @@ export class CollisionManager {
   }
 
   /**
+   * Обробка попадання ворога по штабу
+   * @param {Enemy} enemy - Ворог
+   * @param {GameField} gameField - Ігрове поле
+   * @param {Bullet} bullet - Куля
+   */
+  handleEnemyHitBase(enemy, gameField, bullet) {
+    // Видаляємо кулю
+    enemy.removeBullet(bullet);
+
+    // Знищуємо штаб
+    gameField.destroyBase();
+
+    // Оновлюємо статистику
+    this.stats.totalCollisions++;
+
+    // Логуємо подію
+    this.logger.gameEvent('💥 Ворог знищив штаб!');
+  }
+
+  /**
    * Обробка зіткнення куль
    * @param {Bullet} bullet1 - Перша куля
    * @param {Bullet} bullet2 - Друга куля
@@ -280,6 +325,22 @@ export class CollisionManager {
     if (tank.y + tank.height > bounds.maxY) tank.y = bounds.maxY - tank.height;
 
     this.logger.gameEvent('🚫 Танк повернуто в межі поля');
+  }
+
+  /**
+   * Перевірка колізії кулі зі штабом
+   * @param {Bullet} bullet - Куля
+   * @param {Object} base - Штаб
+   * @returns {boolean} - true якщо є колізія
+   */
+  checkBulletBaseCollision(bullet, base) {
+    const collision =
+      bullet.x < base.x + base.width / 2 &&
+      bullet.x + bullet.width > base.x - base.width / 2 &&
+      bullet.y < base.y + base.height / 2 &&
+      bullet.y + bullet.height > base.y - base.height / 2;
+
+    return collision;
   }
 
   /**
