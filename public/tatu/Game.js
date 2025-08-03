@@ -82,9 +82,6 @@ export class Game {
             size: this.config.TILE_SIZE
         }, this.logger);
         
-        // Встановлюємо ціль для ворога
-        this.enemy.setTarget(this.player);
-        
         // Встановлюємо систему керування для гравця
         this.player.setInputManager(this.inputManager);
         

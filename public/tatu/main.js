@@ -70,16 +70,12 @@ function initGame() {
         maxY: GAME_CONFIG.CANVAS_HEIGHT
     });
     
-    // Встановлюємо ціль для ворога
-    game.enemy.setTarget(game.player);
     
     // Налаштовуємо стрільбу
     game.player.setShootCooldown(500); // 500мс між пострілами
     game.enemy.setShootCooldown(2000); // 2 секунди між пострілами
     
     // Налаштовуємо пошкодження (методи з базового класу Tank)
-    // game.player.setDamageResistance(0.1); // 10% стійкості
-    // game.enemy.setDamageResistance(0.05); // 5% стійкості
     
     // Прослуховуємо події гри
     setupGameEvents();

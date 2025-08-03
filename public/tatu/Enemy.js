@@ -9,6 +9,7 @@ import { red, darkGray, blue, orange, water, gray } from './colors.js';
  * - Логіку ворожого танка
  * - Штучний інтелект
  * - Рух та поведінку
+ * - Стрільбу та управління кулями
  */
 
 export class Enemy extends Tank {
@@ -29,21 +30,12 @@ export class Enemy extends Tank {
 
     // Штучний інтелект
     this.ai = {
-      // Поточний стан AI
-      state: 'patrol', // 'patrol'
-
       // Налаштування патрулювання
       patrol: {
         changeDirectionTime: 2000, // 2 секунди
         lastDirectionChange: 0,
         directionRepeatCount: 0, // кількість повторів напрямку
         maxDirectionRepeats: 2, // максимальна кількість повторів перед зміною
-      },
-
-      // Таймери
-      timers: {
-        stateChange: 0,
-        directionChange: 0,
       },
     };
 
@@ -53,6 +45,7 @@ export class Enemy extends Tank {
       lastDirection: 'down',
     };
 
+    // Система стрільби
     this.shooting = {
       canShoot: true,
       lastShotTime: 0,
@@ -65,14 +58,7 @@ export class Enemy extends Tank {
     this.logger.enemyAction('Ворог створений');
   }
 
-  /**
-   * Встановлення цілі для переслідування
-   * @param {Object} target - Ціль (гравець)
-   */
-  setTarget(target) {
-    this.ai.chase = this.ai.chase || {};
-    this.ai.chase.target = target;
-  }
+
 
   /**
    * Оновлення стану ворога
@@ -102,8 +88,6 @@ export class Enemy extends Tank {
    * @param {number} deltaTime - Час з останнього оновлення
    */
   updateTimers(deltaTime) {
-    this.ai.timers.stateChange += deltaTime;
-    this.ai.timers.directionChange += deltaTime;
     this.ai.patrol.lastDirectionChange += deltaTime;
   }
 
@@ -114,25 +98,13 @@ export class Enemy extends Tank {
   updateAI(deltaTime) {
     // Зміна напрямку при патрулюванні
     if (
-      this.ai.state === 'patrol' &&
       this.ai.patrol.lastDirectionChange >= this.ai.patrol.changeDirectionTime
     ) {
       this.changePatrolDirection();
     }
   }
 
-  /**
-   * Зміна стану AI
-   * @param {string} newState - Новий стан
-   */
-  changeAIState(newState) {
-    if (this.ai.state === newState) return;
 
-    this.ai.state = newState;
-    this.ai.timers.stateChange = 0;
-
-    this.logger.enemyAction(`Ворог змінив стан на: ${newState}`);
-  }
 
   /**
    * Оновлення руху ворога
@@ -176,17 +148,17 @@ export class Enemy extends Tank {
     }
   }
 
-
-
   /**
    * Зміна напрямку патрулювання
    */
   changePatrolDirection() {
     // Збільшуємо лічильник повторів
     this.ai.patrol.directionRepeatCount++;
-    
+
     // Якщо досягли максимальної кількості повторів, змінюємо напрямок
-    if (this.ai.patrol.directionRepeatCount >= this.ai.patrol.maxDirectionRepeats) {
+    if (
+      this.ai.patrol.directionRepeatCount >= this.ai.patrol.maxDirectionRepeats
+    ) {
       const directions = ['up', 'down', 'left', 'right'];
       const randomDirection =
         directions[Math.floor(Math.random() * directions.length)];
@@ -203,7 +175,7 @@ export class Enemy extends Tank {
       // Просто оновлюємо час, але не змінюємо напрямок
       // Не логуємо кожен повтор, щоб зменшити спам
     }
-    
+
     this.ai.patrol.lastDirectionChange = 0;
   }
 
@@ -212,10 +184,10 @@ export class Enemy extends Tank {
    */
   reverseDirection() {
     const directionMap = {
-      'up': 'down',
-      'down': 'up',
-      'left': 'right',
-      'right': 'left'
+      up: 'down',
+      down: 'up',
+      left: 'right',
+      right: 'left',
     };
 
     const oldDirection = this.direction;
@@ -269,22 +241,14 @@ export class Enemy extends Tank {
    * @param {CanvasRenderingContext2D} ctx - Контекст для малювання
    */
   drawAIStateIndicator(ctx) {
-    // Кольори для різних станів
-    const stateColors = {
-      patrol: blue, // синій
-      moveToBase: orange, // помаранчевий
-      attack: red, // червоний
-    };
-
-    const color = stateColors[this.ai.state] || gray;
     const indicatorSize = 3;
 
     // Розміщуємо індикатор в правому верхньому куті танка
     const indicatorX = this.x + this.width - indicatorSize - 2;
     const indicatorY = this.y + 2;
 
-    // малюємо маленький квадрат
-    ctx.fillStyle = color;
+    // малюємо синій квадрат для режиму патрулювання
+    ctx.fillStyle = blue;
     ctx.fillRect(indicatorX, indicatorY, indicatorSize, indicatorSize);
   }
 
@@ -294,7 +258,6 @@ export class Enemy extends Tank {
    */
   getAIState() {
     return {
-      state: this.ai.state,
       isMoving: this.movementState.isMoving,
       direction: this.direction,
       directionRepeatCount: this.ai.patrol.directionRepeatCount,
@@ -316,9 +279,10 @@ export class Enemy extends Tank {
     }
 
     // Стріляємо при зміні напрямку або раз в секунду
-    const shouldShoot = this.shooting.lastDirectionChange < 100 || // нещодавно змінив напрямок
-                       this.shooting.lastShotTime >= this.shooting.shootCooldown; // раз в секунду
-    
+    const shouldShoot =
+      this.shooting.lastDirectionChange < 100 || // нещодавно змінив напрямок
+      this.shooting.lastShotTime >= this.shooting.shootCooldown; // раз в секунду
+
     if (this.shooting.canShoot && shouldShoot) {
       this.shoot();
     }
@@ -421,7 +385,7 @@ export class Enemy extends Tank {
    * Очищення всіх куль
    */
   clearBullets() {
-    this.shooting.bullets.forEach((bullet) => bullet.destroy());
+    this.shooting.bullets.forEach((bullet) => bullet.destroy()); // <--- this
     this.shooting.bullets = [];
   }
 
@@ -445,5 +409,4 @@ export class Enemy extends Tank {
       lastShotTime: this.shooting.lastShotTime,
     };
   }
-
 }
