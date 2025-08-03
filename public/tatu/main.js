@@ -146,74 +146,14 @@ function toggleDebugMode() {
     
     if (GAME_CONFIG.DEBUG_MODE) {
         logger.warning('🐛 Режим налагодження увімкнено');
-        showDebugInfo();
     } else {
         logger.info('🐛 Режим налагодження вимкнено');
-        hideDebugInfo();
     }
 }
 
-/**
- * Показ інформації для налагодження
- */
-function showDebugInfo() {
-    // Створюємо панель налагодження
-    let debugPanel = document.getElementById('debugPanel');
-    
-    if (!debugPanel) {
-        debugPanel = document.createElement('div');
-        debugPanel.id = 'debugPanel';
-        debugPanel.style.cssText = `
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            font-family: monospace;
-            font-size: 12px;
-            z-index: 1000;
-        `;
-        document.body.appendChild(debugPanel);
-    }
-    
-    // Оновлюємо інформацію кожен кадр
-    function updateDebugInfo() {
-        if (!GAME_CONFIG.DEBUG_MODE || !game) return;
-        
-        const player = game.player;
-        const enemy = game.enemy;
-        const collisionStats = game.getCollisionStats();
-        
-        debugPanel.innerHTML = `
-            <div><strong>🐛 DEBUG INFO</strong></div>
-            <div>FPS: ${Math.round(1000 / game.getDeltaTime())}</div>
-            <div>Гравець: (${Math.round(player.x)}, ${Math.round(player.y)})</div>
-            <div>Здоров'я: ${player.getHealth()}/${player.getMaxHealth()}</div>
-            <div>Кулі: ${player.getBullets().length}</div>
-            <div>Ворог: (${Math.round(enemy.x)}, ${Math.round(enemy.y)})</div>
-            <div>Здоров'я: ${enemy.getHealth()}/${enemy.getMaxHealth()}</div>
-            <div>Стан AI: ${enemy.getAIState().state}</div>
-            <div>Кулі: ${enemy.getBullets().length}</div>
-            <div>Колізії: ${collisionStats.totalCollisions}</div>
-        `;
-        
-        requestAnimationFrame(updateDebugInfo);
-    }
-    
-    updateDebugInfo();
-}
 
-/**
- * Приховування інформації для налагодження
- */
-function hideDebugInfo() {
-    const debugPanel = document.getElementById('debugPanel');
-    if (debugPanel) {
-        debugPanel.remove();
-    }
-}
+
+
 
 /**
  * Обробка завершення гри
@@ -229,42 +169,9 @@ function handleGameOver(gameOverData) {
     } else if (winner === 'enemy') {
         logger.error('💀 Ворог переміг!');
     }
-    
-    // Показуємо кнопку перезапуску
-    showRestartButton();
 }
 
-/**
- * Показ кнопки перезапуску
- */
-function showRestartButton() {
-    let restartBtn = document.getElementById('restartButton');
-    
-    if (!restartBtn) {
-        restartBtn = document.createElement('button');
-        restartBtn.id = 'restartButton';
-        restartBtn.textContent = '🔄 Перезапустити гру';
-        restartBtn.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            padding: 15px 30px;
-            font-size: 18px;
-            background: var(--danger);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            z-index: 1000;
-        `;
-        
-        restartBtn.addEventListener('click', restartGame);
-        document.body.appendChild(restartBtn);
-    }
-    
-    restartBtn.style.display = 'block';
-}
+
 
 /**
  * Функція очищення логу
@@ -310,29 +217,12 @@ window.clearLog = clearLog;
 // Функція отримання статистики (глобальна)
 window.getGameStats = getGameStats;
 
-// Функція оновлення інформації про життя
-function updateLivesInfo() {
-    if (!game || !game.player) return;
-    
-    const livesElement = document.getElementById('lives');
-    const healthElement = document.getElementById('health');
-    
-    if (livesElement) {
-        livesElement.textContent = game.player.getLives();
-    }
-    
-    if (healthElement) {
-        healthElement.textContent = game.player.getHealth();
-    }
-}
+
 
 // Запускаємо гру після завантаження DOM
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🚀 Запуск гри Танчики - Урок 3');
     initGame();
-    
-    // Оновлюємо інформацію про життя кожну секунду
-    setInterval(updateLivesInfo, 100);
 });
 
 // Обробка помилок
