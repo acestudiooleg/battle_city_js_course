@@ -53,7 +53,7 @@ function initGame() {
     // Створюємо гру
     game = new Game(logger);
 
-    
+
     game.init();
     
     // Підключаємо систему керування до гравця
@@ -79,8 +79,8 @@ function initGame() {
     game.enemy.setShootingAccuracy(0.8); // 80% точність
     
     // Налаштовуємо пошкодження (методи з базового класу Tank)
-    game.player.setDamageResistance(0.1); // 10% стійкості
-    game.enemy.setDamageResistance(0.05); // 5% стійкості
+    // game.player.setDamageResistance(0.1); // 10% стійкості
+    // game.enemy.setDamageResistance(0.05); // 5% стійкості
     
     // Прослуховуємо події гри
     setupGameEvents();

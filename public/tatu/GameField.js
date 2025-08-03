@@ -87,4 +87,17 @@ export class GameField {
             this.ctx.stroke();
         }
     }
+    
+    /**
+     * Отримання меж ігрового поля
+     * @returns {Object} - Межі поля
+     */
+    getBounds() {
+        return {
+            minX: 0,
+            minY: 0,
+            maxX: this.config.CANVAS_WIDTH,
+            maxY: this.config.CANVAS_HEIGHT
+        };
+    }
 }

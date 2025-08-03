@@ -238,4 +238,29 @@ export class Tank {
         // відновлюємо повне здоров'я
         this.health = 100;
     }
+    
+    /**
+     * Отримання пошкодження
+     * @param {number} damage - Кількість пошкодження
+     */
+    takeDamage(damage) {
+        this.health -= damage;
+        
+        // Перевіряємо чи танк знищений
+        if (this.health <= 0) {
+            this.health = 0;
+            this.isAlive = false;
+            this.logger.gameEvent('Танк знищений');
+        } else {
+            this.logger.gameEvent(`Танк отримав пошкодження: ${damage}, здоров'я: ${this.health}`);
+        }
+    }
+    
+    /**
+     * Отримання здоров'я
+     * @returns {number} - Поточне здоров'я
+     */
+    getHealth() {
+        return this.health;
+    }
 }

@@ -70,7 +70,7 @@ export class InputManager {
     // Обробляємо спеціальні клавіші
     this.handleSpecialKeys(keyCode);
 
-    console.log('⌨️ Клавіша натиснута:', keyCode);
+    this.logger.gameEvent(`⌨️ Клавіша натиснута: ${keyCode}`);
   }
 
   /**
@@ -83,7 +83,7 @@ export class InputManager {
     // Встановлюємо стан клавіші як не натиснуту
     this.keys[keyCode] = false;
 
-    console.log('⌨️ Клавіша відпущена:', keyCode);
+    this.logger.gameEvent(`⌨️ Клавіша відпущена: ${keyCode}`);
   }
 
   /**
@@ -145,9 +145,8 @@ export class InputManager {
    */
   togglePause() {
     this.gameState.isPaused = !this.gameState.isPaused;
-    console.log(
-      '⏸️ Пауза:',
-      this.gameState.isPaused ? 'увімкнена' : 'вимкнена'
+    this.logger.gameEvent(
+      `⏸️ Пауза: ${this.gameState.isPaused ? 'увімкнена' : 'вимкнена'}`
     );
 
     // Викликаємо подію паузи
@@ -158,7 +157,7 @@ export class InputManager {
    * Перезапуск гри
    */
   restartGame() {
-    console.log('🔄 Перезапуск гри');
+    this.logger.gameEvent('🔄 Перезапуск гри');
 
     // Викликаємо подію перезапуску
     this.emitRestartEvent();
@@ -168,7 +167,7 @@ export class InputManager {
    * Перемикання режиму налагодження
    */
   toggleDebug() {
-    console.log('🐛 Режим налагодження перемикається');
+    this.logger.gameEvent('🐛 Режим налагодження перемикається');
 
     // Викликаємо подію налагодження
     this.emitDebugEvent();

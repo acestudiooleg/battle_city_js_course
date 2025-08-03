@@ -1,4 +1,5 @@
 import { Tank } from './Tank.js';
+import { Bullet } from './Bullet.js';
 import { yellow, orange, green } from './colors.js';
 
 /**
@@ -59,17 +60,55 @@ export class Player extends Tank {
   }
 
   /**
-   * Оновлення стану гравця
-   * @param {number} deltaTime - Час з останнього оновлення
+   * Встановлення руху гравця
+   * @param {Object} movement - Об'єкт з напрямками руху
    */
-  update(deltaTime) {
-    if (!this.isAlive) return;
+  setMovement(movement) {
+    // Розраховуємо нову позицію
+    let newX = this.x;
+    let newY = this.y;
+    let isMoving = false;
 
-    // Оновлюємо рух
-    this.updateMovement(deltaTime);
+    // Рух вгору
+    if (movement.up) {
+      newY -= this.speed;
+      isMoving = true;
+      this.direction = 'up';
+      this.movementState.lastDirection = 'up';
+    }
 
-    // Оновлюємо напрямок дула
-    this.updateDirection();
+    // Рух вниз
+    if (movement.down) {
+      newY += this.speed;
+      isMoving = true;
+      this.direction = 'down';
+      this.movementState.lastDirection = 'down';
+    }
+
+    // Рух вліво
+    if (movement.left) {
+      newX -= this.speed;
+      isMoving = true;
+      this.direction = 'left';
+      this.movementState.lastDirection = 'left';
+    }
+
+    // Рух вправо
+    if (movement.right) {
+      newX += this.speed;
+      isMoving = true;
+      this.direction = 'right';
+      this.movementState.lastDirection = 'right';
+    }
+
+    // Перевіряємо межі руху (метод з базового класу Tank)
+    if (this.checkBounds(newX, newY)) {
+      this.x = newX;
+      this.y = newY;
+    }
+
+    // Оновлюємо стан руху
+    this.movementState.isMoving = isMoving;
   }
 
   /**
@@ -126,7 +165,7 @@ export class Player extends Tank {
 
     // Логуємо рух (тільки при зміні стану)
     if (isMoving && !this.movementState.isMoving) {
-      logger.playerAction(
+      this.logger.playerAction(
         'Гравець почав рухатися',
         `напрямок: ${this.movementState.lastDirection}`
       );
@@ -264,37 +303,32 @@ export class Player extends Tank {
     // Отримуємо позицію для стрільби (метод з базового класу Tank)
     const shootPos = this.getShootPosition();
 
-    // Імпортуємо клас Bullet
-    import('./Bullet.js').then((module) => {
-      const { Bullet } = module;
-
-      // Створюємо нову кулю
-      const bullet = new Bullet({
+    // Створюємо нову кулю
+    const bullet = new Bullet(
+      {
         x: shootPos.x,
         y: shootPos.y,
         direction: this.direction,
         owner: 'player',
         speed: 6, // швидкість кулі гравця
-      });
+      },
+      this.logger
+    );
 
-      // Додаємо кулю до масиву
-      this.shooting.bullets.push(bullet);
+    // Додаємо кулю до масиву
+    this.shooting.bullets.push(bullet);
 
-      // Встановлюємо затримку між пострілами
-      this.shooting.canShoot = false;
-      this.shooting.lastShotTime = 0;
+    // Встановлюємо затримку між пострілами
+    this.shooting.canShoot = false;
+    this.shooting.lastShotTime = 0;
 
-      // Логуємо стрільбу
-      this.logger.playerAction(
-        'Гравець стріляє',
-        `напрямок: ${this.direction}`
-      );
+    // Логуємо стрільбу
+    this.logger.playerAction('Гравець стріляє', `напрямок: ${this.direction}`);
 
-      this.logger.gameEvent(
-        'Гравець вистрілив кулю',
-        `позиція: (${bullet.x}, ${bullet.y})`
-      );
-    });
+    this.logger.gameEvent(
+      'Гравець вистрілив кулю',
+      `позиція: (${bullet.x}, ${bullet.y})`
+    );
   }
 
   /**

@@ -167,7 +167,7 @@ export class Enemy extends Tank {
     this.ai.state = newState;
     this.ai.timers.stateChange = 0;
 
-    logger.enemyAction(`Ворог змінив стан на: ${newState}`);
+    this.logger.enemyAction(`Ворог змінив стан на: ${newState}`);
 
     switch (newState) {
       case 'patrol':
@@ -310,7 +310,7 @@ export class Enemy extends Tank {
     // Встановлюємо нову ціль патрулювання
     this.setPatrolTarget();
 
-    logger.enemyAction(
+    this.logger.enemyAction(
       'Ворог змінив напрямок патрулювання',
       `новий напрямок: ${randomDirection}`
     );
@@ -434,7 +434,7 @@ export class Enemy extends Tank {
       direction: finalDirection,
       owner: 'enemy',
       speed: 4, // швидкість кулі ворога (повільніше за гравця)
-    });
+    }, this.logger);
 
     // Додаємо кулю до масиву
     this.shooting.bullets.push(bullet);
@@ -563,7 +563,7 @@ export class Enemy extends Tank {
   /**
    * Встановлення точності стрільби
    * @param {number} accuracy - Точність (0.0 - 1.0)
-   */s
+   */
   setShootingAccuracy(accuracy) {
     this.shooting.accuracy = Math.max(0.0, Math.min(1.0, accuracy));
   }
