@@ -66,7 +66,7 @@ function initGame() {
     // Підключаємо систему керування до гравця
     game.player.setInputManager(inputManager);
     
-    // Встановлюємо межі руху
+    // Встановлюємо межі руху (методи з базового класу Tank)
     game.player.setBounds({
         maxX: GAME_CONFIG.CANVAS_WIDTH,
         maxY: GAME_CONFIG.CANVAS_HEIGHT
@@ -85,7 +85,7 @@ function initGame() {
     game.enemy.setShootCooldown(2000); // 2 секунди між пострілами
     game.enemy.setShootingAccuracy(0.8); // 80% точність
     
-    // Налаштовуємо пошкодження
+    // Налаштовуємо пошкодження (методи з базового класу Tank)
     game.player.setDamageResistance(0.1); // 10% стійкості
     game.enemy.setDamageResistance(0.05); // 5% стійкості
     
@@ -361,10 +361,41 @@ window.addEventListener('beforeunload', () => {
 
 ### Нові налаштування:
 - **Система керування** підключена до гравця
-- **Межі руху** для обох танків
+- **Межі руху** для обох танків (методи з базового класу Tank)
 - **Налаштування стрільби** (затримки, точність)
-- **Система пошкоджень** (стійкість)
+- **Система пошкоджень** (стійкість - методи з базового класу Tank)
 - **Ціль для ворога** (гравець)
+
+## Використання методів з базового класу Tank
+
+### Встановлення меж руху:
+```javascript
+// Використовуємо методи з базового класу Tank
+game.player.setBounds({
+    maxX: GAME_CONFIG.CANVAS_WIDTH,
+    maxY: GAME_CONFIG.CANVAS_HEIGHT
+});
+
+game.enemy.setBounds({
+    maxX: GAME_CONFIG.CANVAS_WIDTH,
+    maxY: GAME_CONFIG.CANVAS_HEIGHT
+});
+```
+
+### Налаштування пошкоджень:
+```javascript
+// Використовуємо методи з базового класу Tank
+game.player.setDamageResistance(0.1); // 10% стійкості
+game.enemy.setDamageResistance(0.05); // 5% стійкості
+```
+
+### Отримання статистики:
+```javascript
+// Використовуємо методи з базового класу Tank
+const playerHealth = game.player.getHealth();
+const playerMaxHealth = game.player.getMaxHealth();
+const playerBullets = game.player.getBullets().length;
+```
 
 ## Система подій
 
@@ -384,7 +415,7 @@ window.addEventListener('beforeunload', () => {
 ### Показувана інформація:
 - **FPS** - частота кадрів
 - **Позиції** гравця та ворога
-- **Здоров'я** та кількість куль
+- **Здоров'я** та кількість куль (методи з базового класу Tank)
 - **Стан AI** ворога
 - **Статистика колізій**
 
@@ -421,6 +452,7 @@ restartGame();
 - ✅ Система колізій та пошкоджень
 - ✅ Режим налагодження
 - ✅ Статистика та логування
+- ✅ Використання спільних методів з базового класу
 
 ## Фінальна структура файлів
 

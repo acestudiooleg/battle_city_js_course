@@ -37,6 +37,14 @@ export class Tank {
         // здоров'я танка (від 0 до 100, як здоров'я людини!)
         this.health = 100;
         
+        // Межі руху (розміри Canvas) - спільна властивість
+        this.bounds = {
+            minX: 0,
+            minY: 0,
+            maxX: 800,
+            maxY: 600,
+        };
+        
         // Логгер для запису подій
         this.logger = logger;
     }
@@ -58,6 +66,9 @@ export class Tank {
         // якщо танк мертвий, не малюємо його
         if (!this.isAlive) return;
         
+        // зберігаємо поточний стан контексту
+        ctx.save();
+        
         // Малюємо тіло танка
         // встановлюємо колір танка
         ctx.fillStyle = this.color;
@@ -67,6 +78,12 @@ export class Tank {
         // Малюємо дуло танка
         // викликаємо функцію малювання дула
         this.drawBarrel(ctx);
+        
+        // Викликаємо метод для малювання специфічних позначок
+        this.drawTankMark(ctx);
+        
+        // відновлюємо стан контексту
+        ctx.restore();
     }
     
     /**
@@ -136,6 +153,60 @@ export class Tank {
                     barrelWidth
                 );
                 break;
+        }
+    }
+    
+    /**
+     * Малювання специфічної позначки танка (перевизначається в дочірніх класах)
+     * @param {CanvasRenderingContext2D} ctx - Контекст для малювання
+     */
+    drawTankMark(ctx) {
+        // Базовий метод - порожній, перевизначається в дочірніх класах
+    }
+    
+    /**
+     * Встановлення меж руху
+     * @param {Object} bounds - Межі руху
+     */
+    setBounds(bounds) {
+        this.bounds = { ...this.bounds, ...bounds };
+    }
+    
+    /**
+     * Перевірка меж руху
+     * @param {number} newX - Нова X координата
+     * @param {number} newY - Нова Y координата
+     * @returns {boolean} - true якщо позиція в межах
+     */
+    checkBounds(newX, newY) {
+        return (
+            newX >= this.bounds.minX &&
+            newX + this.width <= this.bounds.maxX &&
+            newY >= this.bounds.minY &&
+            newY + this.height <= this.bounds.maxY
+        );
+    }
+    
+    /**
+     * Отримання позиції для стрільби
+     * @returns {Object} - Позиція кулі
+     */
+    getShootPosition() {
+        const centerX = this.x + this.width / 2;
+        const centerY = this.y + this.height / 2;
+
+        // Розраховуємо позицію кулі залежно від напрямку
+        switch (this.direction) {
+            case 'up':
+                return { x: centerX - 2, y: this.y - 4 };
+            case 'down':
+                return { x: centerX - 2, y: this.y + this.height };
+            case 'left':
+                return { x: this.x - 4, y: centerY - 2 };
+            case 'right':
+                return { x: this.x + this.width, y: centerY - 2 };
+            default:
+                return { x: centerX - 2, y: this.y - 4 };
         }
     }
     

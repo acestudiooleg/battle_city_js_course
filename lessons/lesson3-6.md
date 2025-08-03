@@ -35,14 +35,6 @@ export class Enemy extends Tank {
             direction: options.direction || 'down'
         }, logger);
         
-        // Межі руху (розміри Canvas)
-        this.bounds = {
-            minX: 0,
-            minY: 0,
-            maxX: 800,
-            maxY: 600
-        };
-        
         // Штучний інтелект
         this.ai = {
             // Поточний стан AI
@@ -85,14 +77,6 @@ export class Enemy extends Tank {
         
         // записуємо в лог
         this.logger.enemyAction('Ворог створений', `позиція: (${this.x}, ${this.y})`);
-    }
-    
-    /**
-     * Встановлення меж руху
-     * @param {Object} bounds - Межі руху
-     */
-    setBounds(bounds) {
-        this.bounds = { ...this.bounds, ...bounds };
     }
     
     /**
@@ -254,7 +238,7 @@ export class Enemy extends Tank {
                 break;
         }
         
-        // Перевіряємо межі руху
+        // Перевіряємо межі руху (метод з базового класу Tank)
         if (this.checkBounds(newX, newY)) {
             this.x = newX;
             this.y = newY;
@@ -312,47 +296,10 @@ export class Enemy extends Tank {
     }
     
     /**
-     * Перевірка меж руху
-     * @param {number} newX - Нова X координата
-     * @param {number} newY - Нова Y координата
-     * @returns {boolean} - true якщо позиція в межах
-     */
-    checkBounds(newX, newY) {
-        return newX >= this.bounds.minX &&
-               newX + this.width <= this.bounds.maxX &&
-               newY >= this.bounds.minY &&
-               newY + this.height <= this.bounds.maxY;
-    }
-    
-    /**
-     * Малювання ворога на екрані
+     * Малювання позначки ворога (червоний хрестик) - перевизначення базового методу
      * @param {CanvasRenderingContext2D} ctx - Контекст для малювання
      */
-    render(ctx) {
-        // якщо ворог мертвий, не малюємо
-        if (!this.isAlive) return;
-        
-        // зберігаємо поточний стан контексту (колір, стиль тощо)
-        ctx.save();
-        
-        // викликаємо метод render батьківського класу
-        super.render(ctx);
-        
-        // малюємо червоний хрестик
-        this.drawEnemyMark(ctx);
-        
-        // малюємо індикатор стану AI
-        this.drawAIStateIndicator(ctx);
-        
-        // відновлюємо стан контексту (повертаємо попередні налаштування)
-        ctx.restore();
-    }
-    
-    /**
-     * Малювання позначки ворога (червоний хрестик)
-     * @param {CanvasRenderingContext2D} ctx - Контекст для малювання
-     */
-    drawEnemyMark(ctx) {
+    drawTankMark(ctx) {
         // розмір позначки в пікселях
         const markSize = 6;
         // центр танка по X
@@ -426,7 +373,6 @@ export class Enemy extends Tank {
 ## Що додано до класу Enemy?
 
 ### Нові властивості:
-- **`bounds`** - межі руху (розміри Canvas)
 - **`ai.state`** - поточний стан AI ('patrol', 'chase', 'attack')
 - **`ai.patrol`** - налаштування патрулювання
 - **`ai.chase`** - налаштування переслідування
@@ -434,7 +380,6 @@ export class Enemy extends Tank {
 - **`movementState`** - стан руху
 
 ### Нові методи:
-- **`setBounds()`** - встановлення меж руху
 - **`setTarget()`** - встановлення цілі для переслідування
 - **`updateAI()`** - оновлення штучного інтелекту
 - **`changeAIState()`** - зміна стану AI
@@ -443,6 +388,12 @@ export class Enemy extends Tank {
 - **`setPatrolTarget()`** - встановлення цілі патрулювання
 - **`changePatrolDirection()`** - зміна напрямку патрулювання
 - **`drawAIStateIndicator()`** - індикатор стану AI
+- **`getAIState()`** - отримання стану AI
+
+### Використання методів з базового класу:
+- **`checkBounds()`** - перевірка меж руху (з Tank.js)
+- **`setBounds()`** - встановлення меж руху (з Tank.js)
+- **`getShootPosition()`** - позиція для стрільби (з Tank.js)
 
 ## Стани штучного інтелекту
 
@@ -473,6 +424,25 @@ export class Enemy extends Tank {
 - **Правий верхній кут** танка
 - **Розмір** 3x3 пікселі
 
+## Система меж
+
+### Перевірка меж:
+```javascript
+// Використовуємо метод з базового класу Tank
+if (this.checkBounds(newX, newY)) {
+    this.x = newX;
+    this.y = newY;
+} else {
+    // Якщо вийшли за межі, змінюємо напрямок
+    this.changePatrolDirection();
+}
+```
+
+### Налаштування меж:
+- **За замовчуванням**: 0 до 800x600 (з Tank.js)
+- **Налаштовується** через `setBounds()` (з Tank.js)
+- **Автоматичне повернення** в межі поля
+
 ## Використання
 
 ```javascript
@@ -484,7 +454,7 @@ const enemy = new Enemy({
     size: 32
 });
 
-// Встановлення меж руху
+// Встановлення меж руху (метод з базового класу)
 enemy.setBounds({
     maxX: 800,
     maxY: 600
@@ -509,6 +479,7 @@ console.log('Стан ворога:', aiState.state);
 - ✅ Переслідування гравця
 - ✅ Візуальні індикатори стану
 - ✅ Готовність для стрільби ворога
+- ✅ Використання спільних методів з базового класу
 
 ## Що далі?
 

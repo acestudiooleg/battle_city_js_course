@@ -79,7 +79,7 @@ export class Enemy extends Tank {
     shoot() {
         if (!this.ai.chase.target) return;
         
-        // Отримуємо позицію для стрільби
+        // Отримуємо позицію для стрільби (метод з базового класу Tank)
         const shootPos = this.getShootPosition();
         
         // Розраховуємо напрямок до гравця
@@ -187,29 +187,6 @@ export class Enemy extends Tank {
     }
     
     /**
-     * Отримання позиції для стрільби
-     * @returns {Object} - Позиція кулі
-     */
-    getShootPosition() {
-        const centerX = this.x + this.width / 2;
-        const centerY = this.y + this.height / 2;
-        
-        // Розраховуємо позицію кулі залежно від напрямку
-        switch (this.direction) {
-            case 'up':
-                return { x: centerX - 2, y: this.y - 4 };
-            case 'down':
-                return { x: centerX - 2, y: this.y + this.height };
-            case 'left':
-                return { x: this.x - 4, y: centerY - 2 };
-            case 'right':
-                return { x: this.x + this.width, y: centerY - 2 };
-            default:
-                return { x: centerX - 2, y: this.y - 4 };
-        }
-    }
-    
-    /**
      * Отримання всіх куль ворога
      * @returns {Array} - Масив активних куль
      */
@@ -279,31 +256,16 @@ export class Enemy extends Tank {
  * @param {CanvasRenderingContext2D} ctx - Контекст для малювання
  */
 render(ctx) {
-    // якщо ворог мертвий, не малюємо
-    if (!this.isAlive) return;
-    
-    // зберігаємо поточний стан контексту (колір, стиль тощо)
-    ctx.save();
-    
-    // викликаємо метод render батьківського класу
+    // Викликаємо базовий метод render з батьківського класу
     super.render(ctx);
     
-    // малюємо червоний хрестик
-    this.drawEnemyMark(ctx);
-    
-    // малюємо індикатор стану AI
+    // Малюємо індикатор стану AI
     this.drawAIStateIndicator(ctx);
     
-    // малюємо індикатор стрільби (якщо не може стріляти)
+    // Малюємо індикатор стрільби (якщо не може стріляти)
     if (!this.shooting.canShoot) {
         this.drawShootCooldownIndicator(ctx);
     }
-    
-    // відновлюємо стан контексту (повертаємо попередні налаштування)
-    ctx.restore();
-    
-    // малюємо кулі окремо
-    this.renderBullets(ctx);
 }
 
 /**
@@ -341,9 +303,16 @@ drawShootCooldownIndicator(ctx) {
 - **`addShootingInaccuracy()`** - додавання неточності
 - **`updateBullets()`** - оновлення всіх куль
 - **`renderBullets()`** - малювання куль
-- **`getShootPosition()`** - отримання позиції для стрільби
+- **`getBullets()`** - отримання всіх куль
+- **`removeBullet()`** - видалення конкретної кулі
+- **`clearBullets()`** - очищення всіх куль
+- **`setShootCooldown()`** - налаштування затримки
 - **`setShootingAccuracy()`** - налаштування точності
 - **`drawShootCooldownIndicator()`** - індикатор затримки
+- **`getShootingInfo()`** - отримання інформації про стрільбу
+
+### Використання методів з базового класу:
+- **`getShootPosition()`** - позиція для стрільби (з Tank.js)
 
 ## Система стрільби ворога
 
@@ -357,6 +326,20 @@ drawShootCooldownIndicator(ctx) {
 - **Система точності** (80% за замовчуванням)
 - **Затримка 2 секунди** між пострілами
 - **Швидкість кулі** 4 пікселі за кадр
+
+## Позиція стрільби
+
+### Розрахунок позиції:
+```javascript
+// Використовуємо метод з базового класу Tank
+const shootPos = this.getShootPosition();
+```
+
+### Логіка розрахунку (з Tank.js):
+- **Вгору**: центр танка, вище танка
+- **Вниз**: центр танка, нижче танка
+- **Вліво**: центр танка, лівіше танка
+- **Вправо**: центр танка, правіше танка
 
 ## Система точності
 
@@ -418,6 +401,7 @@ const bullets = enemy.getBullets();
 - ✅ Система точності стрільби
 - ✅ Візуальні індикатори стану
 - ✅ Готовність для системи колізій
+- ✅ Використання спільних методів з базового класу
 
 ## Що далі?
 
