@@ -30,26 +30,14 @@ export class Enemy extends Tank {
     // Штучний інтелект
     this.ai = {
       // Поточний стан AI
-      state: 'patrol', // 'patrol', 'attack', 'moveToBase'
+      state: 'patrol', // 'patrol'
 
       // Налаштування патрулювання
       patrol: {
         changeDirectionTime: 2000, // 2 секунди
         lastDirectionChange: 0,
-      },
-
-      // Налаштування атаки
-      attack: {
-        attackRange: 300, // збільшена дистанція атаки
-        attackCooldown: 1500, // 1.5 секунди між атаками
-        lastAttackTime: 0,
-      },
-
-      // Налаштування руху до штабу
-      base: {
-        x: 400, // позиція штабу по X (центр поля)
-        y: 550, // позиція штабу по Y (внизу поля)
-        approachDistance: 50, // відстань до штабу для зупинки
+        directionRepeatCount: 0, // кількість повторів напрямку
+        maxDirectionRepeats: 2, // максимальна кількість повторів перед зміною
       },
 
       // Таймери
@@ -117,7 +105,6 @@ export class Enemy extends Tank {
     this.ai.timers.stateChange += deltaTime;
     this.ai.timers.directionChange += deltaTime;
     this.ai.patrol.lastDirectionChange += deltaTime;
-    this.ai.attack.lastAttackTime += deltaTime;
   }
 
   /**
@@ -125,22 +112,6 @@ export class Enemy extends Tank {
    * @param {number} deltaTime - Час з останнього оновлення
    */
   updateAI(deltaTime) {
-    const target = this.ai.chase?.target;
-    const distanceToBase = this.getDistanceToBase();
-
-    // Перевіряємо чи ворог може стріляти по штабу (в межах дальності стрільби)
-    if (distanceToBase <= this.ai.attack.attackRange) {
-      // Ворог може стріляти по штабу - атакуємо
-      if (this.ai.state !== 'attack') {
-        this.changeAIState('attack');
-      }
-    } else {
-      // Ворог далеко від штабу - рухаємося до нього
-      if (this.ai.state !== 'moveToBase') {
-        this.changeAIState('moveToBase');
-      }
-    }
-
     // Зміна напрямку при патрулюванні
     if (
       this.ai.state === 'patrol' &&
@@ -161,18 +132,6 @@ export class Enemy extends Tank {
     this.ai.timers.stateChange = 0;
 
     this.logger.enemyAction(`Ворог змінив стан на: ${newState}`);
-
-    switch (newState) {
-      case 'patrol':
-        this.setPatrolTarget();
-        break;
-      case 'moveToBase':
-        this.logger.enemyAction('Ворог рухається до штабу');
-        break;
-      case 'attack':
-        this.logger.enemyAction('Ворог атакує штаб');
-        break;
-    }
   }
 
   /**
@@ -184,71 +143,22 @@ export class Enemy extends Tank {
     let newY = this.y;
     let isMoving = false;
 
-    switch (this.ai.state) {
-      case 'patrol':
-        // Патрулювання - рух у поточному напрямку
-        switch (this.direction) {
-          case 'up':
-            newY -= this.speed;
-            break;
-          case 'down':
-            newY += this.speed;
-            break;
-          case 'left':
-            newX -= this.speed;
-            break;
-          case 'right':
-            newX += this.speed;
-            break;
-        }
-        isMoving = true;
+    // Простий рух у поточному напрямку
+    switch (this.direction) {
+      case 'up':
+        newY -= this.speed;
         break;
-
-      case 'moveToBase':
-        // Рух до штабу - тільки в одному напрямку за раз
-        const dx = this.ai.base.x - this.x;
-        const dy = this.ai.base.y - this.y;
-
-        // Спочатку рухаємося по горизонталі, потім по вертикалі
-        if (Math.abs(dx) > 5) { // Якщо є горизонтальна відстань
-          if (dx > 0) {
-            newX += this.speed;
-            if (this.direction !== 'right') {
-              this.direction = 'right';
-              this.shooting.lastDirectionChange = 0; // Скидаємо час зміни напрямку
-            }
-          } else {
-            newX -= this.speed;
-            if (this.direction !== 'left') {
-              this.direction = 'left';
-              this.shooting.lastDirectionChange = 0; // Скидаємо час зміни напрямку
-            }
-          }
-          isMoving = true;
-        } else if (Math.abs(dy) > 5) { // Якщо є вертикальна відстань
-          if (dy > 0) {
-            newY += this.speed;
-            if (this.direction !== 'down') {
-              this.direction = 'down';
-              this.shooting.lastDirectionChange = 0; // Скидаємо час зміни напрямку
-            }
-          } else {
-            newY -= this.speed;
-            if (this.direction !== 'up') {
-              this.direction = 'up';
-              this.shooting.lastDirectionChange = 0; // Скидаємо час зміни напрямку
-            }
-          }
-          isMoving = true;
-        }
+      case 'down':
+        newY += this.speed;
         break;
-
-      case 'attack':
-        // Атака - зупиняємося і стріляємо по штабу
-        isMoving = false;
-        // Дуло буде повернуто в напрямок штабу в updateShooting
+      case 'left':
+        newX -= this.speed;
+        break;
+      case 'right':
+        newX += this.speed;
         break;
     }
+    isMoving = true;
 
     // Перевіряємо межі руху (метод з базового класу Tank)
     if (this.checkBounds(newX, newY)) {
@@ -266,47 +176,38 @@ export class Enemy extends Tank {
     }
   }
 
-  /**
-   * Розрахунок відстані до штабу
-   * @returns {number} - Відстань до штабу
-   */
-  getDistanceToBase() {
-    const dx = this.ai.base.x - this.x;
-    const dy = this.ai.base.y - this.y;
-    return Math.sqrt(dx * dx + dy * dy);
-  }
 
-  /**
-   * Встановлення цілі патрулювання
-   */
-  setPatrolTarget() {
-    // Випадкова позиція в межах поля
-    this.ai.patrol.targetX =
-      Math.random() * (this.bounds.maxX - this.bounds.minX - 100) +
-      this.bounds.minX +
-      50;
-    this.ai.patrol.targetY =
-      Math.random() * (this.bounds.maxY - this.bounds.minY - 100) +
-      this.bounds.minY +
-      50;
-  }
 
   /**
    * Зміна напрямку патрулювання
    */
   changePatrolDirection() {
-    const directions = ['up', 'down', 'left', 'right'];
-    const randomDirection =
-      directions[Math.floor(Math.random() * directions.length)];
+    // Збільшуємо лічильник повторів
+    this.ai.patrol.directionRepeatCount++;
+    
+    // Якщо досягли максимальної кількості повторів, змінюємо напрямок
+    if (this.ai.patrol.directionRepeatCount >= this.ai.patrol.maxDirectionRepeats) {
+      const directions = ['up', 'down', 'left', 'right'];
+      const randomDirection =
+        directions[Math.floor(Math.random() * directions.length)];
 
-    this.direction = randomDirection;
+      this.direction = randomDirection;
+      this.ai.patrol.directionRepeatCount = 0; // Скидаємо лічильник
+      this.shooting.lastDirectionChange = 0; // Скидаємо час зміни напрямку для стрільби
+
+      this.logger.enemyAction(
+        'Ворог змінив напрямок патрулювання',
+        `новий напрямок: ${randomDirection}`
+      );
+    } else {
+      // Просто оновлюємо час, але не змінюємо напрямок
+      this.logger.enemyAction(
+        'Ворог продовжує рух у тому ж напрямку',
+        `повтор ${this.ai.patrol.directionRepeatCount}/${this.ai.patrol.maxDirectionRepeats}`
+      );
+    }
+    
     this.ai.patrol.lastDirectionChange = 0;
-    this.shooting.lastDirectionChange = 0; // Скидаємо час зміни напрямку для стрільби
-
-    this.logger.enemyAction(
-      'Ворог змінив напрямок патрулювання',
-      `новий напрямок: ${randomDirection}`
-    );
   }
 
   /**
@@ -399,7 +300,7 @@ export class Enemy extends Tank {
       state: this.ai.state,
       isMoving: this.movementState.isMoving,
       direction: this.direction,
-      distanceToBase: this.getDistanceToBase(),
+      directionRepeatCount: this.ai.patrol.directionRepeatCount,
     };
   }
 
@@ -417,22 +318,12 @@ export class Enemy extends Tank {
       this.shooting.canShoot = true;
     }
 
-    // В режимі атаки повертаємо дуло в напрямок штабу
-    if (this.ai.state === 'attack') {
-      this.aimAtBase();
-      
-      // Стріляємо тільки якщо дуло спрямоване на штаб
-      if (this.shooting.canShoot && this.isAimingAtBase()) {
-        this.shoot();
-      }
-    } else {
-      // Стріляємо при зміні напрямку або раз в секунду
-      const shouldShoot = this.shooting.lastDirectionChange < 100 || // нещодавно змінив напрямок
-                         this.shooting.lastShotTime >= this.shooting.shootCooldown; // раз в секунду
-      
-      if (this.shooting.canShoot && shouldShoot) {
-        this.shoot();
-      }
+    // Стріляємо при зміні напрямку або раз в секунду
+    const shouldShoot = this.shooting.lastDirectionChange < 100 || // нещодавно змінив напрямок
+                       this.shooting.lastShotTime >= this.shooting.shootCooldown; // раз в секунду
+    
+    if (this.shooting.canShoot && shouldShoot) {
+      this.shoot();
     }
   }
 
@@ -470,7 +361,6 @@ export class Enemy extends Tank {
     this.shooting.canShoot = false;
     this.shooting.lastShotTime = 0;
 
-    // Логуємо стрільбу
     this.logger.enemyAction('Ворог стріляє', `напрямок: ${finalDirection}`);
 
     this.logger.gameEvent(
@@ -559,43 +449,4 @@ export class Enemy extends Tank {
     };
   }
 
-  /**
-   * Розрахунок напрямку до штабу
-   * @returns {string} - Напрямок до штабу
-   */
-  calculateBaseDirection() {
-    const dx = this.ai.base.x - this.x;
-    const dy = this.ai.base.y - this.y;
-
-    // Визначаємо основний напрямок
-    if (Math.abs(dx) > Math.abs(dy)) {
-      return dx > 0 ? 'right' : 'left';
-    } else {
-      return dy > 0 ? 'down' : 'up';
-    }
-  }
-
-  /**
-   * Поворот дула в напрямок штабу
-   */
-  aimAtBase() {
-    const baseDirection = this.calculateBaseDirection();
-    
-    // Повертаємо дуло в напрямок штабу
-    if (this.direction !== baseDirection) {
-      const oldDirection = this.direction;
-      this.direction = baseDirection;
-      this.shooting.lastDirectionChange = 0; // Скидаємо час зміни напрямку для стрільби
-      this.logger.enemyAction('Ворог повернув дуло на штаб', `${oldDirection} → ${baseDirection}`);
-    }
-  }
-
-  /**
-   * Перевірка чи дуло спрямоване на штаб
-   * @returns {boolean} - true якщо дуло спрямоване на штаб
-   */
-  isAimingAtBase() {
-    const baseDirection = this.calculateBaseDirection();
-    return this.direction === baseDirection;
-  }
 }
