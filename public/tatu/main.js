@@ -315,10 +315,29 @@ window.clearLog = clearLog;
 // Функція отримання статистики (глобальна)
 window.getGameStats = getGameStats;
 
+// Функція оновлення інформації про життя
+function updateLivesInfo() {
+    if (!game || !game.player) return;
+    
+    const livesElement = document.getElementById('lives');
+    const healthElement = document.getElementById('health');
+    
+    if (livesElement) {
+        livesElement.textContent = game.player.getLives();
+    }
+    
+    if (healthElement) {
+        healthElement.textContent = game.player.getHealth();
+    }
+}
+
 // Запускаємо гру після завантаження DOM
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🚀 Запуск гри Танчики - Урок 3');
     initGame();
+    
+    // Оновлюємо інформацію про життя кожну секунду
+    setInterval(updateLivesInfo, 100);
 });
 
 // Обробка помилок

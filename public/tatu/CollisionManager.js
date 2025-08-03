@@ -52,7 +52,7 @@ export class CollisionManager {
    * @param {GameField} gameField - Ігрове поле
    */
   checkPlayerBulletsCollisions(player, enemy, gameField) {
-    if (!player.isAlive || !enemy.isAlive) return;
+    if (!player.isAlive || !enemy.isAlive || player.isPlayerRespawning()) return;
 
     const playerBullets = player.getBullets();
 
@@ -79,7 +79,7 @@ export class CollisionManager {
    * @param {GameField} gameField - Ігрове поле
    */
   checkEnemyBulletsCollisions(enemy, player, gameField) {
-    if (!enemy.isAlive || !player.isAlive) return;
+    if (!enemy.isAlive || !player.isAlive || player.isPlayerRespawning()) return;
 
     const enemyBullets = enemy.getBullets();
 
@@ -105,6 +105,9 @@ export class CollisionManager {
    * @param {Enemy} enemy - Ворог
    */
   checkBulletToBulletCollisions(player, enemy) {
+    // Не перевіряємо колізії куль якщо гравець відроджується
+    if (player.isPlayerRespawning()) return;
+    
     const playerBullets = player.getBullets();
     const enemyBullets = enemy.getBullets();
 
@@ -191,8 +194,8 @@ export class CollisionManager {
     // Видаляємо кулю
     enemy.removeBullet(bullet);
 
-    // Наносимо пошкодження гравцю
-    player.takeDamage(20); // 20 очок пошкодження
+    // Наносимо пошкодження гравцю (одним попаданням вбиваємо)
+    player.takeDamage(100); // 100 очок пошкодження - смерть з першого попадання
 
     // Оновлюємо статистику
     this.stats.totalCollisions++;
@@ -201,9 +204,9 @@ export class CollisionManager {
     // Логуємо подію
     this.logger.gameEvent('💥 Ворог попав по гравцю!');
 
-    // Перевіряємо чи гравець знищений
-    if (!player.isAlive) {
-      this.logger.gameEvent('💀 Гравець знищений!');
+    // Перевіряємо чи гра закінчена
+    if (player.isGameOver()) {
+      this.logger.gameEvent('💀 Гра закінчена! У гравця не залишилось життів');
     }
   }
 

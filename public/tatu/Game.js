@@ -140,11 +140,19 @@ export class Game {
             return;
         }
         
+        // Перевіряємо чи гра закінчена
+        if (this.player.isGameOver()) {
+            this.handleGameOver();
+            return;
+        }
+        
         // оновлюємо стан поля
         this.gameField.update(deltaTime);
         
-        // оновлюємо керування гравцем
-        this.updatePlayerInput();
+        // оновлюємо керування гравцем (тільки якщо не відроджується)
+        if (!this.player.isPlayerRespawning()) {
+            this.updatePlayerInput();
+        }
         
         // оновлюємо стан гравця
         this.player.update(deltaTime);
@@ -152,12 +160,14 @@ export class Game {
         // оновлюємо стан ворога
         this.enemy.update(deltaTime);
         
-        // перевіряємо колізії
-        this.collisionManager.checkAllCollisions({
-            player: this.player,
-            enemy: this.enemy,
-            gameField: this.gameField
-        });
+        // перевіряємо колізії (тільки якщо гравець живий і не відроджується)
+        if (this.player.isAlive && !this.player.isPlayerRespawning()) {
+            this.collisionManager.checkAllCollisions({
+                player: this.player,
+                enemy: this.enemy,
+                gameField: this.gameField
+            });
+        }
         
         // Очищаємо клавіші, натиснуті в цьому кадрі
         this.inputManager.clearPressedThisFrame();
@@ -201,6 +211,14 @@ export class Game {
         
         // малюємо кулі ворога
         this.enemy.renderBullets(this.ctx);
+        
+        // малюємо інформацію про життя
+        this.renderLivesInfo();
+        
+        // малюємо екран кінця гри
+        if (this.player.isGameOver()) {
+            this.renderGameOverScreen();
+        }
     }
     
     /**
@@ -224,5 +242,75 @@ export class Game {
         
         // плануємо наступний кадр
         requestAnimationFrame((time) => this.gameLoop(time));
+    }
+
+    /**
+     * Обробка кінця гри
+     */
+    handleGameOver() {
+        // Зупиняємо гру
+        this.stop();
+        this.logger.gameEvent('🎮 Гра закінчена!');
+    }
+
+    /**
+     * Малювання інформації про життя
+     */
+    renderLivesInfo() {
+        const lives = this.player.getLives();
+        const maxLives = this.player.getMaxLives();
+        
+        // Налаштування тексту
+        this.ctx.fillStyle = 'white';
+        this.ctx.font = '16px Arial';
+        this.ctx.textAlign = 'left';
+        
+        // Малюємо текст життів
+        this.ctx.fillText(`Життя: ${lives}/${maxLives}`, 10, 30);
+        
+        // Малюємо серця
+        const heartSize = 20;
+        const heartSpacing = 25;
+        const startX = 10;
+        const startY = 50;
+        
+        for (let i = 0; i < maxLives; i++) {
+            const heartX = startX + i * heartSpacing;
+            const heartY = startY;
+            
+            if (i < lives) {
+                // Живе серце (червоне)
+                this.ctx.fillStyle = 'red';
+            } else {
+                // Мертве серце (сіре)
+                this.ctx.fillStyle = 'gray';
+            }
+            
+            // Малюємо просте серце як коло
+            this.ctx.beginPath();
+            this.ctx.arc(heartX + heartSize/2, heartY + heartSize/2, heartSize/2, 0, 2 * Math.PI);
+            this.ctx.fill();
+        }
+    }
+
+    /**
+     * Малювання екрану кінця гри
+     */
+    renderGameOverScreen() {
+        // Напівпрозорий чорний фон
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        // Налаштування тексту
+        this.ctx.fillStyle = 'white';
+        this.ctx.font = '48px Arial';
+        this.ctx.textAlign = 'center';
+        
+        // Малюємо заголовок
+        this.ctx.fillText('ГРА ЗАКІНЧЕНА', this.canvas.width / 2, this.canvas.height / 2 - 50);
+        
+        // Менший текст
+        this.ctx.font = '24px Arial';
+        this.ctx.fillText('Натисніть F5 для перезапуску', this.canvas.width / 2, this.canvas.height / 2 + 20);
     }
 }

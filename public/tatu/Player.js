@@ -43,10 +43,21 @@ export class Player extends Tank {
       bullets: [], // масив активних куль
     };
 
+    // Система життів
+    this.lives = options.lives || 3; // 3 життя за замовчуванням
+    this.maxLives = this.lives;
+    this.respawnTime = 2000; // 2 секунди на відродження
+    this.respawnTimer = 0;
+    this.isRespawning = false;
+    this.initialPosition = {
+      x: this.x,
+      y: this.y
+    };
+
     // записуємо в лог
     this.logger.playerAction(
       'Гравець створений',
-      `позиція: (${this.x}, ${this.y})`
+      `позиція: (${this.x}, ${this.y}), життя: ${this.lives}`
     );
   }
 
@@ -198,6 +209,12 @@ export class Player extends Tank {
    * @param {CanvasRenderingContext2D} ctx - Контекст для малювання
    */
   render(ctx) {
+    // Якщо гравець відроджується, малюємо індикатор відродження
+    if (this.isRespawning) {
+      this.drawRespawnIndicator(ctx);
+      return;
+    }
+
     // Викликаємо базовий метод render з батьківського класу
     super.render(ctx);
 
@@ -248,6 +265,35 @@ export class Player extends Tank {
   }
 
   /**
+   * Малювання індикатора відродження
+   * @param {CanvasRenderingContext2D} ctx - Контекст для малювання
+   */
+  drawRespawnIndicator(ctx) {
+    // Прозорий червоний колір для індикатора відродження
+    ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+    
+    // Розмір індикатора
+    const indicatorSize = 20;
+    
+    // Центр позиції відродження
+    const centerX = this.initialPosition.x + this.width / 2;
+    const centerY = this.initialPosition.y + this.height / 2;
+    
+    // Малюємо коло з анімацією пульсації
+    const pulseSize = indicatorSize + Math.sin(Date.now() * 0.01) * 5;
+    
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, pulseSize, 0, 2 * Math.PI);
+    ctx.fill();
+    
+    // Малюємо текст "Відродження..."
+    ctx.fillStyle = 'white';
+    ctx.font = '12px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('Відродження...', centerX, centerY + 30);
+  }
+
+  /**
    * Отримання стану руху
    * @returns {Object} - Стан руху
    */
@@ -260,6 +306,16 @@ export class Player extends Tank {
    * @param {number} deltaTime - Час з останнього оновлення
    */
   update(deltaTime) {
+    // Якщо гравець відроджується, оновлюємо таймер
+    if (this.isRespawning) {
+      this.respawnTimer += deltaTime;
+      if (this.respawnTimer >= this.respawnTime) {
+        this.respawn();
+      }
+      return;
+    }
+
+    // Якщо гравець мертвий і не відроджується, не оновлюємо
     if (!this.isAlive) return;
 
     // Оновлюємо рух
@@ -410,5 +466,95 @@ export class Player extends Tank {
       cooldown: this.shooting.shootCooldown,
       lastShotTime: this.shooting.lastShotTime,
     };
+  }
+
+  /**
+   * Отримання пошкодження (перевизначення методу з Tank)
+   * @param {number} damage - Кількість пошкодження
+   */
+  takeDamage(damage) {
+    this.health -= damage;
+                
+    // Перевіряємо чи гравець знищений
+    if (this.health <= 0) {
+      this.health = 0;
+      this.isAlive = false;
+      this.lives--;
+      
+      // Очищаємо всі кулі при смерті
+      this.clearBullets();
+      
+      this.logger.gameEvent(`Гравець знищений! Залишилось життів: ${this.lives}`);
+      
+      // Якщо ще є життя, починаємо відродження
+      if (this.lives > 0) {
+        this.startRespawn();
+      } else {
+        this.logger.gameEvent('💀 Гра закінчена! У гравця не залишилось життів');
+      }
+    } else {
+      this.logger.gameEvent(`Гравець отримав пошкодження: ${damage}, здоров'я: ${this.health}`);
+    }
+  }
+
+  /**
+   * Початок процесу відродження
+   */
+  startRespawn() {
+    this.isRespawning = true;
+    this.respawnTimer = 0;
+    this.logger.gameEvent('🔄 Гравець відроджується...');
+  }
+
+  /**
+   * Відродження гравця (перевизначення методу з Tank)
+   */
+  respawn() {
+    // Позначаємо гравець як живий
+    this.isAlive = true;
+    // Відновлюємо повне здоров'я
+    this.health = 100;
+    // Повертаємо на початкову позицію
+    this.x = this.initialPosition.x;
+    this.y = this.initialPosition.y;
+    // Скидаємо стан відродження
+    this.isRespawning = false;
+    this.respawnTimer = 0;
+    // Очищаємо всі кулі
+    this.clearBullets();
+    
+    this.logger.gameEvent('✅ Гравець відроджений!');
+  }
+
+  /**
+   * Отримання кількості життів
+   * @returns {number} - Кількість життів
+   */
+  getLives() {
+    return this.lives;
+  }
+
+  /**
+   * Отримання максимальної кількості життів
+   * @returns {number} - Максимальна кількість життів
+   */
+  getMaxLives() {
+    return this.maxLives;
+  }
+
+  /**
+   * Перевірка чи гра закінчена
+   * @returns {boolean} - true якщо гра закінчена
+   */
+  isGameOver() {
+    return this.lives <= 0 && !this.isAlive;
+  }
+
+  /**
+   * Перевірка чи гравець відроджується
+   * @returns {boolean} - true якщо гравець відроджується
+   */
+  isPlayerRespawning() {
+    return this.isRespawning;
   }
 }
