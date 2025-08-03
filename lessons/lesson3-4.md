@@ -10,7 +10,6 @@
 
 ```javascript
 import { Tank } from './Tank.js';
-import { logger } from './main.js';
 import { yellow, orange, green } from './colors.js';
 
 /**
