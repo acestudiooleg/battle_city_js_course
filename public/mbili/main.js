@@ -1,116 +1,91 @@
 /**
- * 🎮 Танчики - Урок 1: Налаштування середовища
+ * 🎮 Танчики - Урок 2: Малювання поля та танків
  * 
- * У цьому файлі ми налаштовуємо базове середовище для гри:
- * - Отримуємо доступ до Canvas елемента
- * - Налаштовуємо контекст для малювання
- * - Створюємо базову структуру для подальшої розробки
+ * У цьому файлі ми запускаємо гру з:
+ * - Ігровим полем та сіткою
+ * - Танком гравця (жовтий квадрат)
+ * - Ворожим танком (червоний квадрат)
+ * - Стінами та перешкодами
  */
 
 // Отримуємо Canvas елемент з HTML
+// знаходимо Canvas по ID
 const canvas = document.getElementById('gameCanvas');
 
 // Отримуємо контекст для малювання (2D)
+// отримуємо 2D контекст для малювання
 const ctx = canvas.getContext('2d');
 
 // Базові константи гри
 const GAME_CONFIG = {
-    CANVAS_WIDTH: 800, // Ширина Canvas
-    CANVAS_HEIGHT: 600, // Висота Canvas
-    TILE_SIZE: 32, // Розмір однієї клітинки в пікселях
-    FPS: 60 // Кількість кадрів за секунду
+    // ширина Canvas в пікселях
+    CANVAS_WIDTH: 800,
+    // висота Canvas в пікселях
+    CANVAS_HEIGHT: 600,
+    // розмір однієї клітинки в пікселях
+    TILE_SIZE: 32,
+    // кількість кадрів за секунду
+    FPS: 60
 };
 
+// Імпортуємо класи
+// імпортуємо головний клас гри
+import { Game } from './Game.js';
+// імпортуємо клас логування
+import { GameLogger } from './GameLogger.js';
+
+// Створюємо екземпляри
+// екземпляр гри (поки що не створений)
+let game;
+// екземпляр логера (поки що не створений)
+let logger;
+
+/**
+ * Функція ініціалізації гри
+ * Викликається один раз при запуску
+ */
 function initGame() {
-    console.log('🎮 Гра "Танчики" ініціалізована!');
-    console.log('📐 Розмір Canvas:', GAME_CONFIG.CANVAS_WIDTH, 'x', GAME_CONFIG.CANVAS_HEIGHT);
-    console.log('🔲 Розмір клітинки:', GAME_CONFIG.TILE_SIZE, 'пікселів');
+    // Ініціалізуємо логер
+    // створюємо новий екземпляр логера
+    logger = new GameLogger();
     
-    // Малюємо привітання на Canvas
-    drawTitleScreen();
-}
-
-// Battle City (Namco) NES palette
-const black = '#000000';
-const white = '#fcfcfc';
-const gray = '#a4a7a7';
-const darkGray = '#545454';
-const red = '#e04038';
-const orange = '#f8b800';
-const yellow = '#f8f858';
-const green = '#38a038';
-const darkGreen = '#005c00';
-const blue = '#3858d8';
-const brown = '#a86c30';
-const brick = '#bd4400';
-const steel = '#a4a7a7';
-const water = '#4f00ff';
-const forest = '#38a038';
-const ice = '#fcfcfc';
-
-
-function drawTitleScreen() {
-    // Очищаємо Canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // записуємо початок ініціалізації
+    logger.gameEvent('Ініціалізація гри "Танчики" - Урок 2');
+    // інформація про розміри
+    logger.info(`📐 Розмір Canvas: ${GAME_CONFIG.CANVAS_WIDTH} x ${GAME_CONFIG.CANVAS_HEIGHT}`);
+    // інформація про клітинки
+    logger.info(`🔲 Розмір клітинки: ${GAME_CONFIG.TILE_SIZE} пікселів`);
     
-    // Встановлюємо чорний фон
-    ctx.fillStyle = black;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Створюємо нову гру
+    // створюємо новий екземпляр гри
+    game = new Game(logger);
     
-    // Малюємо інформацію про гравця (I- 00 HI- 20000)
-    ctx.fillStyle = white;
-    ctx.font = 'bold 16px monospace';
-    ctx.textAlign = 'left';
-    ctx.fillText('I- 00 HI- 20000', 20, 30);
+    // Ініціалізуємо гру
+    // ініціалізуємо всі компоненти гри
+    game.init();
     
-    // Малюємо заголовок BATTLE CITY
-    ctx.fillStyle = brick;
-    ctx.font = 'bold 64px monospace';
-    ctx.textAlign = 'center';
+    // Запускаємо гру
+    // запускаємо ігровий цикл
+    game.start();
     
-    // Малюємо BATTLE
-    ctx.fillText('BATTLE', canvas.width / 2, canvas.height / 2 - 80);
-    // Малюємо CITY
-    ctx.fillText('CITY', canvas.width / 2, canvas.height / 2 - 20);
-    
-    // Малюємо опції меню
-    ctx.fillStyle = white;
-    ctx.font = 'bold 24px monospace';
-    ctx.textAlign = 'center';
-    
-    // Малюємо танк-іконку перед "1 PLAYER"
-    ctx.fillStyle = yellow;
-    ctx.fillRect(canvas.width / 2 - 120, canvas.height / 2 + 20, 16, 12);
-    ctx.fillStyle = yellow;
-    ctx.fillRect(canvas.width / 2 - 116, canvas.height / 2 + 16, 8, 4);
-    
-    // Малюємо текст меню
-    ctx.fillStyle = white;
-    ctx.fillText('1 PLAYER', canvas.width / 2, canvas.height / 2 + 35);
-    ctx.fillText('2 PLAYERS', canvas.width / 2, canvas.height / 2 + 65);
-    ctx.fillText('CONSTRUCTION', canvas.width / 2, canvas.height / 2 + 95);
-    
-    // Малюємо логотип namcoT
-    ctx.fillStyle = brown;
-    ctx.font = 'bold 20px monospace';
-    ctx.fillText('namcoT', canvas.width / 2, canvas.height / 2 + 150);
-    
-    // Малюємо копірайт
-    ctx.fillStyle = white;
-    ctx.font = '12px monospace';
-    ctx.fillText('© 1980 1985 NAMCO LTD.', canvas.width / 2, canvas.height - 40);
-    ctx.fillText('ALL RIGHTS RESERVED', canvas.width / 2, canvas.height - 25);
-}
-
-function gameLoop() {
-    // Поки що просто викликаємо requestAnimationFrame
-    // В наступних уроках тут буде логіка гри
-    requestAnimationFrame(gameLoop);
+    // записуємо успішний запуск
+    logger.success('Гра запущена успішно!');
 }
 
 // Запускаємо гру після завантаження сторінки
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 Сторінка завантажена, запускаємо гру...');
+    // викликаємо ініціалізацію гри
     initGame();
-    gameLoop();
 });
+
+// Функція очищення логу
+function clearLog() {
+    // знаходимо контейнер логу
+    const logContent = document.getElementById('logContent');
+    // очищаємо весь вміст
+    logContent.innerHTML = '';
+}
+
+// Експортуємо основні змінні для використання в інших файлах
+// експортуємо для використання в інших модулях
+export { canvas, ctx, GAME_CONFIG, logger };

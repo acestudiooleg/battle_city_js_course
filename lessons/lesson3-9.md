@@ -55,10 +55,10 @@ function initGame() {
     console.log('🎮 Ініціалізація гри...');
     
     // Створюємо логер
-    logger = new GameLogger('logContent');
+    logger = new GameLogger();
     
     // Створюємо систему керування
-    inputManager = new InputManager();
+    inputManager = new InputManager(logger);
     
     // Створюємо гру
     game = new Game();
@@ -263,7 +263,7 @@ function showRestartButton() {
             transform: translate(-50%, -50%);
             padding: 15px 30px;
             font-size: 18px;
-            background: #e74c3c;
+            background: var(--danger);
             color: white;
             border: none;
             border-radius: 5px;

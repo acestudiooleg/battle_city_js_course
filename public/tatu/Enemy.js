@@ -1,3 +1,5 @@
+import { red, black, darkGray } from './colors.js';
+
 /**
  * 🎮 Клас Enemy - представляє ворога
  * 
@@ -18,7 +20,7 @@ export class Enemy {
         this.height = options.size || 32;
         
         // Візуальні властивості
-        this.color = options.color || '#e74c3c'; // Червоний колір за замовчуванням
+        this.color = options.color || red; // Червоний колір за замовчуванням
         
         // Напрямок руху
         this.direction = 'down';
@@ -79,7 +81,7 @@ export class Enemy {
         ctx.fillRect(this.x, this.y, this.width, this.height);
         
         // Малюємо рамку навколо ворога
-        ctx.strokeStyle = '#000000';
+        ctx.strokeStyle = black;
         ctx.lineWidth = 2;
         ctx.strokeRect(this.x, this.y, this.width, this.height);
         
@@ -124,7 +126,7 @@ export class Enemy {
         }
         
         // Малюємо дуло
-        ctx.fillStyle = '#000000';
+        ctx.fillStyle = black;
         if (this.direction === 'left' || this.direction === 'right') {
             ctx.fillRect(gunX, gunY, gunHeight, gunWidth);
         } else {
@@ -142,7 +144,7 @@ export class Enemy {
         const centerY = this.y + this.height / 2;
         
         // Малюємо червоний хрестик
-        ctx.strokeStyle = '#c0392b';
+        ctx.strokeStyle = darkGray;
         ctx.lineWidth = 2;
         
         // Вертикальна лінія

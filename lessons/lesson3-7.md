@@ -109,9 +109,9 @@ export class Enemy extends Tank {
             this.shooting.lastShotTime = 0;
             
             // Логуємо стрільбу
-            logger.enemyAction('Ворог стріляє', `напрямок: ${finalDirection}`);
+            this.logger.enemyAction('Ворог стріляє', `напрямок: ${finalDirection}`);
             
-            console.log('💥 Ворог вистрілив кулю:', bullet);
+            this.logger.gameEvent('Ворог вистрілив кулю', `позиція: (${bullet.x}, ${bullet.y})`);
         });
     }
     
@@ -312,7 +312,7 @@ render(ctx) {
  */
 drawShootCooldownIndicator(ctx) {
     // темно-червоний колір для індикатора затримки
-    ctx.fillStyle = '#c0392b';
+    ctx.fillStyle = darkGray;
     // розмір індикатора
     const indicatorSize = 3;
     

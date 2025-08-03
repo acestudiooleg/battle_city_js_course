@@ -11,6 +11,7 @@
 ```javascript
 import { Tank } from './Tank.js';
 import { logger } from './main.js';
+import { yellow, orange, green } from './colors.js';
 
 /**
  * 🎮 Клас Player - представляє гравця
@@ -22,17 +23,17 @@ import { logger } from './main.js';
  */
 
 export class Player extends Tank {
-    constructor(options = {}) {
+    constructor(options = {}, logger) {
         // Викликаємо конструктор батьківського класу Tank
         super({
             ...options, // передаємо всі опції батьківському класу
             // жовтий колір за замовчуванням
-            color: options.color || '#f1c40f',
+            color: options.color || yellow,
             // гравець рухається швидше за ворога
             speed: options.speed || 2,
             // початковий напрямок дула вгору
             direction: options.direction || 'up'
-        });
+        }, logger);
         
         // Система керування (буде встановлена ззовні)
         this.inputManager = null;
@@ -52,7 +53,7 @@ export class Player extends Tank {
         };
         
         // записуємо в лог
-        logger.playerAction('Гравець створений', `позиція: (${this.x}, ${this.y})`);
+        this.logger.playerAction('Гравець створений', `позиція: (${this.x}, ${this.y})`);
     }
     
     /**
@@ -61,7 +62,7 @@ export class Player extends Tank {
      */
     setInputManager(inputManager) {
         this.inputManager = inputManager;
-        logger.info('Система керування підключена до гравця');
+        this.logger.info('Система керування підключена до гравця');
     }
     
     /**
@@ -217,7 +218,7 @@ export class Player extends Tank {
         const centerY = this.y + this.height / 2;
         
         // помаранчево-жовтий колір
-        ctx.fillStyle = '#f39c12';
+        ctx.fillStyle = orange;
         // починаємо малювати шлях
         ctx.beginPath();
         // малюємо коло
@@ -232,7 +233,7 @@ export class Player extends Tank {
      */
     drawMovementIndicator(ctx) {
         // зелений колір для індикатора руху
-        ctx.fillStyle = '#27ae60';
+        ctx.fillStyle = green;
         // розмір індикатора
         const indicatorSize = 3;
         

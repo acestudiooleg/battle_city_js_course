@@ -1,3 +1,5 @@
+import { yellow, red } from './colors.js';
+
 /**
  * 🎮 Клас Game - головний клас гри з підтримкою руху та стрільби
  * 
@@ -44,7 +46,7 @@ export class Game {
         this.player = new Player({
             x: 100,
             y: 100,
-            color: '#f1c40f', // Жовтий колір
+            color: yellow, // Жовтий колір
             size: this.config.TILE_SIZE
         });
         
@@ -52,7 +54,7 @@ export class Game {
         this.enemy = new Enemy({
             x: 300,
             y: 200,
-            color: '#e74c3c', // Червоний колір
+            color: red, // Червоний колір
             size: this.config.TILE_SIZE
         });
         

@@ -54,4 +54,21 @@
   /* Кольори утиліт */
   --black: #000000;
   --white: #ffffff;
+  
+  /* Кольори гри */
+  --game-color: #34495e;
+  --game-color-hover: #2c3e50;
+  --game-color-bg: #4a5f7a;
+  
+  /* Кольори гравця */
+  --player-color: #f1c40f;
+  --player-color-hover: #f39c12;
+  --player-color-bg: #f7dc6f;
+  --player-text: #2c3e50;
+  
+  /* Кольори ворога */
+  --enemy-color: #e74c3c;
+  --enemy-color-hover: #c0392b;
+  --enemy-color-bg: #ec7063;
+  --enemy-text: #ffffff;
 } 

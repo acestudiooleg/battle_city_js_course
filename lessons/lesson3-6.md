@@ -11,6 +11,7 @@
 ```javascript
 import { Tank } from './Tank.js';
 import { logger } from './main.js';
+import { red, darkGray, blue, orange, water, gray } from './colors.js';
 
 /**
  * 🎮 Клас Enemy - представляє ворожого танка
@@ -22,17 +23,17 @@ import { logger } from './main.js';
  */
 
 export class Enemy extends Tank {
-    constructor(options = {}) {
+    constructor(options = {}, logger) {
         // Викликаємо конструктор батьківського класу Tank
         super({
             ...options, // передаємо всі опції батьківському класу
             // червоний колір за замовчуванням
-            color: options.color || '#e74c3c',
+            color: options.color || red,
             // ворог рухається повільніше за гравця
             speed: options.speed || 1,
             // початковий напрямок дула вниз
             direction: options.direction || 'down'
-        });
+        }, logger);
         
         // Межі руху (розміри Canvas)
         this.bounds = {
@@ -83,7 +84,7 @@ export class Enemy extends Tank {
         };
         
         // записуємо в лог
-        logger.enemyAction('Ворог створений', `позиція: (${this.x}, ${this.y})`);
+        this.logger.enemyAction('Ворог створений', `позиція: (${this.x}, ${this.y})`);
     }
     
     /**
@@ -360,7 +361,7 @@ export class Enemy extends Tank {
         const centerY = this.y + this.height / 2;
         
         // темно-червоний колір для ліній
-        ctx.strokeStyle = '#c0392b';
+        ctx.strokeStyle = darkGray;
         // товщина ліній хрестика
         ctx.lineWidth = 2;
         
@@ -390,13 +391,13 @@ export class Enemy extends Tank {
     drawAIStateIndicator(ctx) {
         // Кольори для різних станів
         const stateColors = {
-            patrol: '#3498db',   // синій
-            chase: '#f39c12',    // помаранчевий
-            attack: '#e74c3c',   // червоний
-            retreat: '#9b59b6'   // фіолетовий
+            patrol: blue,        // синій
+            chase: orange,       // помаранчевий
+            attack: red,         // червоний
+            retreat: water       // фіолетовий
         };
         
-        const color = stateColors[this.ai.state] || '#95a5a6';
+        const color = stateColors[this.ai.state] || gray;
         const indicatorSize = 3;
         
         // Розміщуємо індикатор в правому верхньому куті танка

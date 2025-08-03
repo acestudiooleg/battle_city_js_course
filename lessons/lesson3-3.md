@@ -9,6 +9,8 @@
 Створіть файл `Bullet.js`:
 
 ```javascript
+import { orange, red, white } from './colors.js';
+
 /**
  * 🎮 Клас Bullet - представляє кулю
  * 
@@ -20,7 +22,7 @@
  */
 
 export class Bullet {
-    constructor(options = {}) {
+    constructor(options = {}, logger) {
         // Позиція кулі
         this.x = options.x || 0;
         this.y = options.y || 0;
@@ -39,7 +41,7 @@ export class Bullet {
         this.owner = options.owner || 'player';
         
         // Колір кулі
-        this.color = this.owner === 'player' ? '#f39c12' : '#e74c3c';
+        this.color = this.owner === 'player' ? orange : red;
         
         // Стан кулі
         this.isActive = true;
@@ -48,7 +50,10 @@ export class Bullet {
         this.lifetime = 3000; // 3 секунди
         this.age = 0;
         
-        console.log('💥 Куля створена:', this);
+        // Логгер для запису подій
+        this.logger = logger;
+        
+        this.logger.gameEvent('Куля створена', `власник: ${this.owner}, позиція: (${this.x}, ${this.y})`);
     }
     
     /**
@@ -107,7 +112,7 @@ export class Bullet {
         ctx.fillRect(this.x, this.y, this.width, this.height);
         
         // Малюємо рамку навколо кулі
-        ctx.strokeStyle = '#ffffff';
+        ctx.strokeStyle = white;
         ctx.lineWidth = 1;
         ctx.strokeRect(this.x, this.y, this.width, this.height);
         
@@ -267,23 +272,23 @@ this.y + this.height > object.y
 ## Використання
 
 ```javascript
-// Створення кулі гравця
+// Створення кулі гравця з логгером
 const playerBullet = new Bullet({
     x: 100,
     y: 100,
     direction: 'up',
     owner: 'player',
     speed: 6
-});
+}, logger);
 
-// Створення кулі ворога
+// Створення кулі ворога з логгером
 const enemyBullet = new Bullet({
     x: 300,
     y: 200,
     direction: 'down',
     owner: 'enemy',
     speed: 4
-});
+}, logger);
 
 // Оновлення кулі
 playerBullet.update(deltaTime);
@@ -296,6 +301,35 @@ if (playerBullet.checkCollision(enemy)) {
     playerBullet.destroy();
     enemy.takeDamage();
 }
+```
+
+## 📝 Параметр logger
+
+**`logger`** - це об'єкт системи логування, який передається в конструктор для запису подій куль:
+
+- **Тип**: `GameLogger` або `null`
+- **Призначення**: Запис подій створення та знищення куль
+- **Методи**:
+  - `gameEvent(message, details)` - запис ігрових подій
+  - `info(message, details)` - інформаційні повідомлення
+  - `warning(message, details)` - попередження
+  - `error(message, details)` - помилки
+
+**Приклад використання**:
+```javascript
+// Створення логгера
+const logger = new GameLogger();
+
+// Створення кулі з логгером
+const bullet = new Bullet({
+    x: 100,
+    y: 100,
+    direction: 'up',
+    owner: 'player'
+}, logger);
+
+// Автоматичне логування створення кулі
+// logger.gameEvent('Куля створена', 'власник: player, позиція: (100, 100)')
 ```
 
 ## Результат

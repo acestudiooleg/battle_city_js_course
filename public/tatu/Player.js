@@ -1,3 +1,5 @@
+import { yellow, black } from './colors.js';
+
 /**
  * 🎮 Клас Player - представляє гравця
  * 
@@ -20,7 +22,7 @@ export class Player {
         this.height = options.size || 32;
         
         // Візуальні властивості
-        this.color = options.color || '#f1c40f'; // Жовтий колір за замовчуванням
+        this.color = options.color || yellow; // Жовтий колір за замовчуванням
         
         // Напрямок руху
         this.direction = 'up';
@@ -96,7 +98,7 @@ export class Player {
         ctx.fillRect(this.x, this.y, this.width, this.height);
         
         // Малюємо рамку навколо танка
-        ctx.strokeStyle = '#000';
+        ctx.strokeStyle = black;
         ctx.lineWidth = 2;
         ctx.strokeRect(this.x, this.y, this.width, this.height);
         
@@ -141,7 +143,7 @@ export class Player {
         }
         
         // Малюємо дуло
-        ctx.fillStyle = '#000';
+        ctx.fillStyle = black;
         if (this.direction === 'left' || this.direction === 'right') {
             ctx.fillRect(gunX, gunY, gunHeight, gunWidth);
         } else {

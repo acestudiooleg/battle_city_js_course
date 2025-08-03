@@ -97,9 +97,9 @@ export class Player extends Tank {
             this.shooting.lastShotTime = 0;
             
             // Логуємо стрільбу
-            logger.playerAction('Гравець стріляє', `напрямок: ${this.direction}`);
+            this.logger.playerAction('Гравець стріляє', `напрямок: ${this.direction}`);
             
-            console.log('💥 Гравець вистрілив кулю:', bullet);
+            this.logger.gameEvent('Гравець вистрілив кулю', `позиція: (${bullet.x}, ${bullet.y})`);
         });
     }
     

@@ -1,3 +1,5 @@
+import { darkGray, gray, green, black } from './colors.js';
+
 /**
  * 🎮 Клас GameField - представляє ігрове поле
  * 
@@ -155,7 +157,7 @@ export class GameField {
      * Малювання сітки на ігровому полі
      */
     drawGrid() {
-        this.ctx.strokeStyle = '#34495e';
+        this.ctx.strokeStyle = darkGray;
         this.ctx.lineWidth = 1;
         
         // Вертикальні лінії
@@ -182,22 +184,22 @@ export class GameField {
         this.walls.forEach(wall => {
             switch (wall.type) {
                 case 'border':
-                    this.ctx.fillStyle = '#34495e'; // Сірий колір для рамки
+                    this.ctx.fillStyle = darkGray; // Сірий колір для рамки
                     break;
                 case 'obstacle':
-                    this.ctx.fillStyle = '#7f8c8d'; // Темно-сірий для перешкод
+                    this.ctx.fillStyle = gray; // Темно-сірий для перешкод
                     break;
                 case 'base':
-                    this.ctx.fillStyle = '#27ae60'; // Зелений для бази
+                    this.ctx.fillStyle = green; // Зелений для бази
                     break;
                 default:
-                    this.ctx.fillStyle = '#95a5a6';
+                    this.ctx.fillStyle = gray;
             }
             
             this.ctx.fillRect(wall.x, wall.y, wall.width, wall.height);
             
             // Малюємо рамку навколо стіни
-            this.ctx.strokeStyle = '#2c3e50';
+            this.ctx.strokeStyle = black;
             this.ctx.lineWidth = 1;
             this.ctx.strokeRect(wall.x, wall.y, wall.width, wall.height);
         });

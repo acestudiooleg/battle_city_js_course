@@ -1,3 +1,5 @@
+import { orange, red, white } from './colors.js';
+
 /**
  * 🎮 Клас Bullet - представляє кулю
  * 
@@ -28,7 +30,7 @@ export class Bullet {
         this.owner = options.owner || 'player';
         
         // Колір кулі
-        this.color = this.owner === 'player' ? '#f39c12' : '#e74c3c';
+        this.color = this.owner === 'player' ? orange : red;
         
         // Стан кулі
         this.isActive = true;
@@ -95,7 +97,7 @@ export class Bullet {
         ctx.fillRect(this.x, this.y, this.width, this.height);
         
         // Малюємо рамку навколо кулі
-        ctx.strokeStyle = '#ffffff';
+        ctx.strokeStyle = white;
         ctx.lineWidth = 1;
         ctx.strokeRect(this.x, this.y, this.width, this.height);
         
