@@ -49,7 +49,7 @@ export class Enemy extends Tank {
 
       // Налаштування атаки
       attack: {
-        attackRange: 100, // дистанція атаки
+        attackRange: 200, // збільшена дистанція атаки
         attackCooldown: 2000, // 2 секунди між атаками
         lastAttackTime: 0,
       },
@@ -70,9 +70,10 @@ export class Enemy extends Tank {
     this.shooting = {
       canShoot: true,
       lastShotTime: 0,
-      shootCooldown: 2000, // 2 секунди між пострілами
+      shootCooldown: 1000, // 1 секунда між пострілами
       bullets: [], // масив активних куль
       accuracy: 0.8, // точність стрільби (80%)
+      lastAimTime: 0, // час останнього повороту дула
     };
 
     // записуємо в лог
@@ -119,6 +120,11 @@ export class Enemy extends Tank {
     this.ai.timers.directionChange += deltaTime;
     this.ai.patrol.lastDirectionChange += deltaTime;
     this.ai.attack.lastAttackTime += deltaTime;
+    
+    // Оновлюємо час останнього повороту дула
+    if (this.ai.state === 'attack') {
+      this.shooting.lastAimTime += deltaTime;
+    }
   }
 
   /**
@@ -135,8 +141,18 @@ export class Enemy extends Tank {
       }
 
       // Перевіряємо чи ціль в зоні атаки
+      const distance = this.getDistanceToTarget(target);
       if (this.isTargetInRange(target, this.ai.attack.attackRange)) {
-        this.changeAIState('attack');
+        if (this.ai.state !== 'attack') {
+          this.logger.enemyAction('Перехід в режим атаки', `відстань: ${distance}`);
+          this.changeAIState('attack');
+        }
+      } else {
+        // Якщо вийшли з зони атаки, повертаємося до переслідування
+        if (this.ai.state === 'attack') {
+          this.logger.enemyAction('Вийшли з зони атаки', `відстань: ${distance}`);
+          this.changeAIState('chase');
+        }
       }
     } else {
       // Ціль не виявлена - повертаємося до патрулювання
@@ -174,7 +190,8 @@ export class Enemy extends Tank {
         // Починаємо переслідування
         break;
       case 'attack':
-        // Готові до атаки
+        // Готові до атаки - скидаємо час останнього повороту дула
+        this.shooting.lastAimTime = 0;
         break;
     }
   }
@@ -237,12 +254,17 @@ export class Enemy extends Tank {
             }
           }
           isMoving = true;
+          
+          // Під час переслідування також повертаємо дуло в напрямок гравця
+          this.aimAtTarget();
         }
         break;
 
       case 'attack':
         // Атака - зупиняємося і стріляємо
         isMoving = false;
+        // Не змінюємо напрямок дула під час атаки - він буде встановлений в updateShooting
+        // Напрямок дула контролюється тільки в aimAtTarget()
         break;
     }
 
@@ -263,6 +285,19 @@ export class Enemy extends Tank {
   }
 
   /**
+   * Розрахунок відстані до цілі
+   * @param {Object} target - Ціль
+   * @returns {number} - Відстань до цілі
+   */
+  getDistanceToTarget(target) {
+    if (!target) return Infinity;
+
+    const dx = target.x - this.x;
+    const dy = target.y - this.y;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  /**
    * Перевірка чи ціль в діапазоні
    * @param {Object} target - Ціль
    * @param {number} range - Діапазон
@@ -271,10 +306,7 @@ export class Enemy extends Tank {
   isTargetInRange(target, range) {
     if (!target) return false;
 
-    const dx = target.x - this.x;
-    const dy = target.y - this.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-
+    const distance = this.getDistanceToTarget(target);
     return distance <= range;
   }
 
@@ -399,13 +431,28 @@ export class Enemy extends Tank {
       this.shooting.canShoot = true;
     }
 
-    // Стріляємо якщо в режимі атаки і є ціль
+    // Діагностика стрільби (тільки кожні 5 секунд)
+    if (this.ai.state === 'attack' && this.ai.chase.target && 
+        this.shooting.lastShotTime % 5000 < 16) {
+      this.logger.enemyAction('Діагностика стрільби', 
+        `canShoot: ${this.shooting.canShoot}, ` +
+        `lastShotTime: ${this.shooting.lastShotTime}, ` +
+        `cooldown: ${this.shooting.shootCooldown}`
+      );
+    }
+
+    // Якщо ворог в режимі атаки і є ціль
     if (
       this.ai.state === 'attack' &&
-      this.shooting.canShoot &&
       this.ai.chase.target
     ) {
-      this.shoot();
+      // Повертаємо дуло в напрямок гравця
+      this.aimAtTarget();
+      
+      // Стріляємо тільки якщо дуло спрямоване на гравця
+      if (this.shooting.canShoot && this.isAimingAtTarget()) {
+        this.shoot();
+      }
     }
   }
 
@@ -423,11 +470,8 @@ export class Enemy extends Tank {
     // Отримуємо позицію для стрільби (метод з базового класу Tank)
     const shootPos = this.getShootPosition();
 
-    // Розраховуємо напрямок до гравця
-    const targetDirection = this.calculateTargetDirection();
-
-    // Додаємо неточність до стрільби
-    const finalDirection = this.addShootingInaccuracy(targetDirection);
+    // Використовуємо поточний напрямок дула (без змін)
+    const finalDirection = this.direction;
 
     // Створюємо нову кулю
     const bullet = new Bullet(
@@ -449,11 +493,11 @@ export class Enemy extends Tank {
     this.shooting.lastShotTime = 0;
 
     // Логуємо стрільбу
-    this.logger.enemyAction('Ворог стріляє', `напрямок: ${finalDirection}`);
+    this.logger.enemyAction('Ворог стріляє', `дуло: ${this.direction}, куля: ${finalDirection}`);
 
     this.logger.gameEvent(
       'Ворог вистрілив кулю',
-      `позиція: (${bullet.x}, ${bullet.y})`
+      `позиція: (${bullet.x}, ${bullet.y}), напрямок: ${finalDirection}`
     );
   }
 
@@ -474,6 +518,37 @@ export class Enemy extends Tank {
     } else {
       return dy > 0 ? 'down' : 'up';
     }
+  }
+
+  /**
+   * Поворот дула в напрямок цілі
+   * 
+   * Виправлено: тепер дуло завжди спрямоване в правильному напрямку
+   * перед стрільбою
+   */
+  aimAtTarget() {
+    if (!this.ai.chase.target) return;
+
+    const targetDirection = this.calculateTargetDirection();
+    
+    // Повертаємо дуло в напрямок гравця
+    if (this.direction !== targetDirection) {
+      const oldDirection = this.direction;
+      this.direction = targetDirection;
+      this.shooting.lastAimTime = 0; // Скидаємо час останнього повороту
+      this.logger.enemyAction('Ворог повернув дуло', `${oldDirection} → ${targetDirection}`);
+    }
+  }
+
+  /**
+   * Перевірка чи дуло спрямоване на ціль
+   * @returns {boolean} - true якщо дуло спрямоване на гравця
+   */
+  isAimingAtTarget() {
+    if (!this.ai.chase.target) return false;
+
+    const targetDirection = this.calculateTargetDirection();
+    return this.direction === targetDirection;
   }
 
   /**
