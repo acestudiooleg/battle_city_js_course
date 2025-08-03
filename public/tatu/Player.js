@@ -34,6 +34,7 @@ export class Player extends Tank {
     this.movementState = {
       isMoving: false,
       lastDirection: 'up',
+      initialized: false, // Флаг для відстеження ініціалізації
     };
 
     this.shooting = {
@@ -67,6 +68,7 @@ export class Player extends Tank {
    */
   setInputManager(inputManager) {
     this.inputManager = inputManager;
+    this.movementState.initialized = true; // Позначаємо що гравець ініціалізований
     this.logger.info('Система керування підключена до гравця');
   }
 
@@ -171,15 +173,14 @@ export class Player extends Tank {
       this.y = newY;
     }
 
-    // Оновлюємо стан руху
+    // Просте логування - GameLogger сам згрупує повідомлення
+    const wasMoving = this.movementState.isMoving;
     this.movementState.isMoving = isMoving;
-
-    // Логуємо рух (тільки при зміні стану)
-    if (isMoving && !this.movementState.isMoving) {
-      this.logger.playerAction(
-        'Гравець почав рухатися',
-        `напрямок: ${this.movementState.lastDirection}`
-      );
+    
+    if (isMoving && !wasMoving) {
+      this.logger.playerAction('Гравець почав рухатися', `напрямок: ${this.movementState.lastDirection}`);
+    } else if (!isMoving && wasMoving) {
+      this.logger.playerAction('Гравець зупинився');
     }
   }
 
@@ -201,7 +202,6 @@ export class Player extends Tank {
     } else if (direction.right) {
       this.direction = 'right';
     }
-    // Якщо не рухається, залишаємо попередній напрямок
   }
 
   /**
@@ -342,7 +342,8 @@ export class Player extends Tank {
     // Перевіряємо чи можна стріляти знову
     if (this.shooting.lastShotTime >= this.shooting.shootCooldown) {
       this.shooting.canShoot = true;
-      console.log('✅ Гравець може стріляти знову');
+      // Просте логування - GameLogger сам згрупує повідомлення
+      this.logger.playerAction('✅ Гравець може стріляти знову');
     }
   }
 
@@ -350,10 +351,9 @@ export class Player extends Tank {
    * Стрільба
    */
   shoot() {
-    console.log('🎯 Гравець стріляє, canShoot:', this.shooting.canShoot);
     // Перевіряємо чи можна стріляти
     if (!this.shooting.canShoot) {
-      console.log('❌ Гравець не може стріляти');
+      this.logger.playerAction('❌ Гравець не може стріляти');
       return;
     }
     

@@ -76,8 +76,10 @@ export class InputManager {
     // Обробляємо спеціальні клавіші
     this.handleSpecialKeys(keyCode);
 
-    console.log('⌨️ Клавіша натиснута:', keyCode, 'pressedThisFrame:', this.pressedThisFrame);
-    this.logger.gameEvent(`⌨️ Клавіша натиснута: ${keyCode}`);
+    // Логуємо тільки ігрові клавіші (не всі)
+    if (this.isGameKey(keyCode)) {
+      this.logger.gameEvent(`⌨️ Клавіша натиснута: ${keyCode}`);
+    }
   }
 
   /**
@@ -90,7 +92,10 @@ export class InputManager {
     // Встановлюємо стан клавіші як не натиснуту
     this.keys[keyCode] = false;
 
-    this.logger.gameEvent(`⌨️ Клавіша відпущена: ${keyCode}`);
+    // Логуємо тільки ігрові клавіші (не всі)
+    if (this.isGameKey(keyCode)) {
+      this.logger.gameEvent(`⌨️ Клавіша відпущена: ${keyCode}`);
+    }
   }
 
   /**
@@ -171,7 +176,10 @@ export class InputManager {
 
     const result = keys.some((key) => this.pressedThisFrame[key]);
     if (result) {
-      console.log('⌨️ Клавіша стрільби натиснута, pressedThisFrame:', this.pressedThisFrame);
+      this.logger.gameEvent(
+        '🎯 Клавіша стрільби натиснута',
+        `клавіші: ${keys.join(', ')}`
+      );
     }
     return result;
   }

@@ -191,7 +191,6 @@ export class Game {
         
         // Перевіряємо стрільбу
         if (this.inputManager.isShootPressed()) {
-            console.log('🎯 Спроба стрільби гравця');
             this.player.shoot();
         }
     }

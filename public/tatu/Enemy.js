@@ -201,10 +201,7 @@ export class Enemy extends Tank {
       );
     } else {
       // Просто оновлюємо час, але не змінюємо напрямок
-      this.logger.enemyAction(
-        'Ворог продовжує рух у тому ж напрямку',
-        `повтор ${this.ai.patrol.directionRepeatCount}/${this.ai.patrol.maxDirectionRepeats}`
-      );
+      // Не логуємо кожен повтор, щоб зменшити спам
     }
     
     this.ai.patrol.lastDirectionChange = 0;
