@@ -76,10 +76,7 @@ export class Enemy extends Tank {
     };
 
     // записуємо в лог
-    this.logger.enemyAction(
-      'Ворог створений',
-      `позиція: (${this.x}, ${this.y})`
-    );
+    this.logger.enemyAction('Ворог створений');
   }
 
   /**
@@ -417,7 +414,7 @@ export class Enemy extends Tank {
    */
   shoot() {
     if (!this.ai.chase.target) return;
-    
+
     // Перевіряємо чи можна стріляти
     if (!this.shooting.canShoot) {
       return;
@@ -433,13 +430,16 @@ export class Enemy extends Tank {
     const finalDirection = this.addShootingInaccuracy(targetDirection);
 
     // Створюємо нову кулю
-    const bullet = new Bullet({
-      x: shootPos.x,
-      y: shootPos.y,
-      direction: finalDirection,
-      owner: 'enemy',
-      speed: 4, // швидкість кулі ворога (повільніше за гравця)
-    }, this.logger);
+    const bullet = new Bullet(
+      {
+        x: shootPos.x,
+        y: shootPos.y,
+        direction: finalDirection,
+        owner: 'enemy',
+        speed: 4, // швидкість кулі ворога (повільніше за гравця)
+      },
+      this.logger
+    );
 
     // Додаємо кулю до масиву
     this.shooting.bullets.push(bullet);

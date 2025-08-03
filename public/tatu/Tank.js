@@ -245,7 +245,7 @@ export class Tank {
      */
     takeDamage(damage) {
         this.health -= damage;
-        
+                
         // Перевіряємо чи танк знищений
         if (this.health <= 0) {
             this.health = 0;
@@ -262,5 +262,13 @@ export class Tank {
      */
     getHealth() {
         return this.health;
+    }
+    
+    /**
+     * Отримання максимального здоров'я
+     * @returns {number} - Максимальне здоров'я
+     */
+    getMaxHealth() {
+        return 100; // Максимальне здоров'я за замовчуванням
     }
 }
