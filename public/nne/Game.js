@@ -4,6 +4,7 @@ import { Enemy } from './Enemy.js';
 import { GameField } from './GameField.js';
 import { InputManager } from './InputManager.js';
 import { CollisionManager } from './CollisionManager.js';
+import { Explosion } from './Explosion.js';
 import { yellow, red } from './colors.js';
 
 /**
@@ -37,6 +38,9 @@ export class Game {
         // система колізій
         this.collisionManager = null;
         
+        // масив активних вибухів
+        this.explosions = [];
+        
         // чи запущена гра
         this.isRunning = false;
         // час останнього кадру
@@ -58,7 +62,7 @@ export class Game {
         this.inputManager = new InputManager(this.logger);
         
         // створюємо систему колізій
-        this.collisionManager = new CollisionManager(this.logger);
+        this.collisionManager = new CollisionManager(this.logger, this);
         
         this.player = new Player({
             // позиція X гравця
@@ -172,6 +176,10 @@ export class Game {
             });
         }
         
+        // Оновлюємо вибухи
+        this.explosions.forEach(explosion => explosion.update(deltaTime));
+        this.explosions = this.explosions.filter(explosion => explosion.isExplosionActive());
+        
         // Очищаємо клавіші, натиснуті в цьому кадрі
         this.inputManager.clearPressedThisFrame();
     }
@@ -216,6 +224,9 @@ export class Game {
         
         // малюємо інформацію про життя
         this.renderLivesInfo();
+        
+        // малюємо вибухи поверх всього
+        this.explosions.forEach(explosion => explosion.render(this.ctx));
         
         // малюємо екран кінця гри
         if (this.player.isGameOver() || this.gameField.isBaseDestroyed()) {
@@ -341,5 +352,24 @@ export class Game {
         // Менший текст
         this.ctx.font = '20px Arial';
         this.ctx.fillText('Натисніть F5 для перезапуску', this.canvas.width / 2, this.canvas.height / 2 + 50);
+    }
+    
+    /**
+     * Створення вибуху в заданій позиції
+     * @param {number} x - X координата вибуху
+     * @param {number} y - Y координата вибуху
+     * @param {string} type - Тип вибуху ('wall', 'armor', 'tank')
+     * @param {number} size - Базовий розмір вибуху
+     */
+    createExplosion(x, y, type = 'wall', size = 15) {
+        this.explosions.push(new Explosion(x, y, type, size, this.logger));
+    }
+    
+    /**
+     * Отримання масиву активних вибухів
+     * @returns {Array} - Масив вибухів
+     */
+    getExplosions() {
+        return this.explosions;
     }
 }
