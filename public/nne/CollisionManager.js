@@ -8,7 +8,7 @@
  */
 
 export class CollisionManager {
-  constructor(logger) {
+  constructor(logger, game = null) {
     // Статистика колізій
     this.stats = {
       totalCollisions: 0,
@@ -19,6 +19,9 @@ export class CollisionManager {
 
     // Логгер для запису подій
     this.logger = logger;
+    
+    // Посилання на гру для створення вибухів
+    this.game = game;
 
     this.logger.gameEvent('Система колізій ініціалізована');
   }
@@ -46,6 +49,9 @@ export class CollisionManager {
 
     // Перевіряємо колізії з межами поля
     this.checkBoundaryCollisions(player, enemy, gameField);
+    
+    // Перевіряємо колізії куль зі стінами
+    this.checkBulletWallCollisions(player, enemy, gameField);
   }
 
   /**
@@ -196,6 +202,11 @@ export class CollisionManager {
     // Наносимо пошкодження ворогу
     enemy.takeDamage(25); // 25 очок пошкодження
 
+    // Створюємо вибух
+    if (this.game) {
+      this.game.createExplosion(bullet.x, bullet.y, 20);
+    }
+
     // Оновлюємо статистику
     this.stats.totalCollisions++;
     this.stats.playerHits++;
@@ -221,6 +232,11 @@ export class CollisionManager {
 
     // Наносимо пошкодження гравцю (одним попаданням вбиваємо)
     player.takeDamage(100); // 100 очок пошкодження - смерть з першого попадання
+
+    // Створюємо вибух
+    if (this.game) {
+      this.game.createExplosion(bullet.x, bullet.y, 20);
+    }
 
     // Оновлюємо статистику
     this.stats.totalCollisions++;
@@ -266,6 +282,11 @@ export class CollisionManager {
     // Видаляємо обидві кулі
     player.removeBullet(bullet1);
     enemy.removeBullet(bullet2);
+
+    // Створюємо вибух в місці зіткнення
+    if (this.game) {
+      this.game.createExplosion(bullet1.x, bullet1.y, 15);
+    }
 
     // Оновлюємо статистику
     this.stats.bulletCollisions++;
@@ -361,5 +382,54 @@ export class CollisionManager {
       enemyHits: 0,
       bulletCollisions: 0,
     };
+  }
+  
+  /**
+   * Перевірка колізій куль зі стінами
+   * @param {Player} player - Гравець
+   * @param {Enemy} enemy - Ворог
+   * @param {GameField} gameField - Ігрове поле
+   */
+  checkBulletWallCollisions(player, enemy, gameField) {
+    const walls = gameField.getWalls();
+    
+    // Перевіряємо кулі гравця
+    this.checkBulletsWithWalls(player.getBullets(), walls, player, 'player');
+    
+    // Перевіряємо кулі ворога
+    this.checkBulletsWithWalls(enemy.getBullets(), walls, enemy, 'enemy');
+  }
+  
+  /**
+   * Перевірка колізій куль зі стінами
+   * @param {Array} bullets - Масив куль
+   * @param {Array} walls - Масив стін
+   * @param {Object} owner - Власник куль
+   * @param {string} ownerType - Тип власника ('player' або 'enemy')
+   */
+  checkBulletsWithWalls(bullets, walls, owner, ownerType) {
+    for (let i = bullets.length - 1; i >= 0; i--) {
+      const bullet = bullets[i];
+      
+      walls.forEach((wall, wallIndex) => {
+        if (this.checkCollision(bullet, wall)) {
+          // Створюємо вибух
+          if (this.game) {
+            this.game.createExplosion(bullet.x, bullet.y, 15);
+          }
+          
+          // Знищуємо кулю
+          owner.removeBullet(bullet);
+          
+          // Знищуємо стіну (якщо це не база)
+          if (wall.type !== 'base') {
+            walls.splice(wallIndex, 1);
+          }
+          
+          // Логуємо подію
+          this.logger.gameEvent(`Куля ${ownerType} зіткнулася зі стіною`);
+        }
+      });
+    }
   }
 }

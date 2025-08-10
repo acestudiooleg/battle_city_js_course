@@ -30,6 +30,12 @@ export class GameField {
             isDestroyed: false
         };
         
+        // Масив стін та перешкод
+        this.walls = [];
+        
+        // Створюємо стіни
+        this.createWalls();
+        
         // записуємо в лог
         this.logger.gameEvent('Ігрове поле створене');
     }
@@ -51,6 +57,8 @@ export class GameField {
         this.drawBackground();
         // малюємо сітку поля
         this.drawGrid();
+        // малюємо стіни
+        this.drawWalls();
         // малюємо штаб
         this.drawBase();
     }
@@ -179,5 +187,147 @@ export class GameField {
      */
     isBaseDestroyed() {
         return this.base.isDestroyed;
+    }
+    
+    /**
+     * Створення стін на ігровому полі
+     */
+    createWalls() {
+        // Створюємо стіни по периметру
+        this.createBorderWalls();
+        
+        // Створюємо випадкові стіни всередині поля
+        this.createRandomWalls();
+    }
+    
+    /**
+     * Створення стін по периметру поля
+     */
+    createBorderWalls() {
+        const gridWidth = Math.floor(this.config.CANVAS_WIDTH / this.tileSize);
+        const gridHeight = Math.floor(this.config.CANVAS_HEIGHT / this.tileSize);
+        
+        // Верхня та нижня стіни
+        for (let x = 0; x < gridWidth; x++) {
+            this.walls.push({
+                x: x * this.tileSize,
+                y: 0,
+                width: this.tileSize,
+                height: this.tileSize,
+                type: 'border'
+            });
+            
+            this.walls.push({
+                x: x * this.tileSize,
+                y: (gridHeight - 1) * this.tileSize,
+                width: this.tileSize,
+                height: this.tileSize,
+                type: 'border'
+            });
+        }
+        
+        // Ліва та права стіни
+        for (let y = 1; y < gridHeight - 1; y++) {
+            this.walls.push({
+                x: 0,
+                y: y * this.tileSize,
+                width: this.tileSize,
+                height: this.tileSize,
+                type: 'border'
+            });
+            
+            this.walls.push({
+                x: (gridWidth - 1) * this.tileSize,
+                y: y * this.tileSize,
+                width: this.tileSize,
+                height: this.tileSize,
+                type: 'border'
+            });
+        }
+    }
+    
+    /**
+     * Створення випадкових стін всередині поля
+     */
+    createRandomWalls() {
+        const gridWidth = Math.floor(this.config.CANVAS_WIDTH / this.tileSize);
+        const gridHeight = Math.floor(this.config.CANVAS_HEIGHT / this.tileSize);
+        const numberOfWalls = 15; // Кількість випадкових стін
+        
+        for (let i = 0; i < numberOfWalls; i++) {
+            const x = Math.floor(Math.random() * (gridWidth - 2) + 1) * this.tileSize;
+            const y = Math.floor(Math.random() * (gridHeight - 2) + 1) * this.tileSize;
+            
+            // Перевіряємо чи не перекриваємо базу гравця
+            if (!this.isPlayerBaseArea(x, y)) {
+                this.walls.push({
+                    x: x,
+                    y: y,
+                    width: this.tileSize,
+                    height: this.tileSize,
+                    type: 'obstacle'
+                });
+            }
+        }
+    }
+    
+    /**
+     * Перевірка чи позиція знаходиться в зоні бази гравця
+     */
+    isPlayerBaseArea(x, y) {
+        const baseX = Math.floor(this.config.CANVAS_WIDTH / 2);
+        const baseY = this.config.CANVAS_HEIGHT - 2 * this.tileSize;
+        
+        return x === baseX && y === baseY;
+    }
+    
+    /**
+     * Малювання стін
+     */
+    drawWalls() {
+        this.walls.forEach(wall => {
+            switch (wall.type) {
+                case 'border':
+                    this.ctx.fillStyle = '#34495e'; // Сірий колір для рамки
+                    break;
+                case 'obstacle':
+                    this.ctx.fillStyle = '#7f8c8d'; // Темно-сірий для перешкод
+                    break;
+                default:
+                    this.ctx.fillStyle = '#95a5a6';
+            }
+            
+            this.ctx.fillRect(wall.x, wall.y, wall.width, wall.height);
+            
+            // Малюємо рамку навколо стіни
+            this.ctx.strokeStyle = '#2c3e50';
+            this.ctx.lineWidth = 1;
+            this.ctx.strokeRect(wall.x, wall.y, wall.width, wall.height);
+        });
+    }
+    
+    /**
+     * Отримання всіх стін
+     * @returns {Array} - Масив стін
+     */
+    getWalls() {
+        return this.walls;
+    }
+    
+    /**
+     * Перевірка колізії з стінами
+     * @param {number} x - X координата
+     * @param {number} y - Y координата
+     * @param {number} width - Ширина об'єкта
+     * @param {number} height - Висота об'єкта
+     * @returns {boolean} - true якщо є колізія
+     */
+    checkCollision(x, y, width, height) {
+        return this.walls.some(wall => {
+            return x < wall.x + wall.width &&
+                   x + width > wall.x &&
+                   y < wall.y + wall.height &&
+                   y + height > wall.y;
+        });
     }
 }
