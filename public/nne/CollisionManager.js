@@ -5,6 +5,7 @@
  * - Перевірку зіткнень між об'єктами
  * - Обробку пошкоджень
  * - Видалення зіткнутих об'єктів
+ * - Створення різних типів вибухів
  */
 
 export class CollisionManager {
@@ -15,6 +16,7 @@ export class CollisionManager {
       playerHits: 0,
       enemyHits: 0,
       bulletCollisions: 0,
+      wallDestructions: 0,
     };
 
     // Логгер для запису подій
@@ -114,7 +116,7 @@ export class CollisionManager {
    * @param {GameField} gameField - Ігрове поле
    */
   checkEnemyBulletsWithBaseCollisions(enemy, gameField) {
-    if (!enemy.isAlive || gameField.isBaseDestroyed()) return;
+    if (!enemy.isAlive) return;
 
     const enemyBullets = enemy.getBullets();
     const base = gameField.getBase();
@@ -122,10 +124,9 @@ export class CollisionManager {
     for (let i = enemyBullets.length - 1; i >= 0; i--) {
       const bullet = enemyBullets[i];
 
-      // Перевіряємо колізію кулі зі штабом
       if (this.checkBulletBaseCollision(bullet, base)) {
         this.handleEnemyHitBase(enemy, gameField, bullet);
-        break; // Виходимо після першого попадання
+        break;
       }
     }
   }
@@ -136,9 +137,8 @@ export class CollisionManager {
    * @param {Enemy} enemy - Ворог
    */
   checkBulletToBulletCollisions(player, enemy) {
-    // Не перевіряємо колізії куль якщо гравець відроджується
-    if (player.isPlayerRespawning()) return;
-    
+    if (!player.isAlive || !enemy.isAlive) return;
+
     const playerBullets = player.getBullets();
     const enemyBullets = enemy.getBullets();
 
@@ -163,7 +163,6 @@ export class CollisionManager {
    * @param {GameField} gameField - Ігрове поле
    */
   checkBoundaryCollisions(player, enemy, gameField) {
-    // Перевіряємо чи танки не вийшли за межі поля
     if (this.isTankOutOfBounds(player, gameField)) {
       this.handleTankOutOfBounds(player, gameField);
     }
@@ -180,13 +179,10 @@ export class CollisionManager {
    * @returns {boolean} - true якщо є колізія
    */
   checkCollision(obj1, obj2) {
-    const collision =
-      obj1.x < obj2.x + obj2.width &&
-      obj1.x + obj1.width > obj2.x &&
-      obj1.y < obj2.y + obj2.height &&
-      obj1.y + obj1.height > obj2.y;
-
-    return collision;
+    return obj1.x < obj2.x + obj2.width &&
+           obj1.x + obj1.width > obj2.x &&
+           obj1.y < obj2.y + obj2.height &&
+           obj1.y + obj1.height > obj2.y;
   }
 
   /**
@@ -196,27 +192,26 @@ export class CollisionManager {
    * @param {Bullet} bullet - Куля
    */
   handlePlayerHitEnemy(player, enemy, bullet) {
-    // Видаляємо кулю
+    this.stats.totalCollisions++;
+    this.stats.enemyHits++;
+
+    // Створюємо вибух типу 'tank' (найбільший)
+    if (this.game) {
+      this.game.createExplosion(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2, 'tank', 25);
+    }
+
+    // Знищуємо кулю
     player.removeBullet(bullet);
 
     // Наносимо пошкодження ворогу
-    enemy.takeDamage(25); // 25 очок пошкодження
-
-    // Створюємо вибух
-    if (this.game) {
-      this.game.createExplosion(bullet.x, bullet.y, 20);
-    }
-
-    // Оновлюємо статистику
-    this.stats.totalCollisions++;
-    this.stats.playerHits++;
-
-    // Логуємо подію
-    this.logger.gameEvent('🎯 Гравець попав по ворогу!');
+    enemy.takeDamage(bullet.damage || 1);
 
     // Перевіряємо чи ворог знищений
     if (!enemy.isAlive) {
-      this.logger.gameEvent('💀 Ворог знищений!');
+      this.logger.gameEvent('🎯 Ворог знищений гравцем!');
+      this.stats.enemyHits++;
+    } else {
+      this.logger.gameEvent('💥 Ворог пошкоджений!');
     }
   }
 
@@ -227,28 +222,21 @@ export class CollisionManager {
    * @param {Bullet} bullet - Куля
    */
   handleEnemyHitPlayer(enemy, player, bullet) {
-    // Видаляємо кулю
+    this.stats.totalCollisions++;
+    this.stats.playerHits++;
+
+    // Створюємо вибух типу 'armor' (середній)
+    if (this.game) {
+      this.game.createExplosion(player.x + player.width / 2, player.y + player.height / 2, 'armor', 20);
+    }
+
+    // Знищуємо кулю
     enemy.removeBullet(bullet);
 
-    // Наносимо пошкодження гравцю (одним попаданням вбиваємо)
-    player.takeDamage(100); // 100 очок пошкодження - смерть з першого попадання
+    // Наносимо пошкодження гравцю
+    player.takeDamage(bullet.damage || 1);
 
-    // Створюємо вибух
-    if (this.game) {
-      this.game.createExplosion(bullet.x, bullet.y, 20);
-    }
-
-    // Оновлюємо статистику
-    this.stats.totalCollisions++;
-    this.stats.enemyHits++;
-
-    // Логуємо подію
-    this.logger.gameEvent('💥 Ворог попав по гравцю!');
-
-    // Перевіряємо чи гра закінчена
-    if (player.isGameOver()) {
-      this.logger.gameEvent('💀 Гра закінчена! У гравця не залишилось життів');
-    }
+    this.logger.gameEvent('💥 Гравець пошкоджений!');
   }
 
   /**
@@ -258,40 +246,41 @@ export class CollisionManager {
    * @param {Bullet} bullet - Куля
    */
   handleEnemyHitBase(enemy, gameField, bullet) {
-    // Видаляємо кулю
+    this.stats.totalCollisions++;
+
+    // Створюємо вибух типу 'tank' (найбільший)
+    if (this.game) {
+      this.game.createExplosion(bullet.x, bullet.y, 'tank', 30);
+    }
+
+    // Знищуємо кулю
     enemy.removeBullet(bullet);
 
     // Знищуємо штаб
     gameField.destroyBase();
 
-    // Оновлюємо статистику
-    this.stats.totalCollisions++;
-
-    // Логуємо подію
-    this.logger.gameEvent('💥 Ворог знищив штаб!');
+    this.logger.gameEvent('💥 Штаб знищений! Гра закінчена!');
   }
 
   /**
-   * Обробка зіткнення куль
+   * Обробка зіткнення куль між собою
    * @param {Bullet} bullet1 - Перша куля
    * @param {Bullet} bullet2 - Друга куля
    * @param {Player} player - Гравець
    * @param {Enemy} enemy - Ворог
    */
   handleBulletCollision(bullet1, bullet2, player, enemy) {
-    // Видаляємо обидві кулі
+    this.stats.bulletCollisions++;
+
+    // Створюємо вибух типу 'wall' (малий)
+    if (this.game) {
+      this.game.createExplosion(bullet1.x, bullet1.y, 'wall', 15);
+    }
+
+    // Знищуємо обидві кулі
     player.removeBullet(bullet1);
     enemy.removeBullet(bullet2);
 
-    // Створюємо вибух в місці зіткнення
-    if (this.game) {
-      this.game.createExplosion(bullet1.x, bullet1.y, 15);
-    }
-
-    // Оновлюємо статистику
-    this.stats.bulletCollisions++;
-
-    // Логуємо подію
     this.logger.gameEvent('💥 Кулі зіткнулися!');
   }
 
@@ -302,15 +291,12 @@ export class CollisionManager {
    * @returns {boolean} - true якщо куля за межами
    */
   isBulletOutOfBounds(bullet, gameField) {
-    if (!gameField) return false;
-
     const bounds = gameField.getBounds();
-    return (
-      bullet.x < bounds.minX ||
-      bullet.x > bounds.maxX ||
-      bullet.y < bounds.minY ||
-      bullet.y > bounds.maxY
-    );
+    
+    return bullet.x < bounds.minX || 
+           bullet.x + bullet.width > bounds.maxX ||
+           bullet.y < bounds.minY || 
+           bullet.y + bullet.height > bounds.maxY;
   }
 
   /**
@@ -320,15 +306,12 @@ export class CollisionManager {
    * @returns {boolean} - true якщо танк за межами
    */
   isTankOutOfBounds(tank, gameField) {
-    if (!gameField) return false;
-
     const bounds = gameField.getBounds();
-    return (
-      tank.x < bounds.minX ||
-      tank.x + tank.width > bounds.maxX ||
-      tank.y < bounds.minY ||
-      tank.y + tank.height > bounds.maxY
-    );
+    
+    return tank.x < bounds.minX || 
+           tank.x + tank.width > bounds.maxX ||
+           tank.y < bounds.minY || 
+           tank.y + tank.height > bounds.maxY;
   }
 
   /**
@@ -381,6 +364,7 @@ export class CollisionManager {
       playerHits: 0,
       enemyHits: 0,
       bulletCollisions: 0,
+      wallDestructions: 0,
     };
   }
   
@@ -394,10 +378,10 @@ export class CollisionManager {
     const walls = gameField.getWalls();
     
     // Перевіряємо кулі гравця
-    this.checkBulletsWithWalls(player.getBullets(), walls, player, 'player');
+    this.checkBulletsWithWalls(player.getBullets(), walls, player, 'player', gameField);
     
     // Перевіряємо кулі ворога
-    this.checkBulletsWithWalls(enemy.getBullets(), walls, enemy, 'enemy');
+    this.checkBulletsWithWalls(enemy.getBullets(), walls, enemy, 'enemy', gameField);
   }
   
   /**
@@ -406,30 +390,43 @@ export class CollisionManager {
    * @param {Array} walls - Масив стін
    * @param {Object} owner - Власник куль
    * @param {string} ownerType - Тип власника ('player' або 'enemy')
+   * @param {GameField} gameField - Ігрове поле
    */
-  checkBulletsWithWalls(bullets, walls, owner, ownerType) {
+  checkBulletsWithWalls(bullets, walls, owner, ownerType, gameField) {
     for (let i = bullets.length - 1; i >= 0; i--) {
       const bullet = bullets[i];
       
-      walls.forEach((wall, wallIndex) => {
+      for (let j = walls.length - 1; j >= 0; j--) {
+        const wall = walls[j];
+        
         if (this.checkCollision(bullet, wall)) {
-          // Створюємо вибух
+          // Отримуємо тип вибуху залежно від матеріалу стіни
+          const explosionType = gameField.getWallExplosionType ? 
+            gameField.getWallExplosionType(wall) : 'wall';
+          
+          // Створюємо вибух відповідного типу
           if (this.game) {
-            this.game.createExplosion(bullet.x, bullet.y, 15);
+            this.game.createExplosion(bullet.x, bullet.y, explosionType, 15);
           }
           
           // Знищуємо кулю
           owner.removeBullet(bullet);
           
-          // Знищуємо стіну (якщо це не база)
+          // Пошкоджуємо стіну
           if (wall.type !== 'base') {
-            walls.splice(wallIndex, 1);
+            const destroyed = gameField.damageWall(wall, 1);
+            if (destroyed) {
+              this.stats.wallDestructions++;
+              // Логуємо тип зруйнованої стіни
+              this.logger.gameEvent(`Стіна зруйнована: ${wall.material} (${wall.explosionType} вибух)`);
+            }
           }
           
           // Логуємо подію
-          this.logger.gameEvent(`Куля ${ownerType} зіткнулася зі стіною`);
+          this.logger.gameEvent(`Куля ${ownerType} зіткнулася зі стіною (${wall.material}) - створено ${explosionType} вибух`);
+          break; // Виходимо після першого зіткнення
         }
-      });
+      }
     }
   }
 }

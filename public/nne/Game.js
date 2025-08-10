@@ -358,10 +358,11 @@ export class Game {
      * Створення вибуху в заданій позиції
      * @param {number} x - X координата вибуху
      * @param {number} y - Y координата вибуху
-     * @param {number} size - Розмір вибуху
+     * @param {string} type - Тип вибуху ('wall', 'armor', 'tank')
+     * @param {number} size - Базовий розмір вибуху
      */
-    createExplosion(x, y, size = 15) {
-        this.explosions.push(new Explosion(x, y, size, this.logger));
+    createExplosion(x, y, type = 'wall', size = 15) {
+        this.explosions.push(new Explosion(x, y, type, size, this.logger));
     }
     
     /**
