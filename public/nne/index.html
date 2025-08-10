@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Танчики - Урок 3: Рух та стрільба</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <h1>Урок 3: Рух та стрільба</h1>
+    <div class="lesson_info">
+      <h2 class="lesson_info__title">🎮 Рух та стрільба</h2>
+      <p>У цьому уроці ми додамо:</p>
+      <ul style="text-align: left">
+        <li>✅ Систему керування клавішами (як пульт від телевізора!)</li>
+        <li>✅ Рух гравця та ворога (як переміщення фігурок!)</li>
+        <li>✅ Стрільбу кулями (як стрільба з водяного пістолета!)</li>
+        <li>✅ Систему колізій (як перевірка чи стикаються машини!)</li>
+        <li>✅Керування клавішами WASD</li>
+        <li>✅Стрільба ПРОБІЛ</li>
+        <li>✅Пауза P</li>
+      </ul>
+    </div>
+    <div class="game_container">
+      <canvas id="gameCanvas" width="800" height="600"></canvas>
+      <div class="game_log">
+        <div class="game_log__header">
+          <h3>🎮 Ігровий лог</h3>
+          <button class="game_log__clear" onclick="clearLog()">Очистити</button>
+        </div>
+        <div class="game_log__content" id="logContent">
+          <!-- Тут будуть з'являтися записи логу -->
+        </div>
+      </div>
+    </div>
+    <script type="module" src="main.js"></script>
+  </body>
+</html>
