@@ -313,13 +313,13 @@ export class GameField {
     getExplosionTypeByMaterial(material) {
         switch (material) {
             case 'wood':
-                return 'wall'; // Малий вибух для дерева
+                return 'medium'; // Малий вибух для дерева
             case 'brick':
-                return 'armor'; // Середній вибух для цегли
+                return 'medium'; // Середній вибух для цегли
             case 'concrete':
-                return 'tank'; // Великий вибух для бетону
+                return 'small'; // Великий вибух для бетону
             default:
-                return 'wall';
+                return 'small';
         }
     }
     
@@ -499,6 +499,6 @@ export class GameField {
      * Отримання типу вибуху для стіни
      */
     getWallExplosionType(wall) {
-        return wall.explosionType || 'wall';
+        return wall.explosionType || 'small';
     }
 }

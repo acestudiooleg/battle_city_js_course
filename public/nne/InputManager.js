@@ -2,7 +2,7 @@ export class InputManager {
   constructor(logger) {
     // Стан клавіш (натиснуті/не натиснуті)
     this.keys = {};
-    
+
     // Клавіші, які були натиснуті в цьому кадрі (для одноразових дій)
     this.pressedThisFrame = {};
 
@@ -20,7 +20,7 @@ export class InputManager {
 
       // Додаткові клавіші
       RESTART: ['KeyR'],
-      DEBUG: ['F12'],
+      DEBUG: ['F10'],
     };
 
     // Стан гри
@@ -67,16 +67,18 @@ export class InputManager {
   handleKeyDown(event) {
     const keyCode = event.code;
 
+    // --- ВАЖЛИВО: Ігноруємо авто-повтор клавіш браузером ---
+    if (event.repeat) return;
+
     // Встановлюємо стан клавіші як натиснуту
     this.keys[keyCode] = true;
-    
+
     // Позначаємо клавішу як натиснуту в цьому кадрі
     this.pressedThisFrame[keyCode] = true;
 
     // Обробляємо спеціальні клавіші
     this.handleSpecialKeys(keyCode);
 
-    // Логуємо тільки ігрові клавіші (не всі)
     if (this.isGameKey(keyCode)) {
       this.logger.gameEvent(`⌨️ Клавіша натиснута: ${keyCode}`);
     }
@@ -275,7 +277,11 @@ export class InputManager {
   clearKeys() {
     this.keys = {};
   }
-  
+
+  clearShoot() {
+    this.keys.shoot = false; // Или тот флаг, который вы используете для Space
+  }
+
   /**
    * Очищення клавіш, натиснутих в цьому кадрі
    * Викликається в кінці кожного кадру

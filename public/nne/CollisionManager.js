@@ -21,7 +21,7 @@ export class CollisionManager {
 
     // Логгер для запису подій
     this.logger = logger;
-    
+
     // Посилання на гру для створення вибухів
     this.game = game;
 
@@ -51,7 +51,7 @@ export class CollisionManager {
 
     // Перевіряємо колізії з межами поля
     this.checkBoundaryCollisions(player, enemy, gameField);
-    
+
     // Перевіряємо колізії куль зі стінами
     this.checkBulletWallCollisions(player, enemy, gameField);
   }
@@ -63,7 +63,8 @@ export class CollisionManager {
    * @param {GameField} gameField - Ігрове поле
    */
   checkPlayerBulletsCollisions(player, enemy, gameField) {
-    if (!player.isAlive || !enemy.isAlive || player.isPlayerRespawning()) return;
+    if (!player.isAlive || !enemy.isAlive || player.isPlayerRespawning())
+      return;
 
     const playerBullets = player.getBullets();
 
@@ -90,7 +91,8 @@ export class CollisionManager {
    * @param {GameField} gameField - Ігрове поле
    */
   checkEnemyBulletsCollisions(enemy, player, gameField) {
-    if (!enemy.isAlive || !player.isAlive || player.isPlayerRespawning()) return;
+    if (!enemy.isAlive || !player.isAlive || player.isPlayerRespawning())
+      return;
 
     const enemyBullets = enemy.getBullets();
 
@@ -179,10 +181,12 @@ export class CollisionManager {
    * @returns {boolean} - true якщо є колізія
    */
   checkCollision(obj1, obj2) {
-    return obj1.x < obj2.x + obj2.width &&
-           obj1.x + obj1.width > obj2.x &&
-           obj1.y < obj2.y + obj2.height &&
-           obj1.y + obj1.height > obj2.y;
+    return (
+      obj1.x < obj2.x + obj2.width &&
+      obj1.x + obj1.width > obj2.x &&
+      obj1.y < obj2.y + obj2.height &&
+      obj1.y + obj1.height > obj2.y
+    );
   }
 
   /**
@@ -195,16 +199,30 @@ export class CollisionManager {
     this.stats.totalCollisions++;
     this.stats.enemyHits++;
 
+    const playerStrength = 25;
+    const enemyHealth = enemy.getHealth();
+    let explosionType = 'small';
+
+    if (enemyHealth <= 50 && enemyHealth > 25) {
+      explosionType = 'medium';
+    } else if (enemyHealth <= 25) {
+      explosionType = 'large';
+    }
+
     // Створюємо вибух типу 'tank' (найбільший)
     if (this.game) {
-      this.game.createExplosion(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2, 'tank', 25);
+      this.game.createExplosion(
+        enemy.x + enemy.width / 2,
+        enemy.y + enemy.height / 2,
+        explosionType
+      );
     }
 
     // Знищуємо кулю
     player.removeBullet(bullet);
 
     // Наносимо пошкодження ворогу
-    enemy.takeDamage(bullet.damage || 1);
+    enemy.takeDamage(playerStrength);
 
     // Перевіряємо чи ворог знищений
     if (!enemy.isAlive) {
@@ -227,7 +245,11 @@ export class CollisionManager {
 
     // Створюємо вибух типу 'armor' (середній)
     if (this.game) {
-      this.game.createExplosion(player.x + player.width / 2, player.y + player.height / 2, 'armor', 20);
+      this.game.createExplosion(
+        player.x + player.width / 2,
+        player.y + player.height / 2,
+        'large'
+      );
     }
 
     // Знищуємо кулю
@@ -250,7 +272,7 @@ export class CollisionManager {
 
     // Створюємо вибух типу 'tank' (найбільший)
     if (this.game) {
-      this.game.createExplosion(bullet.x, bullet.y, 'tank', 30);
+      this.game.createExplosion(bullet.x, bullet.y, 'large');
     }
 
     // Знищуємо кулю
@@ -274,7 +296,7 @@ export class CollisionManager {
 
     // Створюємо вибух типу 'wall' (малий)
     if (this.game) {
-      this.game.createExplosion(bullet1.x, bullet1.y, 'wall', 15);
+      this.game.createExplosion(bullet1.x, bullet1.y, 'small');
     }
 
     // Знищуємо обидві кулі
@@ -292,11 +314,13 @@ export class CollisionManager {
    */
   isBulletOutOfBounds(bullet, gameField) {
     const bounds = gameField.getBounds();
-    
-    return bullet.x < bounds.minX || 
-           bullet.x + bullet.width > bounds.maxX ||
-           bullet.y < bounds.minY || 
-           bullet.y + bullet.height > bounds.maxY;
+
+    return (
+      bullet.x < bounds.minX ||
+      bullet.x + bullet.width > bounds.maxX ||
+      bullet.y < bounds.minY ||
+      bullet.y + bullet.height > bounds.maxY
+    );
   }
 
   /**
@@ -307,11 +331,13 @@ export class CollisionManager {
    */
   isTankOutOfBounds(tank, gameField) {
     const bounds = gameField.getBounds();
-    
-    return tank.x < bounds.minX || 
-           tank.x + tank.width > bounds.maxX ||
-           tank.y < bounds.minY || 
-           tank.y + tank.height > bounds.maxY;
+
+    return (
+      tank.x < bounds.minX ||
+      tank.x + tank.width > bounds.maxX ||
+      tank.y < bounds.minY ||
+      tank.y + tank.height > bounds.maxY
+    );
   }
 
   /**
@@ -347,6 +373,49 @@ export class CollisionManager {
     return collision;
   }
 
+  // CollisionManager.js
+
+  /**
+   * Перевірка чи шлях для танка вільний
+   * @param {Tank} tank - Об'єкт танка
+   * @param {number} nextX - Координата X, куди танк хоче переміститися
+   * @param {number} nextY - Координата Y, куди танк хоче переміститися
+   * @param {GameField} gameField - Об'єкт ігрового поля
+   * @returns {boolean} - true якщо шлях вільний
+   */
+  /**
+   * Перевірка чи шлях для танка вільний
+   */
+  canTankMove(tank, nextX, nextY, gameField) {
+    // 1. Створюємо уявну позицію танка для перевірки зіткнення
+    const futurePos = {
+      x: nextX,
+      y: nextY,
+      width: tank.width,
+      height: tank.height,
+    };
+
+    // 2. Перевірка меж екрана (використовуємо метод з Tank.js)
+    if (!tank.checkBounds(nextX, nextY)) {
+      return false;
+    }
+
+    // 3. Перевірка зіткнення з усіма стінами
+    const walls = gameField.getWalls();
+    for (const wall of walls) {
+      if (this.checkCollision(futurePos, wall)) {
+        return false; // Попереду стіна!
+      }
+    }
+
+    // 4. Перевірка зіткнення зі штабом
+    const base = gameField.getBase();
+    if (this.checkBulletBaseCollision(futurePos, base)) {
+      return false; // Попереду база!
+    }
+
+    return true; // Шлях вільний
+  }
   /**
    * Отримання статистики колізій
    * @returns {Object} - Статистика
@@ -367,7 +436,7 @@ export class CollisionManager {
       wallDestructions: 0,
     };
   }
-  
+
   /**
    * Перевірка колізій куль зі стінами
    * @param {Player} player - Гравець
@@ -376,14 +445,26 @@ export class CollisionManager {
    */
   checkBulletWallCollisions(player, enemy, gameField) {
     const walls = gameField.getWalls();
-    
+
     // Перевіряємо кулі гравця
-    this.checkBulletsWithWalls(player.getBullets(), walls, player, 'player', gameField);
-    
+    this.checkBulletsWithWalls(
+      player.getBullets(),
+      walls,
+      player,
+      'player',
+      gameField
+    );
+
     // Перевіряємо кулі ворога
-    this.checkBulletsWithWalls(enemy.getBullets(), walls, enemy, 'enemy', gameField);
+    this.checkBulletsWithWalls(
+      enemy.getBullets(),
+      walls,
+      enemy,
+      'enemy',
+      gameField
+    );
   }
-  
+
   /**
    * Перевірка колізій куль зі стінами
    * @param {Array} bullets - Масив куль
@@ -395,35 +476,40 @@ export class CollisionManager {
   checkBulletsWithWalls(bullets, walls, owner, ownerType, gameField) {
     for (let i = bullets.length - 1; i >= 0; i--) {
       const bullet = bullets[i];
-      
+
       for (let j = walls.length - 1; j >= 0; j--) {
         const wall = walls[j];
-        
+
         if (this.checkCollision(bullet, wall)) {
           // Отримуємо тип вибуху залежно від матеріалу стіни
-          const explosionType = gameField.getWallExplosionType ? 
-            gameField.getWallExplosionType(wall) : 'wall';
-          
+          const explosionType = gameField.getWallExplosionType
+            ? gameField.getWallExplosionType(wall)
+            : 'small';
+
           // Створюємо вибух відповідного типу
           if (this.game) {
-            this.game.createExplosion(bullet.x, bullet.y, explosionType, 15);
+            this.game.createExplosion(bullet.x, bullet.y, explosionType);
           }
-          
+
           // Знищуємо кулю
           owner.removeBullet(bullet);
-          
+
           // Пошкоджуємо стіну
           if (wall.type !== 'base') {
             const destroyed = gameField.damageWall(wall, 1);
             if (destroyed) {
               this.stats.wallDestructions++;
               // Логуємо тип зруйнованої стіни
-              this.logger.gameEvent(`Стіна зруйнована: ${wall.material} (${wall.explosionType} вибух)`);
+              this.logger.gameEvent(
+                `Стіна зруйнована: ${wall.material} (${wall.explosionType} вибух)`
+              );
             }
           }
-          
+
           // Логуємо подію
-          this.logger.gameEvent(`Куля ${ownerType} зіткнулася зі стіною (${wall.material}) - створено ${explosionType} вибух`);
+          this.logger.gameEvent(
+            `Куля ${ownerType} зіткнулася зі стіною (${wall.material}) - створено ${explosionType} вибух`
+          );
           break; // Виходимо після першого зіткнення
         }
       }

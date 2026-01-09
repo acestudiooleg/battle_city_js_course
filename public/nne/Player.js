@@ -52,7 +52,7 @@ export class Player extends Tank {
     this.isRespawning = false;
     this.initialPosition = {
       x: this.x,
-      y: this.y
+      y: this.y,
     };
 
     // записуємо в лог
@@ -124,66 +124,56 @@ export class Player extends Tank {
     this.movementState.isMoving = isMoving;
   }
 
+  // Player.js
+
   /**
    * Оновлення руху гравця
-   * @param {number} deltaTime - Час з останнього оновлення
+   * @param {number} deltaTime - Час
+   * @param {Object} gameContext - Об'єкт з CollisionManager та GameField
    */
-  updateMovement(deltaTime) {
-    if (!this.inputManager) return;
+  // Player.js
+  updateMovement(deltaTime, gameContext) {
+    // Перевіряємо чи є все необхідне для розрахунків
+    if (!this.inputManager || !gameContext) return;
 
-    // Отримуємо напрямок руху від системи керування
+    const { collisionManager, gameField } = gameContext;
     const direction = this.inputManager.getMovementDirection();
 
-    // Розраховуємо нову позицію
-    let newX = this.x;
-    let newY = this.y;
-    let isMoving = false;
+    // Розраховуємо напрямок кроку (одиничний вектор)
+    let stepX = 0;
+    let stepY = 0;
 
-    // Рух вгору
-    if (direction.up) {
-      newY -= this.speed;
-      isMoving = true;
-      this.movementState.lastDirection = 'up';
-    }
+    if (direction.up) stepY = -1;
+    else if (direction.down) stepY = 1;
+    else if (direction.left) stepX = -1;
+    else if (direction.right) stepX = 1;
 
-    // Рух вниз
-    if (direction.down) {
-      newY += this.speed;
-      isMoving = true;
-      this.movementState.lastDirection = 'down';
-    }
+    // Якщо ми намагаємось рухатись
+    if (stepX !== 0 || stepY !== 0) {
+      let movedThisFrame = false;
 
-    // Рух вліво
-    if (direction.left) {
-      newX -= this.speed;
-      isMoving = true;
-      this.movementState.lastDirection = 'left';
-    }
+      // РУХ ПО 1 ПІКСЕЛЮ:
+      // Ми намагаємось пройти distance = this.speed пікселів.
+      // На кожному пікселі перевіряємо колізію.
+      for (let i = 0; i < this.speed; i++) {
+        const nextX = this.x + stepX;
+        const nextY = this.y + stepY;
 
-    // Рух вправо
-    if (direction.right) {
-      newX += this.speed;
-      isMoving = true;
-      this.movementState.lastDirection = 'right';
-    }
+        if (collisionManager.canTankMove(this, nextX, nextY, gameField)) {
+          this.x = nextX;
+          this.y = nextY;
+          movedThisFrame = true;
+        } else {
+          // Вперлися в стіну, далі йти не можна
+          break;
+        }
+      }
 
-    // Перевіряємо межі руху
-    if (this.checkBounds(newX, newY)) {
-      this.x = newX;
-      this.y = newY;
-    }
-
-    // Просте логування - GameLogger сам згрупує повідомлення
-    const wasMoving = this.movementState.isMoving;
-    this.movementState.isMoving = isMoving;
-    
-    if (isMoving && !wasMoving) {
-      this.logger.playerAction('Гравець почав рухатися', `напрямок: ${this.movementState.lastDirection}`);
-    } else if (!isMoving && wasMoving) {
-      this.logger.playerAction('Гравець зупинився');
+      this.movementState.isMoving = movedThisFrame;
+    } else {
+      this.movementState.isMoving = false;
     }
   }
-
   /**
    * Оновлення напрямку дула
    */
@@ -271,21 +261,21 @@ export class Player extends Tank {
   drawRespawnIndicator(ctx) {
     // Прозорий червоний колір для індикатора відродження
     ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
-    
+
     // Розмір індикатора
     const indicatorSize = 20;
-    
+
     // Центр позиції відродження
     const centerX = this.initialPosition.x + this.width / 2;
     const centerY = this.initialPosition.y + this.height / 2;
-    
+
     // Малюємо коло з анімацією пульсації
     const pulseSize = indicatorSize + Math.sin(Date.now() * 0.01) * 5;
-    
+
     ctx.beginPath();
     ctx.arc(centerX, centerY, pulseSize, 0, 2 * Math.PI);
     ctx.fill();
-    
+
     // Малюємо текст "Відродження..."
     ctx.fillStyle = 'white';
     ctx.font = '12px Arial';
@@ -305,7 +295,7 @@ export class Player extends Tank {
    * Оновлення стану гравця
    * @param {number} deltaTime - Час з останнього оновлення
    */
-  update(deltaTime) {
+  update(deltaTime, gameContext) {
     // Якщо гравець відроджується, оновлюємо таймер
     if (this.isRespawning) {
       this.respawnTimer += deltaTime;
@@ -318,16 +308,23 @@ export class Player extends Tank {
     // Якщо гравець мертвий і не відроджується, не оновлюємо
     if (!this.isAlive) return;
 
-    // Оновлюємо рух
-    this.updateMovement(deltaTime);
+    // 1. Оновлюємо рух (тепер з вбудованими колізіями)
+    this.updateMovement(deltaTime, gameContext);
 
-    // Оновлюємо напрямок дула
+    // 2. Оновлюємо напрямок дула (теж всередині updateMovement)
     this.updateDirection();
 
-    // Оновлюємо стрільбу
-    this.updateShooting(deltaTime);
+    // 3. ПЕРЕВІРКА СТРІЛЬБИ (перенесена сюди для точності)
+    if (this.inputManager && this.inputManager.isShootPressed()) {
+      this.shoot();
+      // ВАЖЛИВО: Скидаємо стан клавіші "Пробіл", щоб танк не стріляв чергою
+      if (this.inputManager.pressedThisFrame) {
+        this.inputManager.pressedThisFrame['Space'] = false;
+      }
+    }
 
-    // Оновлюємо кулі
+    // 4. Оновлюємо стрільбу (кулдауни) та кулі
+    this.updateShooting(deltaTime);
     this.updateBullets(deltaTime);
   }
 
@@ -356,7 +353,7 @@ export class Player extends Tank {
       this.logger.playerAction('❌ Гравець не може стріляти');
       return;
     }
-    
+
     // Отримуємо позицію для стрільби (метод з базового класу Tank)
     const shootPos = this.getShootPosition();
 
@@ -474,26 +471,32 @@ export class Player extends Tank {
    */
   takeDamage(damage) {
     this.health -= damage;
-                
+
     // Перевіряємо чи гравець знищений
     if (this.health <= 0) {
       this.health = 0;
       this.isAlive = false;
       this.lives--;
-      
+
       // Очищаємо всі кулі при смерті
       this.clearBullets();
-      
-      this.logger.gameEvent(`Гравець знищений! Залишилось життів: ${this.lives}`);
-      
+
+      this.logger.gameEvent(
+        `Гравець знищений! Залишилось життів: ${this.lives}`
+      );
+
       // Якщо ще є життя, починаємо відродження
       if (this.lives > 0) {
         this.startRespawn();
       } else {
-        this.logger.gameEvent('💀 Гра закінчена! У гравця не залишилось життів');
+        this.logger.gameEvent(
+          '💀 Гра закінчена! У гравця не залишилось життів'
+        );
       }
     } else {
-      this.logger.gameEvent(`Гравець отримав пошкодження: ${damage}, здоров'я: ${this.health}`);
+      this.logger.gameEvent(
+        `Гравець отримав пошкодження: ${damage}, здоров'я: ${this.health}`
+      );
     }
   }
 
@@ -522,7 +525,7 @@ export class Player extends Tank {
     this.respawnTimer = 0;
     // Очищаємо всі кулі
     this.clearBullets();
-    
+
     this.logger.gameEvent('✅ Гравець відроджений!');
   }
 
