@@ -354,7 +354,7 @@ canvas {
 
 ### Крок 5: Додаємо заголовок
 
-**В `<body>` додай:**
+**В середені `<body>` перед `<canvas>` додай:**
 
 ```html
 <h1>🎮 Танчики - Урок 1</h1>
@@ -623,6 +623,34 @@ Projects/
    ├── styles.css      # Основні стилі
    └── main.js         # JavaScript код
 ```
+
+
+
+<details>
+<summary>Дивитись код - /index.html</summary>
+
+<img src="../public/moja/index.html.png" />
+</details>
+
+
+<details>
+<summary>Дивитись код - /main.js</summary>
+
+<img src="../public/moja/main.js.png" />
+</details>
+
+<details>
+<summary>Дивитись код - /variables.css</summary>
+
+<img src="../public/moja/variables.css.png" />
+</details>
+
+<details>
+<summary>Дивитись код - /styles.css</summary>
+
+<img src="../public/moja/styles.css.png" />
+</details>
+
 
 ## 💡 Корисні поради
 
