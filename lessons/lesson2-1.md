@@ -7,11 +7,10 @@
 - 🎨 додамо нові кольори
 - 🎮 створимо ігрове поле 
 - 🚗 намалюємо танки гравця та ворога 
-- 📝 реалізуємо систему логування подій
 
 <iframe width="850" height="650" src="/battle_city_js_course/mbili/game.html" frameborder="0" allowfullscreen></iframe>
 
-У цьому уроці ми оновимо HTML структуру (як перебудувати замок з лего!) та додамо нові стилі для ігрового контейнера та системи логування (як додати нові фарби до палітри!).
+У цьому уроці ми оновимо HTML структуру (як перебудувати замок з лего!) та додамо нові стилі для ігрового контейнера
 
 ## 📁 Підготовка до роботи
 
@@ -37,9 +36,14 @@
 
 ## Крок 1: Оновлення заголовка
 
-1. **Оновіть заголовок та опис:**
+1. **Оновіть заголовок в `<head>`:**
    ```html
    <title>Танчики - Урок 2: Малювання поля та танків</title>
+   ```
+
+1. **Оновіть заголовок в `<body>`:**
+     ```html
+   <h1>Танчики - Урок 2: Малювання поля та танків</h1>
    ```
 
 ## Крок 2: Додавання нових стилів
@@ -71,55 +75,6 @@ canvas {
   margin: 0 auto;
 }
 
-/* 📋 Журнал подій гри - як робимо вікно для повідомлень */
-.game_log {
-  width: 800px;
-  height: 600px;
-  background-color: var(--bg-secondary);
-  border: 2px solid var(--primary);
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-}
-/* 📋 Заголовок журналу - як робимо заголовок для вікна */
-.game_log__header {
-  background-color: var(--bg-elevated);
-  padding: 10px;
-  border-bottom: 1px solid var(--primary);
-  display: flex;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.game_log__header-title {
-  margin: 0;
-  font-size: 16px;
-}
-/* 🔘 Кнопка очищення журналу - як робимо кнопку для очищення журналу */
-.game_log__clear-btn {
-  background-color: var(--danger);
-  color: var(--white);
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
-}
-
-.game_log__clear-btn:hover {
-  background-color: var(--danger-hover);
-}
-/* 📋 Вміст журналу - як робимо вміст для вікна */
-.game_log__content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 10px;
-  font-family: 'Courier New', monospace;
-  font-size: 12px;
-  line-height: 1.4;
-}
 /* 🔘 Блок з тестовими кнопками - як робимо панель кнопок */
 .test_buttons {
   margin-top: 20px;
@@ -194,37 +149,31 @@ canvas {
        <li>✅ Ігрове поле з сіткою (як шахова дошка!)</li>
        <li>✅ Танк гравця (жовтий - як сонце!)</li>
        <li>✅ Ворожого танка (червоний - як вогонь!)</li>
-       <li>✅ Систему логування подій (як щоденник!)</li>
      </ul>
    </div>
    ```
 
-2. **Додайте ігровий контейнер (видаліть старий `<canvas></canvas>`):**
-
-   ```html
-   <div class="game_container">
-     <canvas id="gameCanvas" width="800" height="600"></canvas>
-
-     <div class="game_log">
-       <div class="game_log__header">
-         <h3>🎮 Ігровий лог</h3>
-         <button class="game_log__clear" onclick="clearLog()">Очистити</button>
-       </div>
-       <div class="game_log__content" id="logContent">
-         <!-- Тут будуть з'являтися записи логу -->
-       </div>
-     </div>
-   </div>
-   ```
 
 ## 🎉 Результат
 
 Після цих змін у тебе буде:
 
 - ✅ Оновлений заголовок сторінки (як нова назва книги!)
-- ✅ Новий макет з ігровим полем та панеллю логування (як новий план кімнати!)
-- ✅ Стилізована панель логування з кнопкою очищення (як магічна кнопка!)
-- ✅ Готовий контейнер для відображення логів (як порожній щоденник!)
+
+
+<details>
+<summary>Дивитись код - /index.html</summary>
+
+<img src="../public/mbili/index.html.2.1.png" />
+</details>
+
+
+<details>
+<summary>Дивитись код - /styles.css</summary>
+
+<img src="../public/mbili/styles.css.2.1.png" />
+</details>
+
 
 ## 🚀 Що далі?
 
