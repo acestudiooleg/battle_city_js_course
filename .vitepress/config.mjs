@@ -90,7 +90,28 @@ export default defineConfig({
               },
             ],
           },
-          { text: 'Урок 4: Вибухи та анімації', link: '/lessons/lesson4' },
+          {
+            text: 'Урок 4: Вибухи та анімації',
+            link: '/lessons/lesson4-1',
+            collapsed: true,
+            items: [
+              {
+                text: '4.1: Оновлення HTML та стилів',
+                link: '/lessons/lesson4-1',
+              },
+              { text: '4.2: Система керування', link: '/lessons/lesson4-2' },
+              { text: '4.3: Клас кулі', link: '/lessons/lesson4-3' },
+              { text: '4.4: Рух гравця', link: '/lessons/lesson4-4' },
+              { text: '3.5: Стрільба гравця', link: '/lessons/lesson3-5' },
+              { text: '3.6: Рух ворога', link: '/lessons/lesson3-6' },
+              { text: '3.7: Стрільба ворога', link: '/lessons/lesson3-7' },
+              { text: '3.8: Система колізій', link: '/lessons/lesson3-8' },
+              {
+                text: '3.9: Оновлення головного файлу',
+                link: '/lessons/lesson3-9',
+              },
+            ],
+          },
           {
             text: 'Урок 5: Перешкоди та карти рівнів',
             link: '/lessons/lesson5',
