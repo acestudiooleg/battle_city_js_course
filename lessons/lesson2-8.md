@@ -258,4 +258,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 ## ДЕМО
 
-[Подивитись ТУТ як має виглядати твій результат](/battle_city_js_course/mbili/index.html){target="\_blank"}
+[Подивитись ТУТ як має виглядати твій результат](/battle_city_js_course/mbili/index.html){target="_blank"}
