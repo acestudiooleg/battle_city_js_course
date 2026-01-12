@@ -7,40 +7,17 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <h1>Урок 2: Малювання поля та танків</h1>
+    <h1>Танчики - Урок 2: Малювання поля та танків</h1>
     <div class="lesson_info">
       <h2>🎨 Малювання поля та танків</h2>
       <p>У цьому уроці ми створимо:</p>
-      <ul style="text-align: left;">
+      <ul style="text-align: left">
         <li>✅ Ігрове поле з сіткою (як шахова дошка!)</li>
         <li>✅ Танк гравця (жовтий - як сонце!)</li>
         <li>✅ Ворожого танка (червоний - як вогонь!)</li>
-        <li>✅ Систему логування подій (як щоденник!)</li>
       </ul>
     </div>
-    <div class="game_container">
-      <canvas id="gameCanvas" width="800" height="600"></canvas>
-    
-      <div class="game_log">
-        <div class="game_log__header">
-          <h3>🎮 Ігровий лог</h3>
-          <button class="game_log__clear" onclick="clearLog()">Очистити</button>
-        </div>
-        <div class="game_log__content" id="logContent">
-          <!-- Тут будуть з'являтися записи логу -->
-        </div>
-      </div>
-    </div>
-    <div class="controls">
-      <h3>Що ми зробили:</h3>
-      <p>
-        Створили базову структуру HTML файлу з Canvas елементом для малювання
-        гри.
-      </p>
-      <p>
-        Canvas має розмір 800x600 пікселів та готовий для подальшої розробки.
-      </p>
-    </div>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
     <script type="module" src="main.js"></script>
   </body>
 </html>

@@ -16,8 +16,8 @@
  * - Запис подій гри в консоль
  * - Кольорова розпізнавання типів повідомлень
  * - Кешування та групування повідомлень
+ * - Періодичний рендеринг (2 рази на секунду)
  */
-
 export class GameLogger {
   constructor() {
     // Кеш для різних типів подій
@@ -96,7 +96,12 @@ export class GameLogger {
       // Проходимо по всіх подіях цього типу
       for (const [eventKey, event] of typeQueue.entries()) {
         // Логуємо подію в консоль
-        this.logToConsole(event.message, event.type, event.details, event.count);
+        this.logToConsole(
+          event.message,
+          event.type,
+          event.details,
+          event.count
+        );
 
         // Видаляємо подію з черги
         typeQueue.delete(eventKey);
@@ -137,6 +142,8 @@ export class GameLogger {
 
   /**
    * Загальна подія гри
+   * @param {string} message - Повідомлення
+   * @param {string} details - Додаткові деталі
    */
   gameEvent(message, details = '') {
     this.addEventToQueue(message, 'game', details);
@@ -144,6 +151,8 @@ export class GameLogger {
 
   /**
    * Інформаційне повідомлення
+   * @param {string} message - Повідомлення
+   * @param {string} details - Додаткові деталі
    */
   info(message, details = '') {
     this.addEventToQueue(message, 'info', details);
@@ -151,6 +160,8 @@ export class GameLogger {
 
   /**
    * Попередження
+   * @param {string} message - Повідомлення
+   * @param {string} details - Додаткові деталі
    */
   warning(message, details = '') {
     this.addEventToQueue(message, 'warning', details);
@@ -158,6 +169,8 @@ export class GameLogger {
 
   /**
    * Помилка
+   * @param {string} message - Повідомлення
+   * @param {string} details - Додаткові деталі
    */
   error(message, details = '') {
     this.addEventToQueue(message, 'error', details);
@@ -165,6 +178,8 @@ export class GameLogger {
 
   /**
    * Успішна дія
+   * @param {string} message - Повідомлення
+   * @param {string} details - Додаткові деталі
    */
   success(message, details = '') {
     this.addEventToQueue(message, 'success', details);
@@ -172,6 +187,8 @@ export class GameLogger {
 
   /**
    * Дія гравця
+   * @param {string} message - Повідомлення
+   * @param {string} details - Додаткові деталі
    */
   playerAction(message, details = '') {
     this.addEventToQueue(message, 'player', details);
@@ -179,6 +196,8 @@ export class GameLogger {
 
   /**
    * Дія ворога
+   * @param {string} message - Повідомлення
+   * @param {string} details - Додаткові деталі
    */
   enemyAction(message, details = '') {
     this.addEventToQueue(message, 'enemy', details);
@@ -213,6 +232,7 @@ export class GameLogger {
     return stats;
   }
 }
+
 ```
 
 ## 🎯 Що робить цей клас?

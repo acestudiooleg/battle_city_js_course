@@ -15,4 +15,4 @@ export const brick = '#bd4400';
 export const steel = '#a4a7a7';
 export const water = '#4f00ff';
 export const forest = '#38a038';
-export const ice = '#fcfcfc'; 
+export const ice = '#fcfcfc';

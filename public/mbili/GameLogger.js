@@ -1,33 +1,34 @@
 /**
- * 🎮 Клас GameLogger - система логування подій гри
+ * 🎮 Клас GameLogger - система логування подій гри в консоль з кольорами
  *
  * Відповідає за:
- * - Запис подій гри
- * - Відображення логів на екрані
- * - Різні типи повідомлень
+ * - Запис подій гри в консоль
+ * - Кольорова розпізнавання типів повідомлень
  * - Кешування та групування повідомлень
  * - Періодичний рендеринг (2 рази на секунду)
  */
-
 export class GameLogger {
   constructor() {
-    // контейнер для логів в HTML
-    this.logContainer = document.getElementById('logContent');
-    // максимальна кількість записів в лозі
-    this.maxEntries = 50;
-    
     // Кеш для різних типів подій
     this.eventCache = new Map();
-    
+
     // Черги для кожного типу події
     this.eventQueues = new Map();
-    
-    // Час останнього рендерингу
-    this.lastRenderTime = 0;
-    
+
     // Інтервал рендерингу (500мс = 2 рази на секунду)
     this.renderInterval = 500;
-    
+
+    // Кольори для різних типів повідомлень
+    this.colors = {
+      game: { bg: '#2c3e50', color: '#ecf0f1' },
+      info: { bg: '#3498db', color: '#fff' },
+      warning: { bg: '#f39c12', color: '#fff' },
+      error: { bg: '#e74c3c', color: '#fff' },
+      success: { bg: '#27ae60', color: '#fff' },
+      player: { bg: '#9b59b6', color: '#fff' },
+      enemy: { bg: '#c0392b', color: '#fff' },
+    };
+
     // Запускаємо періодичний рендеринг
     this.startPeriodicRender();
   }
@@ -49,14 +50,14 @@ export class GameLogger {
    */
   addEventToQueue(message, type = 'info', details = '') {
     const eventKey = `${type}:${message}:${details}`;
-    
+
     // Створюємо чергу для цього типу події, якщо її немає
     if (!this.eventQueues.has(type)) {
       this.eventQueues.set(type, new Map());
     }
-    
+
     const typeQueue = this.eventQueues.get(type);
-    
+
     // Перевіряємо чи вже є така подія в черзі
     if (typeQueue.has(eventKey)) {
       // Якщо є, збільшуємо лічильник
@@ -70,7 +71,7 @@ export class GameLogger {
         type,
         details,
         timestamp: Date.now(),
-        count: 1
+        count: 1,
       });
     }
   }
@@ -79,15 +80,18 @@ export class GameLogger {
    * Рендеринг подій з черг
    */
   renderQueuedEvents() {
-    const now = Date.now();
-    
     // Проходимо по всіх типах подій
     for (const [type, typeQueue] of this.eventQueues.entries()) {
       // Проходимо по всіх подіях цього типу
       for (const [eventKey, event] of typeQueue.entries()) {
-        // Додаємо подію в лог
-        this.addLogEntry(event.message, event.type, event.details, event.count);
-        
+        // Логуємо подію в консоль
+        this.logToConsole(
+          event.message,
+          event.type,
+          event.details,
+          event.count
+        );
+
         // Видаляємо подію з черги
         typeQueue.delete(eventKey);
       }
@@ -95,19 +99,15 @@ export class GameLogger {
   }
 
   /**
-   * Додавання запису в лог
+   * Логування в консоль з кольорами
    * @param {string} message - Повідомлення
    * @param {string} type - Тип повідомлення
    * @param {string} details - Додаткові деталі
    * @param {number} count - Кількість повторень
    */
-  addLogEntry(message, type = 'info', details = '', count = 1) {
+  logToConsole(message, type = 'info', details = '', count = 1) {
     // поточний час
     const timestamp = new Date().toLocaleTimeString();
-    // створюємо новий елемент div
-    const entry = document.createElement('div');
-    // встановлюємо CSS клас
-    entry.className = `game_log__entry game_log__entry--${type}`;
 
     // формуємо текст з часом
     let content = `[${timestamp}] ${message}`;
@@ -115,34 +115,24 @@ export class GameLogger {
       // додаємо їх до тексту
       content += ` - ${details}`;
     }
-    
+
     // Додаємо кількість повторень, якщо більше 1
     if (count > 1) {
       content += ` (${count} разів)`;
     }
 
-    // встановлюємо текст елемента
-    entry.textContent = content;
+    // Отримуємо кольори для типу повідомлення
+    const styleConfig = this.colors[type] || this.colors.info;
+    const style = `background: ${styleConfig.bg}; color: ${styleConfig.color}; padding: 4px 8px; border-radius: 3px; font-weight: bold;`;
 
-    if (!this.logContainer) {
-      return;
-    }
-
-    // додаємо запис на початок списку
-    this.logContainer.insertBefore(entry, this.logContainer.firstChild);
-
-    // видаляємо зайві записи (якщо їх більше maxEntries)
-    while (this.logContainer.children.length > this.maxEntries) {
-      // видаляємо останній елемент
-      this.logContainer.removeChild(this.logContainer.lastChild);
-    }
-
-    // автоматично прокручуємо до верху логу
-    this.logContainer.scrollTop = 0;
+    // Логуємо в консоль з кольорами
+    console.log(`%c${content}`, style);
   }
 
   /**
    * Загальна подія гри
+   * @param {string} message - Повідомлення
+   * @param {string} details - Додаткові деталі
    */
   gameEvent(message, details = '') {
     this.addEventToQueue(message, 'game', details);
@@ -150,6 +140,8 @@ export class GameLogger {
 
   /**
    * Інформаційне повідомлення
+   * @param {string} message - Повідомлення
+   * @param {string} details - Додаткові деталі
    */
   info(message, details = '') {
     this.addEventToQueue(message, 'info', details);
@@ -157,6 +149,8 @@ export class GameLogger {
 
   /**
    * Попередження
+   * @param {string} message - Повідомлення
+   * @param {string} details - Додаткові деталі
    */
   warning(message, details = '') {
     this.addEventToQueue(message, 'warning', details);
@@ -164,6 +158,8 @@ export class GameLogger {
 
   /**
    * Помилка
+   * @param {string} message - Повідомлення
+   * @param {string} details - Додаткові деталі
    */
   error(message, details = '') {
     this.addEventToQueue(message, 'error', details);
@@ -171,6 +167,8 @@ export class GameLogger {
 
   /**
    * Успішна дія
+   * @param {string} message - Повідомлення
+   * @param {string} details - Додаткові деталі
    */
   success(message, details = '') {
     this.addEventToQueue(message, 'success', details);
@@ -178,6 +176,8 @@ export class GameLogger {
 
   /**
    * Дія гравця
+   * @param {string} message - Повідомлення
+   * @param {string} details - Додаткові деталі
    */
   playerAction(message, details = '') {
     this.addEventToQueue(message, 'player', details);
@@ -185,6 +185,8 @@ export class GameLogger {
 
   /**
    * Дія ворога
+   * @param {string} message - Повідомлення
+   * @param {string} details - Додаткові деталі
    */
   enemyAction(message, details = '') {
     this.addEventToQueue(message, 'enemy', details);
@@ -194,12 +196,10 @@ export class GameLogger {
    * Очищення логу
    */
   clear() {
-    if (this.logContainer) {
-      this.logContainer.innerHTML = '';
-    }
     // Очищаємо кеш та черги
     this.eventCache.clear();
     this.eventQueues.clear();
+    console.clear();
   }
 
   /**

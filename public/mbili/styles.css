@@ -1,37 +1,47 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 @import './variables.css';
 
 body {
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-  text-align: center;
-  background-color: var(--bg);
-  color: var(--text);
-  margin: 0;
-  padding: 20px;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 20px;
 }
 
 h1 {
-  color: var(--primary);
-  margin-bottom: 10px;
+    color: var(--primary);
+    margin-bottom: 10px;
 }
 
 .lesson_info {
-  background-color: var(--bg-secondary);
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-  border: 1px solid var(--border);
+    background-color: var(--bg-secondary);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid var(--border);
 }
 
 canvas {
-  border: 3px solid var(--primary);
-  border-radius: 8px;
-  background-color: var(--black);
-  display: block;
-  margin: 0 auto;
+    border: 3px solid var(--primary);
+    border-radius: 8px;
+    background-color: var(--black);
+    display: block;
+    margin: 0 auto;
+}
+
+.controls {
+    margin-top: 20px;
+    background-color: var(--bg-secondary);
+    padding: 15px;
+    border-radius: 8px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid var(--border);
 }
 
 /* 🎮 Контейнер для гри - як розташовуємо ігрове поле та журнал поруч */
@@ -44,55 +54,6 @@ canvas {
   margin: 0 auto;
 }
 
-/* 📋 Журнал подій гри - як робимо вікно для повідомлень */
-.game_log {
-  width: 800px;
-  height: 600px;
-  background-color: var(--bg-secondary);
-  border: 2px solid var(--primary);
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-}
-/* 📋 Заголовок журналу - як робимо заголовок для вікна */
-.game_log__header {
-  background-color: var(--bg-elevated);
-  padding: 10px;
-  border-bottom: 1px solid var(--primary);
-  display: flex;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.game_log__header-title {
-  margin: 0;
-  font-size: 16px;
-}
-/* 🔘 Кнопка очищення журналу - як робимо кнопку для очищення журналу */
-.game_log__clear {
-  background-color: var(--danger);
-  color: var(--white);
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
-}
-
-.game_log__clear:hover {
-  background-color: var(--danger-hover);
-}
-/* 📋 Вміст журналу - як робимо вміст для вікна */
-.game_log__content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 10px;
-  font-family: 'Courier New', monospace;
-  font-size: 12px;
-  line-height: 1.4;
-}
 /* 🔘 Блок з тестовими кнопками - як робимо панель кнопок */
 .test_buttons {
   margin-top: 20px;
@@ -152,52 +113,4 @@ canvas {
   width: 20px;
   height: 20px;
   border: 1px solid var(--white);
-}
-
-/* 📋 Елемент журналу - як робимо елемент для вікна */
-.game_log__entry {
-  margin-bottom: 8px;
-  padding: 5px;
-  border-radius: 4px;
-  word-wrap: break-word;
-}
-/* 📋 Інформація про подію - як робимо інформацію для вікна */
-.game_log__entry--info {
-  background-color: var(--primary);
-  color: var(--white);
-}
-/* 📋 Успіх - як робимо успіх для вікна */
-.game_log__entry--success {
-  background-color: var(--success);
-  color: var(--white);
-}
-/* 📋 Попередження - як робимо попередження для вікна */
-.game_log__entry--warning {
-  background-color: var(--warning);
-  color: var(--white);
-}
-/* 📋 Помилка - як робимо помилку для вікна */
-.game_log__entry--error {
-  background-color: var(--danger);
-  color: var(--white);
-}
-/* 📋 Інформація для відладки - як робимо інформацію для відладки для вікна */
-.game_log__entry--debug {
-  background-color: var(--gray);
-  color: var(--white);
-}
-
-.game_log__entry--game {
-    background-color: var(--game-color);
-    color: var(--white);
-}
-
-.game_log__entry--player {
-    background-color: var(--player-color);
-    color: var(--player-text);
-}
-
-.game_log__entry--enemy {
-    background-color: var(--enemy-color);
-    color: var(--enemy-text);
 }

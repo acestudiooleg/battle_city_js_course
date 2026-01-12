@@ -8,7 +8,7 @@
 - 🎮 створимо ігрове поле 
 - 🚗 намалюємо танки гравця та ворога 
 
-<iframe width="850" height="650" src="/battle_city_js_course/mbili/game.html" frameborder="0" allowfullscreen></iframe>
+<iframe width="850" height="850" src="/battle_city_js_course/mbili/game.html" frameborder="0" allowfullscreen></iframe>
 
 У цьому уроці ми оновимо HTML структуру (як перебудувати замок з лего!) та додамо нові стилі для ігрового контейнера
 
@@ -41,7 +41,7 @@
    <title>Танчики - Урок 2: Малювання поля та танків</title>
    ```
 
-1. **Оновіть заголовок в `<body>`:**
+2. **Оновіть заголовок в `<body>`:**
      ```html
    <h1>Танчики - Урок 2: Малювання поля та танків</h1>
    ```

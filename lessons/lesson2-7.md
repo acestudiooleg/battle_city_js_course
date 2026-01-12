@@ -22,18 +22,13 @@ import { yellow, red } from './colors.js';
  * - Управління ігровим циклом
  * - Координацію між різними частинами гри
  */
-
-/**
- * Головний клас гри
- * Відповідає за ініціалізацію та управління грою
- * @class Game
- * @constructor
- * @param {GameLogger} logger - екземпляр логера для запису подій
- * @param {HTMLCanvasElement} canvas - Canvas елемент для малювання
- * @param {CanvasRenderingContext2D} ctx - Контекст для малювання на Canvas
- * @param {Object} GAME_CONFIG - Конфігурація гри
- */
 export class Game {
+  /**
+   * @param {import('./GameLogger.js').GameLogger} logger - екземпляр логера для запису подій
+   * @param {HTMLCanvasElement} canvas - Canvas елемент для малювання
+   * @param {CanvasRenderingContext2D} ctx - Контекст для малювання на Canvas
+   * @param {import('./main.js').GameConfig} GAME_CONFIG - Конфігурація гри
+   */
   constructor(logger, canvas, ctx, GAME_CONFIG) {
     // Canvas елемент з HTML
     this.canvas = canvas;
@@ -71,13 +66,13 @@ export class Game {
     this.player = new Player(
       {
         // позиція X гравця
-        x: 100,
+        x: this.config.TILE_SIZE * 2 + this.config.OFFSET_LEFT,
         // позиція Y гравця
-        y: 100,
+        y: this.config.TILE_SIZE * 2 + this.config.OFFSET_TOP,
         // жовтий колір для гравця
         color: yellow,
         // розмір танка
-        size: this.config.TILE_SIZE,
+        size: this.config.TILE_SIZE * 2,
       },
       this.logger
     );
@@ -85,13 +80,13 @@ export class Game {
     this.enemy = new Enemy(
       {
         // позиція X ворога
-        x: 300,
+        x: this.config.TILE_SIZE * 8 + this.config.OFFSET_LEFT,
         // позиція Y ворога
-        y: 200,
+        y: this.config.TILE_SIZE * 6 + this.config.OFFSET_TOP,
         // червоний колір для ворога
         color: red,
         // розмір танка
-        size: this.config.TILE_SIZE,
+        size: this.config.TILE_SIZE * 2,
       },
       this.logger
     );
