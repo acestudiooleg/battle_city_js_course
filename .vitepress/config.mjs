@@ -155,7 +155,7 @@ export default defineConfig({
     langMenuLabel: 'Змінити мову',
 
     socialLinks: [
-      { icon: 'instagram', link: 'https://www.instagram.com/ai_magic_ua/' },
+      { icon: 'instagram', link: 'https://www.instagram.com/acestudiooleg' },
       { icon: 'telegram', link: 'https://t.me/acestudiooleg_channel' },
     ],
 

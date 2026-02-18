@@ -4,12 +4,33 @@
 
 У цьому підрозділі ми створимо клас `InputManager.js`, який буде відповідати за обробку натискань клавіш та керування грою. Це як створити пульт керування для нашого танка!
 
+<img src="../public/InputControl.png" />
+
 ## 🔧 Створення класу InputManager.js
 
 Створіть файл `InputManager.js`:
 
 ```javascript
+/**
+ * @typedef {Object} GameState
+ * @property {boolean} isPaused - Чи гра на паузі
+ * @property {boolean} isGameOver - Чи гра завершена
+ */
+/**
+ * 🎮 Клас InputManager - керує введенням з клавіатури
+ * Відповідає за обробку натискань клавіш,
+ * стан клавіш та спеціальні дії (пауза, перезапуск, налагодження)
+ * Логує події через переданий логгер
+ * Можливості:
+ * - Визначення стану клавіш (натиснута/не натиснута)
+ * - Обробка одноразових натискань (наприклад, стрільба)
+ * - Перемикання паузи, перезапуск гри, режим налагодження
+ * - Запобігання стандартним діям браузера для ігрових клавіш
+ */
 export class InputManager {
+  /**
+   * @param {import('./GameLogger.js').GameLogger} logger - Логгер для запису подій
+   */
   constructor(logger) {
     // Стан клавіш (натиснуті/не натиснуті)
     this.keys = {};
@@ -31,7 +52,6 @@ export class InputManager {
 
       // Додаткові клавіші
       RESTART: ['KeyR'],
-      DEBUG: ['F12'],
     };
 
     // Стан гри
@@ -78,6 +98,9 @@ export class InputManager {
   handleKeyDown(event) {
     const keyCode = event.code;
 
+    // --- ВАЖЛИВО: Ігноруємо авто-повтор клавіш браузером ---
+    if (event.repeat) return;
+
     // Встановлюємо стан клавіші як натиснуту
     this.keys[keyCode] = true;
 
@@ -87,7 +110,6 @@ export class InputManager {
     // Обробляємо спеціальні клавіші
     this.handleSpecialKeys(keyCode);
 
-    // Логуємо тільки ігрові клавіші (не всі)
     if (this.isGameKey(keyCode)) {
       this.logger.gameEvent(`⌨️ Клавіша натиснута: ${keyCode}`);
     }
@@ -123,16 +145,11 @@ export class InputManager {
     if (this.controls.RESTART.includes(keyCode)) {
       this.restartGame();
     }
-
-    // Режим налагодження
-    if (this.controls.DEBUG.includes(keyCode)) {
-      this.toggleDebug();
-    }
   }
 
   /**
    * Перевірка чи натиснута клавіша
-   * @param {string} action - Дія для перевірки
+   * @param {'UP' | 'DOWN' | 'LEFT' | 'RIGHT' | 'SHOOT' | 'PAUSE' | 'RESTART'} action - Дія для перевірки
    * @returns {boolean} - true якщо клавіша натиснута
    */
   isKeyPressed(action) {
@@ -145,7 +162,7 @@ export class InputManager {
   /**
    * Отримання напрямку руху
    * При одночасному натисканні двох клавіш пріоритет має горизонтальний рух
-   * @returns {Object} - Об'єкт з напрямками
+   * @returns {{up: boolean, down: boolean, left: boolean, right: boolean}} - Об'єкт з напрямками
    */
   getMovementDirection() {
     const up = this.isKeyPressed('UP');
@@ -219,16 +236,6 @@ export class InputManager {
   }
 
   /**
-   * Перемикання режиму налагодження
-   */
-  toggleDebug() {
-    this.logger.gameEvent('🐛 Режим налагодження перемикається');
-
-    // Викликаємо подію налагодження
-    this.emitDebugEvent();
-  }
-
-  /**
    * Перевірка чи це ігрова клавіша
    * @param {string} keyCode - Код клавіші
    * @returns {boolean} - true якщо ігрова клавіша
@@ -240,7 +247,6 @@ export class InputManager {
 
   /**
    * Отримання стану гри
-   * @returns {Object} - Стан гри
    */
   getGameState() {
     return { ...this.gameState };
@@ -248,7 +254,7 @@ export class InputManager {
 
   /**
    * Встановлення стану гри
-   * @param {Object} state - Новий стан
+   * @param {GameState} state - Новий стан
    */
   setGameState(state) {
     this.gameState = { ...this.gameState, ...state };
@@ -273,18 +279,14 @@ export class InputManager {
   }
 
   /**
-   * Виклик події налагодження
-   */
-  emitDebugEvent() {
-    const event = new CustomEvent('gameDebug');
-    document.dispatchEvent(event);
-  }
-
-  /**
    * Очищення стану клавіш
    */
   clearKeys() {
     this.keys = {};
+  }
+
+  clearShoot() {
+    this.keys.shoot = false; // Или тот флаг, который вы используете для Space
   }
 
   /**
@@ -395,7 +397,7 @@ document.addEventListener('gamePause', (event) => {
 
 ## 📝 Параметр logger
 
-**`logger`** - об'єкт системи логування для запису подій керування. 
+**`logger`** - об'єкт системи логування для запису подій керування.
 
 Див. [Урок 2.8: Система логування](/lessons/lesson2-8) для детального опису.
 

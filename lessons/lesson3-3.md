@@ -12,6 +12,15 @@
 import { orange, red, white } from './colors.js';
 
 /**
+ *
+ * @typedef {Object} CollisionBounds
+ * @property {number} x - X координата верхнього лівого кута
+ * @property {number} y - Y координата верхнього лівого кута
+ * @property {number} width - ширина об'єкта
+ * @property {number} height - висота об'єкта
+ */
+
+/**
  * 🎮 Клас Bullet - представляє кулю
  *
  * Відповідає за:
@@ -20,8 +29,19 @@ import { orange, red, white } from './colors.js';
  * - Малювання кулі на екрані
  * - Перевірку колізій
  */
-
 export class Bullet {
+  /**
+   *
+   * @param {Object} options - налаштування кулі
+   * @param {number} options.x - початкова X позиція
+   * @param {number} options.y - початкова Y позиція
+   * @param {number} options.width - ширина кулі
+   * @param {number} options.height - висота кулі
+   * @param {'up' | 'down' | 'left' | 'right'} options.direction - напрямок руху ('up', 'down', 'left', 'right')
+   * @param {number} options.speed - швидкість руху кулі
+   * @param {'player' | 'enemy'} options.owner - власник кулі ('player' або 'enemy')
+   * @param {import('./GameLogger.js').GameLogger} logger - логгер для запису подій
+   */
   constructor(options = {}, logger) {
     // Позиція кулі
     this.x = options.x || 0;
@@ -141,7 +161,7 @@ export class Bullet {
 
   /**
    * Отримання меж кулі для перевірки колізій
-   * @returns {Object} - Об'єкт з межами кулі
+   * @returns {CollisionBounds} - Об'єкт з межами кулі
    */
   getBounds() {
     return {
@@ -154,7 +174,7 @@ export class Bullet {
 
   /**
    * Перевірка колізії з іншим об'єктом
-   * @param {Object} object - Об'єкт для перевірки колізії
+   * @param {CollisionBounds} object - Об'єкт для перевірки колізії
    * @returns {boolean} - true якщо є колізія
    */
   checkCollision(object) {
@@ -190,7 +210,7 @@ export class Bullet {
 
   /**
    * Встановлення напрямку кулі
-   * @param {string} direction - Напрямок ('up', 'down', 'left', 'right')
+   * @param {'up' | 'down' | 'left' | 'right'} direction - Напрямок ('up', 'down', 'left', 'right')
    */
   setDirection(direction) {
     this.direction = direction;
@@ -267,6 +287,7 @@ export class Bullet {
 3. **Колізія з об'єктом** (через `checkCollision()`)
 
 ## 🎯 Система колізій
+ `Колізія - це явище коли 2 і більше обʼєктів стикаються в одному місці`
 
 ### 🔍 Алгоритм перевірки:
 
@@ -325,7 +346,7 @@ if (playerBullet.checkCollision(enemy)) {
 
 ## 📝 Параметр logger
 
-**`logger`** - об'єкт системи логування для запису подій куль. 
+**`logger`** - об'єкт системи логування для запису подій куль.
 
 Див. [Урок 2.8: Система логування](/lessons/lesson2-8.md) для детального опису.
 
