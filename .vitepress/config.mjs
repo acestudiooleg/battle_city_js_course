@@ -96,20 +96,12 @@ export default defineConfig({
             collapsed: true,
             items: [
               {
-                text: '4.1: Оновлення HTML та стилів',
+                text: '4.1: Клас Explosion та система частинок',
                 link: '/lessons/lesson4-1',
               },
-              { text: '4.2: Система керування', link: '/lessons/lesson4-2' },
-              { text: '4.3: Клас кулі', link: '/lessons/lesson4-3' },
-              { text: '4.4: Рух гравця', link: '/lessons/lesson4-4' },
-              { text: '3.5: Стрільба гравця', link: '/lessons/lesson3-5' },
-              { text: '3.6: Рух ворога', link: '/lessons/lesson3-6' },
-              { text: '3.7: Стрільба ворога', link: '/lessons/lesson3-7' },
-              { text: '3.8: Система колізій', link: '/lessons/lesson3-8' },
-              {
-                text: '3.9: Оновлення головного файлу',
-                link: '/lessons/lesson3-9',
-              },
+              { text: '4.2: Керування вибухами в Game.js', link: '/lessons/lesson4-2' },
+              { text: '4.3: Деструкція: Зв\'язок кулі та вибуху', link: '/lessons/lesson4-3' },
+              { text: '4.4: Фізика матеріалів та міцність стін', link: '/lessons/lesson4-4' },
             ],
           },
           {

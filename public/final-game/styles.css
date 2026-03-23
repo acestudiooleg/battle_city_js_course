@@ -1,0 +1,34 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #1a1a2e;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-family: monospace;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+#gameCanvas {
+  display: block;
+  image-rendering: pixelated;
+  border: 4px solid #5c5c5c;
+}
+
+#hint {
+  color: #7c7c7c;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+}
