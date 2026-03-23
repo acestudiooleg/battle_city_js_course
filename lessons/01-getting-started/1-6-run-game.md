@@ -118,4 +118,4 @@ lesson1/
 
 ## ДЕМО
 
-[Подивитись ТУТ як має виглядати твій результат](/battle_city_js_course/moja/index.html){target="_blank"}
+[Подивитись ТУТ як має виглядати твій результат](/battle_city_js_course/demos/lesson-01/game.html){target="_blank"}

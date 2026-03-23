@@ -67,11 +67,11 @@ export default defineConfig({
             text: 'День 2: Canvas та координати NES',
             collapsed: true,
             items: [
-              { text: '2.1: Екран NES Battle City', link: '/lessons/02-canvas-coordinates/2-1' },
-              { text: '2.2: Константи гри', link: '/lessons/02-canvas-coordinates/2-2' },
-              { text: '2.3: Палітра кольорів NES', link: '/lessons/02-canvas-coordinates/2-3' },
-              { text: '2.4: Малюємо поле та sidebar', link: '/lessons/02-canvas-coordinates/2-4' },
-              { text: '2.5: Координатна система', link: '/lessons/02-canvas-coordinates/2-5' },
+              { text: '2.1: Екран NES Battle City', link: '/lessons/02-canvas-and-coordinates/2-1-nes-screen-layout' },
+              { text: '2.2: Константи гри', link: '/lessons/02-canvas-and-coordinates/2-2-constants-js' },
+              { text: '2.3: Палітра кольорів NES', link: '/lessons/02-canvas-and-coordinates/2-3-colors-js' },
+              { text: '2.4: Малюємо поле та sidebar', link: '/lessons/02-canvas-and-coordinates/2-4-drawing-layout' },
+              { text: '2.5: Координатна система', link: '/lessons/02-canvas-and-coordinates/2-5-coordinate-system' },
             ],
           },
           {

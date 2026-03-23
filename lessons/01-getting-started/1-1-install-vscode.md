@@ -6,7 +6,7 @@
 
 Ось що ми створимо за 14 днів:
 
-<iframe width="850" height="650" src="/battle_city_js_course/moja/game.html" frameborder="0" allowfullscreen></iframe>
+<iframe width="650" height="500" src="/battle_city_js_course/demos/lesson-01/game.html" frameborder="0" allowfullscreen></iframe>
 
 Але спочатку нам потрібно підготувати інструменти — як художнику потрібні пензлі та фарби перед тим як малювати! 🎨
 
