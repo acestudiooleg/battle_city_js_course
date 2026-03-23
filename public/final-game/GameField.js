@@ -183,6 +183,54 @@ export class GameField {
     return true;
   }
 
+  // ─── Лопата (Shovel power-up) ─────────────────────────────────────────────
+
+  /** Замінити стінку навколо штабу на бетон (тимчасово) */
+  fortifyEagle() {
+    this._removeEagleWall();
+    this._buildEagleWallMaterial('concrete');
+  }
+
+  /** Повернути цегляну стінку навколо штабу */
+  unfortifyEagle() {
+    this._removeEagleWall();
+    this._buildEagleWall();
+  }
+
+  _removeEagleWall() {
+    const ex = EAGLE_TX;
+    const ey = EAGLE_TY;
+    const positions = [
+      [ex - 1, ey], [ex - 1, ey + 1],
+      [ex, ey - 1], [ex + 1, ey - 1],
+      [ex + 2, ey], [ex + 2, ey + 1],
+    ];
+    for (const [tx, ty] of positions) {
+      const idx = this.walls.findIndex(t => t.tx === tx && t.ty === ty);
+      if (idx !== -1) this.walls.splice(idx, 1);
+    }
+  }
+
+  _buildEagleWallMaterial(material) {
+    const ex = EAGLE_TX;
+    const ey = EAGLE_TY;
+    const hp = material === 'concrete' ? CONCRETE_HP : BRICK_HP;
+    const positions = [
+      [ex - 1, ey], [ex - 1, ey + 1],
+      [ex, ey - 1], [ex + 1, ey - 1],
+      [ex + 2, ey], [ex + 2, ey + 1],
+    ];
+    for (const [tx, ty] of positions) {
+      if (tx < 0 || ty < 0 || tx >= 26 || ty >= 26) continue;
+      this.walls.push({
+        tx, ty,
+        x: tx * TILE, y: ty * TILE,
+        width: TILE, height: TILE,
+        material, hp, maxHp: hp,
+      });
+    }
+  }
+
   destroyEagle() { this.eagle.alive = false; }
   isEagleDestroyed() { return !this.eagle.alive; }
 

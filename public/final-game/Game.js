@@ -10,7 +10,7 @@
  * - Підтримка 2 гравців (P1: WASD+Space, P2: Arrows+Enter)
  */
 import {
-  TILE,
+  TILE, TANK_SIZE,
   FIELD_X, FIELD_Y, FIELD_W, FIELD_H,
   CANVAS_W, CANVAS_H, BORDER, SIDEBAR_W,
   MAX_ACTIVE_ENEMIES, TOTAL_ENEMIES,
@@ -28,6 +28,7 @@ import { CollisionManager } from './CollisionManager.js';
 import { InputManager } from './InputManager.js';
 import { SoundManager } from './SoundManager.js';
 import { Explosion } from './Explosion.js';
+import { PowerUp } from './PowerUp.js';
 
 export class Game {
   /**
@@ -85,6 +86,17 @@ export class Game {
     // Game over анімація
     this.gameOverY      = FIELD_H;
     this.gameOverRising = false;
+
+    // ─── Power-ups (артефакти) ──────────────────────────────────────────────
+    /** @type {PowerUp|null} Активний артефакт на полі (тільки один одночасно) */
+    this.powerUp = null;
+    /** Таймер до наступного спавну артефакту */
+    this.powerUpTimer = 10000 + Math.random() * 10000; // перший через 10-20 сек
+
+    // Ефекти артефактів
+    this.freezeTimer  = 0;   // заморозка ворогів (мс)
+    this.shovelTimer  = 0;   // бетон навколо штабу (мс)
+    this.shovelActive = false;
   }
 
   // ─── Життєвий цикл ───────────────────────────────────────────────────────
@@ -166,9 +178,11 @@ export class Game {
       p.update(dt, canMove, now);
     }
 
-    // Вороги
-    for (const e of this.enemies) {
-      e.update(dt, canMove, now);
+    // Вороги (заморожені — не оновлюються)
+    if (this.freezeTimer <= 0) {
+      for (const e of this.enemies) {
+        e.update(dt, canMove, now);
+      }
     }
 
     // Колізії куль — для кожного гравця
@@ -210,6 +224,9 @@ export class Game {
     if (allDead) {
       this._triggerGameOver();
     }
+
+    // ─── Power-ups ────────────────────────────────────────────────────────
+    this._updatePowerUps(dt);
 
     // Перемога
     if (this.killedCount >= TOTAL_ENEMIES && this.enemies.length === 0 && this.spawnQueue.length === 0) {
@@ -265,6 +282,128 @@ export class Game {
     this.enemies.push(enemy);
   }
 
+  // ─── Power-ups ──────────────────────────────────────────────────────────
+
+  _updatePowerUps(dt) {
+    // Спавн нового артефакту
+    if (!this.powerUp) {
+      this.powerUpTimer -= dt;
+      if (this.powerUpTimer <= 0) {
+        this._spawnPowerUp();
+        this.powerUpTimer = 15000 + Math.random() * 15000; // наступний через 15-30 сек
+      }
+    }
+
+    // Оновлення мигання
+    if (this.powerUp) {
+      this.powerUp.update(dt);
+    }
+
+    // Перевірка підбирання гравцями
+    for (const p of this.players) {
+      if (!p.alive || p.isRespawning || !this.powerUp || !this.powerUp.active) continue;
+      const pu = this.powerUp;
+      if (p.x < pu.x + pu.width && p.x + p.width > pu.x &&
+          p.y < pu.y + pu.height && p.y + p.height > pu.y) {
+        this._collectPowerUp(p, pu);
+      }
+    }
+
+    // Таймери ефектів
+    if (this.freezeTimer > 0) {
+      this.freezeTimer -= dt;
+    }
+
+    if (this.shovelActive && this.shovelTimer > 0) {
+      this.shovelTimer -= dt;
+      if (this.shovelTimer <= 0) {
+        this.shovelActive = false;
+        this.field.unfortifyEagle();
+      }
+    }
+  }
+
+  _spawnPowerUp() {
+    // Знайти вільне місце на полі (не зайняте стінами, водою, танками, штабом)
+    for (let attempt = 0; attempt < 50; attempt++) {
+      // Генеруємо позицію, вирівняну по сітці 2 тайли (32px)
+      const tx = Math.floor(Math.random() * 12) * 2; // 0..24 з кроком 2
+      const ty = Math.floor(Math.random() * 12) * 2;
+      const fx = tx * TILE;
+      const fy = ty * TILE;
+
+      // Перевіряємо чи місце вільне
+      const testTank = { width: TANK_SIZE, height: TANK_SIZE };
+      if (!this.field.canTankMove(testTank, fx, fy)) continue;
+
+      // Не спавнити поверх танків
+      const allTanks = [...this.players, ...this.enemies];
+      let occupied = false;
+      for (const t of allTanks) {
+        if (!t.alive) continue;
+        if (fx < t.x + t.width && fx + TANK_SIZE > t.x &&
+            fy < t.y + t.height && fy + TANK_SIZE > t.y) {
+          occupied = true;
+          break;
+        }
+      }
+      if (occupied) continue;
+
+      this.powerUp = new PowerUp(fx, fy, PowerUp.randomType());
+      return;
+    }
+  }
+
+  _collectPowerUp(player, pu) {
+    pu.active = false;
+    this.powerUp = null;
+    this.sound.play('newLife');
+
+    switch (pu.type) {
+      case 'tank':
+        // +1 життя
+        player.lives++;
+        break;
+
+      case 'helmet':
+        // Тимчасовий щит 10 сек
+        player.activateHelmet(10000);
+        break;
+
+      case 'star':
+        // Підвищення рангу
+        player.upgradeRank();
+        break;
+
+      case 'grenade':
+        // Знищити всіх ворогів на полі
+        for (const e of this.enemies) {
+          if (e.alive && !e.spawnFlash) {
+            e.takeDamage(999);
+            this._spawnExplosion(
+              e.x + e.width / 2,
+              e.y + e.height / 2,
+              'large'
+            );
+          }
+        }
+        this.sound.play('explodeL');
+        break;
+
+      case 'timer':
+        // Заморозити ворогів на 10 сек
+        this.freezeTimer = 10000;
+        break;
+
+      case 'shovel':
+        // Бетон навколо штабу на 20 сек
+        this.field.fortifyEagle();
+        this.shovelActive = true;
+        this.shovelTimer  = 20000;
+        break;
+    }
+  }
+
   // ─── Вибухи ──────────────────────────────────────────────────────────────
 
   _spawnExplosion(fx, fy, type) {
@@ -291,6 +430,11 @@ export class Game {
     for (const e of this.enemies) {
       e.render(ctx, ox, oy);
       e.renderBullets(ctx, ox, oy);
+    }
+
+    // Артефакт
+    if (this.powerUp && this.powerUp.active) {
+      this.powerUp.render(ctx, ox, oy);
     }
 
     // Ліс (поверх танків)

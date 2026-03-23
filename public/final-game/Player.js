@@ -46,6 +46,9 @@ export class Player extends Tank {
 
     // Гравець стріляє швидше ніж вороги
     this.shootCooldown = 400;
+
+    // Ранг (star power-up): 0 = базовий, 1 = швидший, 2 = потужний
+    this.rank = 0;
   }
 
   /**
@@ -133,6 +136,23 @@ export class Player extends Tank {
 
   /** Чи зараз гравець у стані відродження */
   isPlayerRespawning() { return this.isRespawning; }
+
+  /** Активувати щит (helmet power-up) */
+  activateHelmet(duration = 10000) {
+    this.shieldActive = true;
+    this.shieldTimer  = duration;
+  }
+
+  /** Підвищити ранг (star power-up) */
+  upgradeRank() {
+    this.rank = Math.min(this.rank + 1, 2);
+    // Кожен ранг зменшує кулдаун і підвищує швидкість
+    this.shootCooldown = [400, 250, 150][this.rank];
+    this.speed         = [1.5, 2.0, 2.5][this.rank];
+    // Змінити рядок спрайту на вищий star level
+    const base = this.playerNum === 1 ? 0 : 128;
+    this.spriteY = base + this.rank * 16;
+  }
 
   /** Малювання (з ефектом мигання щита) */
   render(ctx, ox, oy) {
