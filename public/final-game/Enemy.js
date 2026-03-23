@@ -19,6 +19,7 @@ import {
   SPAWN_FLASH_DURATION,
 } from './constants.js';
 import { enemyBasicColor, enemyFastColor, enemyPowerColor, armorColors } from './colors.js';
+import { spriteSheet, ENEMY_SPRITES, SPAWN_STAR_SPRITES } from './SpriteSheet.js';
 
 const DIRS   = ['up', 'down', 'left', 'right'];
 const HP_MAP = { basic: 1, fast: 1, power: 1, armor: 4 };
@@ -53,6 +54,11 @@ export class Enemy extends Tank {
 
     // Початковий напрямок — вниз (вороги з'являються зверху і йдуть вниз)
     this.direction = 'down';
+
+    // Спрайт ворога за типом
+    const spr = ENEMY_SPRITES[type] ?? ENEMY_SPRITES.basic;
+    this.spriteX = spr.x;
+    this.spriteY = spr.y;
   }
 
   static _colorByType(type, hp, maxHp) {
@@ -121,16 +127,20 @@ export class Enemy extends Tank {
     if (!this.alive) return;
 
     if (this.spawnFlash) {
-      // Мигання під час spawn
-      if (this.flashFrame < 4) {
+      // Spawn-зірка зі спрайт-листа
+      const dx = Math.round(this.x) + ox;
+      const dy = Math.round(this.y) + oy;
+      if (spriteSheet.ready) {
+        const fi = Math.floor(this.flashFrame / 2) % SPAWN_STAR_SPRITES.length;
+        const spr = SPAWN_STAR_SPRITES[fi];
+        ctx.drawImage(spriteSheet.img, spr.x, spr.y, 16, 16, dx, dy, this.width, this.height);
+      } else if (this.flashFrame < 4) {
         ctx.save();
         ctx.strokeStyle = '#fcfcfc';
         ctx.lineWidth   = 2;
-        const sx = Math.round(this.x) + ox;
-        const sy = Math.round(this.y) + oy;
-        const r  = this.width / 2 + 4;
+        const r = this.width / 2 + 4;
         ctx.beginPath();
-        ctx.arc(sx + this.width / 2, sy + this.height / 2, r, 0, Math.PI * 2);
+        ctx.arc(dx + this.width / 2, dy + this.height / 2, r, 0, Math.PI * 2);
         ctx.stroke();
         ctx.restore();
       }
@@ -138,18 +148,5 @@ export class Enemy extends Tank {
     }
 
     super.render(ctx, ox, oy);
-
-    // Зірка для броньованого танка (показує що він особливий)
-    if (this.type === 'armor' && this.hp === this.maxHp) {
-      const sx = Math.round(this.x) + ox + this.width / 2;
-      const sy = Math.round(this.y) + oy + this.height / 2;
-      ctx.save();
-      ctx.fillStyle = '#f8f858';
-      ctx.font      = '10px monospace';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('★', sx, sy);
-      ctx.restore();
-    }
   }
 }

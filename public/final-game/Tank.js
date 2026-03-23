@@ -10,6 +10,7 @@
 import { TILE, TANK_SIZE, FIELD_W, FIELD_H } from './constants.js';
 import { Bullet } from './Bullet.js';
 import { darkGray } from './colors.js';
+import { spriteSheet, DIR_COL } from './SpriteSheet.js';
 
 export class Tank {
   /**
@@ -45,6 +46,10 @@ export class Tank {
     // Анімаційний лічильник (для мигання гусениць)
     this.animFrame = 0;
     this.animTimer = 0;
+
+    // Координати спрайта на спрайт-листі (встановлюються підкласом)
+    this.spriteX = 0;
+    this.spriteY = 0;
   }
 
   // ─── Рух ───────────────────────────────────────────────────────────────────
@@ -193,22 +198,25 @@ export class Tank {
   render(ctx, ox, oy) {
     if (!this.alive) return;
 
-    const sx = Math.round(this.x) + ox;
-    const sy = Math.round(this.y) + oy;
+    const dx = Math.round(this.x) + ox;
+    const dy = Math.round(this.y) + oy;
     const sz = this.width;
 
+    // Спрайтове малювання (якщо спрайт-лист готовий)
+    if (spriteSheet.ready) {
+      const col = DIR_COL[this.direction] + this.animFrame;
+      const srcX = this.spriteX + col * 16;
+      const srcY = this.spriteY;
+      ctx.drawImage(spriteSheet.img, srcX, srcY, 16, 16, dx, dy, sz, sz);
+      return;
+    }
+
+    // Fallback — програмне малювання
     ctx.save();
-
-    // Гусениці (2 смуги по боках)
-    this._drawTreads(ctx, sx, sy, sz);
-
-    // Корпус
+    this._drawTreads(ctx, dx, dy, sz);
     ctx.fillStyle = this.color;
-    ctx.fillRect(sx + 4, sy + 4, sz - 8, sz - 8);
-
-    // Дуло
-    this._drawBarrel(ctx, sx, sy, sz);
-
+    ctx.fillRect(dx + 4, dy + 4, sz - 8, sz - 8);
+    this._drawBarrel(ctx, dx, dy, sz);
     ctx.restore();
   }
 

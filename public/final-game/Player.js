@@ -9,11 +9,16 @@
 import { Tank } from './Tank.js';
 import { PLAYER_SPAWN, PLAYER_LIVES, PLAYER_SPEED, RESPAWN_DELAY, SPAWN_FLASH_DURATION } from './constants.js';
 import { playerYellow } from './colors.js';
+import { PLAYER_SPRITE } from './SpriteSheet.js';
 
 export class Player extends Tank {
   constructor() {
     const { tx, ty } = PLAYER_SPAWN;
     super(tx * 16, ty * 16, playerYellow, PLAYER_SPEED, 1);
+
+    // Спрайт гравця (жовтий, star level 0)
+    this.spriteX = PLAYER_SPRITE.x;
+    this.spriteY = PLAYER_SPRITE.y;
 
     this.lives         = PLAYER_LIVES;
     this.inputManager  = null;

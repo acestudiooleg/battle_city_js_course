@@ -39,6 +39,9 @@ export class Game {
     canvas.width  = CANVAS_W;
     canvas.height = CANVAS_H;
 
+    // Піксельна графіка — без згладжування
+    this.ctx.imageSmoothingEnabled = false;
+
     // Системи
     this.input = new InputManager();
     this.sound = new SoundManager();
@@ -124,6 +127,9 @@ export class Game {
   // ─── Update ───────────────────────────────────────────────────────────────
 
   _update(dt, now) {
+    // Анімація води
+    this.field.update(dt);
+
     // Спавн ворогів
     this._updateSpawn(dt);
 
