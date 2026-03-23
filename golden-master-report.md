@@ -347,3 +347,11 @@ ctx.drawImage(img, spriteX + col*16, spriteY, 16, 16, dx, dy, 32, 32)
 - `GameField.fortifyEagle()` / `unfortifyEagle()` — тимчасовий бетон для лопати
 - `Player.activateHelmet()` / `upgradeRank()` — ефекти каски та зірки
 - `Game.freezeTimer` — заморозка ворогів (не оновлюються поки таймер > 0)
+
+### v8 — Титульний екран та вибір гравців
+- `main.js` переписано: титульний екран в NES-стилі перед запуском гри
+- Логотип "BATTLE CITY" (червоний + жовтий), курсор-танк (спрайт P1)
+- Пункти меню: "1 PLAYER" / "2 PLAYERS", вибір ↑↓/WS, старт Enter/Space
+- `Game` приймає `numPlayers` (1 або 2): при 1 — P2 не створюється, sidebar без IIP
+- Інтро музика грає одразу при старті (autoplay розблоковано натисканням в меню)
+- R (рестарт) повертає до меню вибору через `location.reload()`

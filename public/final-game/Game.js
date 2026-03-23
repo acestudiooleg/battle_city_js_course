@@ -34,7 +34,11 @@ export class Game {
   /**
    * @param {HTMLCanvasElement} canvas
    */
-  constructor(canvas) {
+  /**
+   * @param {HTMLCanvasElement} canvas
+   * @param {number} numPlayers - 1 або 2
+   */
+  constructor(canvas, numPlayers = 1) {
     this.canvas = canvas;
     this.ctx    = canvas.getContext('2d');
 
@@ -43,6 +47,8 @@ export class Game {
 
     // Піксельна графіка — без згладжування
     this.ctx.imageSmoothingEnabled = false;
+
+    this.numPlayers = numPlayers;
 
     // Системи
     this.input = new InputManager();
@@ -57,12 +63,16 @@ export class Game {
 
     // Гравці
     this.player1 = new Player(1);
-    this.player2 = new Player(2);
     this.player1.setInputManager(this.input);
-    this.player2.setInputManager(this.input);
 
-    /** Масив обох гравців для зручності ітерації */
-    this.players = [this.player1, this.player2];
+    if (numPlayers === 2) {
+      this.player2 = new Player(2);
+      this.player2.setInputManager(this.input);
+      this.players = [this.player1, this.player2];
+    } else {
+      this.player2 = null;
+      this.players = [this.player1];
+    }
 
     // Вороги
     /** @type {Enemy[]} Активні вороги на полі */
@@ -104,15 +114,8 @@ export class Game {
   start() {
     this.running = true;
 
-    // Інтро музика — браузери блокують autoplay до першої дії користувача,
-    // тому відтворюємо при першому натисканні клавіші
-    const playIntro = () => {
-      this.sound.play('intro', 0.5);
-      document.removeEventListener('keydown', playIntro);
-      document.removeEventListener('click', playIntro);
-    };
-    document.addEventListener('keydown', playIntro);
-    document.addEventListener('click', playIntro);
+    // Інтро музика — autoplay вже розблоковано натисканням клавіші в меню
+    this.sound.play('intro', 0.5);
 
     requestAnimationFrame((t) => this._loop(t));
   }
@@ -153,6 +156,7 @@ export class Game {
   restart() {
     this.running = false;
     this.input.destroy();
+    // Повернення до меню вибору — перезавантаження сторінки
     location.reload();
   }
 
@@ -485,8 +489,10 @@ export class Game {
     // ─── Блок P1 ──────────────────────────────────────────────────────
     this._renderPlayerBlock(ctx, this.player1, iconsX, CANVAS_H - BORDER - 120, 'I', '#e7a821');
 
-    // ─── Блок P2 ──────────────────────────────────────────────────────
-    this._renderPlayerBlock(ctx, this.player2, iconsX, CANVAS_H - BORDER - 80, 'II', '#00a800');
+    // ─── Блок P2 (тільки якщо 2 гравці) ─────────────────────────────
+    if (this.player2) {
+      this._renderPlayerBlock(ctx, this.player2, iconsX, CANVAS_H - BORDER - 80, 'II', '#00a800');
+    }
 
     // ─── Прапор з номером рівня ─────────────────────────────────────────
     const flagY = CANVAS_H - BORDER - 44;
