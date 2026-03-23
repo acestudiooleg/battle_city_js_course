@@ -6,7 +6,7 @@
  * - Курсор-танк вибирає "1 PLAYER" або "2 PLAYERS"
  * - Enter/Space для підтвердження
  */
-import { CANVAS_W, CANVAS_H, FIELD_X, FIELD_W } from './constants.js';
+import { CANVAS_W, CANVAS_H } from './constants.js';
 import { spriteSheet, PLAYER1_SPRITE, DIR_COL } from './SpriteSheet.js';
 import { Game } from './Game.js';
 
@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
 
-    const cx = FIELD_X + FIELD_W / 2;
+    const cx = CANVAS_W / 2;
 
     // Заголовок
     ctx.fillStyle = '#e04038';
