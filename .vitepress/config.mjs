@@ -55,12 +55,12 @@ export default defineConfig({
             text: 'День 1: Готуємося до гри',
             collapsed: false,
             items: [
-              { text: '1.1: Встановлюємо VS Code', link: '/lessons/01-getting-started/1-1' },
-              { text: '1.2: Створюємо папку для гри', link: '/lessons/01-getting-started/1-2' },
-              { text: '1.3: Створюємо HTML файл', link: '/lessons/01-getting-started/1-3' },
-              { text: '1.4: Додаємо красиві стилі', link: '/lessons/01-getting-started/1-4' },
-              { text: '1.5: Пишемо JavaScript код', link: '/lessons/01-getting-started/1-5' },
-              { text: '1.6: Запускаємо гру', link: '/lessons/01-getting-started/1-6' },
+              { text: '1.1: Встановлюємо VS Code', link: '/lessons/01-getting-started/1-1-install-vscode' },
+              { text: '1.2: Створюємо папку для гри', link: '/lessons/01-getting-started/1-2-create-project' },
+              { text: '1.3: Створюємо HTML файл', link: '/lessons/01-getting-started/1-3-html-canvas' },
+              { text: '1.4: Додаємо красиві стилі', link: '/lessons/01-getting-started/1-4-css-styles' },
+              { text: '1.5: Пишемо JavaScript код', link: '/lessons/01-getting-started/1-5-javascript-code' },
+              { text: '1.6: Запускаємо гру', link: '/lessons/01-getting-started/1-6-run-game' },
             ],
           },
           {
