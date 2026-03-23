@@ -127,20 +127,27 @@ export class CollisionManager {
   // ─── Куля ↔ Куля ─────────────────────────────────────────────────────────
 
   _bulletVsBullet(player, enemies) {
+    // Кулі рухаються швидко (5px/кадр кожна = 10px зближення),
+    // тому збільшуємо зону зіткнення щоб не пролітали одна через одну
+    const PAD = 6;
     for (let pi = player.bullets.length - 1; pi >= 0; pi--) {
       const pb = player.bullets[pi];
       if (!pb.active) continue;
-      const pbx = pb.x - pb.width / 2;
-      const pby = pb.y - pb.height / 2;
+      const pbx = pb.x - pb.width / 2 - PAD;
+      const pby = pb.y - pb.height / 2 - PAD;
+      const pbw = pb.width + PAD * 2;
+      const pbh = pb.height + PAD * 2;
 
       for (const enemy of enemies) {
         for (let ei = enemy.bullets.length - 1; ei >= 0; ei--) {
           const eb = enemy.bullets[ei];
           if (!eb.active) continue;
-          const ebx = eb.x - eb.width / 2;
-          const eby = eb.y - eb.height / 2;
+          const ebx = eb.x - eb.width / 2 - PAD;
+          const eby = eb.y - eb.height / 2 - PAD;
+          const ebw = eb.width + PAD * 2;
+          const ebh = eb.height + PAD * 2;
 
-          if (this._aabb(pbx, pby, pb.width, pb.height, ebx, eby, eb.width, eb.height)) {
+          if (this._aabb(pbx, pby, pbw, pbh, ebx, eby, ebw, ebh)) {
             pb.active = false;
             eb.active = false;
             this.onExplosion(pb.x, pb.y, 'small');

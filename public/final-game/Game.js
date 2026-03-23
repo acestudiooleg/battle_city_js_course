@@ -17,7 +17,7 @@ import {
   ENEMY_QUEUE,
 } from './constants.js';
 import {
-  sidebarBg, sidebarText, heartRed, white,
+  sidebarBg, sidebarText, white,
   enemyBasicColor,
 } from './colors.js';
 import { Player } from './Player.js';
@@ -268,51 +268,78 @@ export class Game {
 
   _renderSidebar(ctx) {
     const sx = BORDER + FIELD_W + BORDER;
-    const sy = BORDER;
-    const sw = SIDEBAR_W;
 
-    // Фон
+    // Фон sidebar — сірий як рамка
     ctx.fillStyle = sidebarBg;
-    ctx.fillRect(sx, 0, sw, CANVAS_H);
+    ctx.fillRect(sx, 0, SIDEBAR_W, CANVAS_H);
 
-    ctx.fillStyle = sidebarText;
-    ctx.font      = 'bold 12px monospace';
-    ctx.textAlign = 'left';
-
-    let y = sy + 10;
-
-    // Вороги, що залишились
-    ctx.fillText('ВОРОГИ:', sx + 8, y);
-    y += 18;
+    // ─── Іконки ворогів (2 колонки, NES-стиль) ─────────────────────────
     const remaining = this.spawnQueue.length + this.enemies.length;
-    const cols = 5;
+    const iconSize = 8;
+    const iconGap  = 2;
+    const iconsX   = sx + 16;
+    let   iconsY   = BORDER + 8;
+
     for (let i = 0; i < remaining; i++) {
-      const col = i % cols;
-      const row = Math.floor(i / cols);
-      ctx.fillStyle = enemyBasicColor;
-      ctx.fillRect(sx + 8 + col * 18, y + row * 16, 10, 10);
+      const col = i % 2;
+      const row = Math.floor(i / 2);
+      const ix = iconsX + col * (iconSize + iconGap);
+      const iy = iconsY + row * (iconSize + iconGap);
+
+      // Маленька іконка танка (чорна на сірому фоні, як в оригіналі)
+      ctx.fillStyle = '#000';
+      ctx.fillRect(ix, iy, iconSize, iconSize);
+      // Силует танка
+      ctx.fillStyle = '#1a1a1a';
+      ctx.fillRect(ix + 1, iy, 2, iconSize);
+      ctx.fillRect(ix + iconSize - 3, iy, 2, iconSize);
+      ctx.fillRect(ix + 2, iy + 1, iconSize - 4, iconSize - 2);
     }
-    y += Math.ceil(remaining / cols) * 16 + 16;
 
-    // Гравець
-    ctx.fillStyle = sidebarText;
-    ctx.fillText('ГРАВЕЦЬ:', sx + 8, y);
-    y += 18;
+    // ─── Блок гравця (IP + іконка + число життів) ───────────────────────
+    const playerBlockY = CANVAS_H - BORDER - 100;
 
-    // Життя
-    for (let i = 0; i < this.player.lives; i++) {
-      ctx.fillStyle = heartRed;
-      ctx.fillRect(sx + 8 + i * 18, y, 12, 12);
-    }
-    y += 24;
+    // "IP" — лейбл гравця (як в оригіналі)
+    ctx.fillStyle = '#000';
+    ctx.font = 'bold 10px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('I', iconsX, playerBlockY);
+    ctx.fillStyle = enemyBasicColor;
+    ctx.fillText('P', iconsX + 7, playerBlockY);
 
-    // Рівень
-    ctx.fillStyle = sidebarText;
-    ctx.fillText('РІВЕНЬ:', sx + 8, y);
-    y += 18;
-    ctx.fillStyle = '#fcfcfc';
-    ctx.font = 'bold 18px monospace';
-    ctx.fillText('1', sx + 8, y);
+    // Іконка танка гравця
+    ctx.fillStyle = '#000';
+    ctx.fillRect(iconsX, playerBlockY + 6, 10, 10);
+    ctx.fillStyle = '#e7a821';
+    ctx.fillRect(iconsX + 2, playerBlockY + 7, 6, 8);
+
+    // Кількість життів
+    ctx.fillStyle = '#000';
+    ctx.font = 'bold 12px monospace';
+    ctx.fillText(String(this.player.lives), iconsX + 14, playerBlockY + 16);
+
+    // ─── Прапор з номером рівня ─────────────────────────────────────────
+    const flagY = CANVAS_H - BORDER - 44;
+
+    // Древко
+    ctx.fillStyle = '#000';
+    ctx.fillRect(iconsX + 8, flagY, 2, 26);
+
+    // Прапор (оранжевий трикутник)
+    ctx.fillStyle = '#f15b3e';
+    ctx.beginPath();
+    ctx.moveTo(iconsX, flagY);
+    ctx.lineTo(iconsX + 8, flagY);
+    ctx.lineTo(iconsX, flagY + 12);
+    ctx.closePath();
+    ctx.fill();
+
+    // Номер рівня
+    ctx.fillStyle = '#000';
+    ctx.font = 'bold 12px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('1', iconsX + 8, flagY + 38);
+    ctx.textAlign = 'left';
   }
 
   // ─── Overlay екрани ───────────────────────────────────────────────────────

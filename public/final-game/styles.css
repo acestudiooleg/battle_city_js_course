@@ -24,7 +24,11 @@ body {
 #gameCanvas {
   display: block;
   image-rendering: pixelated;
+  image-rendering: crisp-edges;
   border: 4px solid #5c5c5c;
+  transform: scale(2);
+  transform-origin: top center;
+  margin-bottom: 448px;
 }
 
 #hint {

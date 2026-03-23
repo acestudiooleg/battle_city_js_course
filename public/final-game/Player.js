@@ -31,6 +31,9 @@ export class Player extends Tank {
     this.shieldActive   = true;
     this.shieldTimer    = SPAWN_FLASH_DURATION;
     this.shieldFlash    = 0;
+
+    // Гравець стріляє швидше ніж вороги
+    this.shootCooldown = 400;
   }
 
   /** Встановлює InputManager */
