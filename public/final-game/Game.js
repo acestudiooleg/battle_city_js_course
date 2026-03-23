@@ -7,6 +7,7 @@
  * - Керування станом: пауза, game over, перемога
  * - Малювання бічної панелі (Sidebar)
  * - Координація звуків та вибухів
+ * - Підтримка 2 гравців (P1: WASD+Space, P2: Arrows+Enter)
  */
 import {
   TILE,
@@ -53,9 +54,14 @@ export class Game {
       (key) => this.sound.play(key),
     );
 
-    // Гравець
-    this.player = new Player();
-    this.player.setInputManager(this.input);
+    // Гравці
+    this.player1 = new Player(1);
+    this.player2 = new Player(2);
+    this.player1.setInputManager(this.input);
+    this.player2.setInputManager(this.input);
+
+    /** Масив обох гравців для зручності ітерації */
+    this.players = [this.player1, this.player2];
 
     // Вороги
     /** @type {Enemy[]} Активні вороги на полі */
@@ -92,7 +98,7 @@ export class Game {
   _loop(now) {
     if (!this.running) return;
 
-    const dt = Math.min(now - this.lastTime, 50); // clamp dt для уникнення стрибків
+    const dt = Math.min(now - this.lastTime, 50);
     this.lastTime = now;
 
     this._handleMeta();
@@ -120,7 +126,6 @@ export class Game {
   restart() {
     this.running = false;
     this.input.destroy();
-    // Перезавантаження сторінки — простий і надійний спосіб
     location.reload();
   }
 
@@ -134,26 +139,32 @@ export class Game {
     this._updateSpawn(dt);
 
     // canMove замикання — враховує поле + інших танків
-    const allTanks = [this.player, ...this.enemies];
+    const allTanks = [...this.players, ...this.enemies];
     const canMove = (tank, nx, ny) => {
       if (!this.field.canTankMove(tank, nx, ny)) return false;
       if (this.collisions.tankOverlap(tank, nx, ny, allTanks)) return false;
       return true;
     };
 
-    // Гравець
-    this.player.update(dt, canMove, now);
+    // Гравці
+    for (const p of this.players) {
+      p.update(dt, canMove, now);
+    }
 
     // Вороги
     for (const e of this.enemies) {
       e.update(dt, canMove, now);
     }
 
-    // Колізії куль
-    this.collisions.update(this.player, this.enemies);
+    // Колізії куль — для кожного гравця
+    for (const p of this.players) {
+      this.collisions.update(p, this.enemies);
+    }
 
     // Очистка мертвих куль
-    this.player.bullets = this.player.bullets.filter((b) => b.active);
+    for (const p of this.players) {
+      p.bullets = p.bullets.filter((b) => b.active);
+    }
     for (const e of this.enemies) {
       e.bullets = e.bullets.filter((b) => b.active);
     }
@@ -167,15 +178,21 @@ export class Game {
     for (const ex of this.explosions) ex.update(dt);
     this.explosions = this.explosions.filter((ex) => ex.isActive);
 
-    // Звук двигуна
-    const isMoving = this.input.getMovement() !== null && this.player.alive;
+    // Звук двигуна (якщо хоч один гравець рухається)
+    const isMoving = this.players.some(
+      (p) => p.alive && !p.isRespawning && p._getMovement && p._getMovement() !== null
+    );
     this.sound.setEngineSound(isMoving);
 
     // Game Over перевірки
     if (this.field.isEagleDestroyed()) {
       this._triggerGameOver();
     }
-    if (this.player.lives <= 0 && !this.player.alive && !this.player.isRespawning) {
+    // Game over якщо обидва гравці втратили всі життя
+    const allDead = this.players.every(
+      (p) => p.lives <= 0 && !p.alive && !p.isRespawning
+    );
+    if (allDead) {
       this._triggerGameOver();
     }
 
@@ -225,7 +242,6 @@ export class Game {
   // ─── Вибухи ──────────────────────────────────────────────────────────────
 
   _spawnExplosion(fx, fy, type) {
-    // fx, fy — координати ПОЛЯ; Explosion зберігає в екранних координатах
     this.explosions.push(new Explosion(fx + FIELD_X, fy + FIELD_Y, type));
   }
 
@@ -241,8 +257,10 @@ export class Game {
     const oy = FIELD_Y;
 
     // Танки та кулі
-    this.player.render(ctx, ox, oy);
-    this.player.renderBullets(ctx, ox, oy);
+    for (const p of this.players) {
+      p.render(ctx, ox, oy);
+      p.renderBullets(ctx, ox, oy);
+    }
 
     for (const e of this.enemies) {
       e.render(ctx, ox, oy);
@@ -286,37 +304,19 @@ export class Game {
       const ix = iconsX + col * (iconSize + iconGap);
       const iy = iconsY + row * (iconSize + iconGap);
 
-      // Маленька іконка танка (чорна на сірому фоні, як в оригіналі)
       ctx.fillStyle = '#000';
       ctx.fillRect(ix, iy, iconSize, iconSize);
-      // Силует танка
       ctx.fillStyle = '#1a1a1a';
       ctx.fillRect(ix + 1, iy, 2, iconSize);
       ctx.fillRect(ix + iconSize - 3, iy, 2, iconSize);
       ctx.fillRect(ix + 2, iy + 1, iconSize - 4, iconSize - 2);
     }
 
-    // ─── Блок гравця (IP + іконка + число життів) ───────────────────────
-    const playerBlockY = CANVAS_H - BORDER - 100;
+    // ─── Блок P1 ──────────────────────────────────────────────────────
+    this._renderPlayerBlock(ctx, this.player1, iconsX, CANVAS_H - BORDER - 120, 'I', '#e7a821');
 
-    // "IP" — лейбл гравця (як в оригіналі)
-    ctx.fillStyle = '#000';
-    ctx.font = 'bold 10px monospace';
-    ctx.textAlign = 'left';
-    ctx.fillText('I', iconsX, playerBlockY);
-    ctx.fillStyle = enemyBasicColor;
-    ctx.fillText('P', iconsX + 7, playerBlockY);
-
-    // Іконка танка гравця
-    ctx.fillStyle = '#000';
-    ctx.fillRect(iconsX, playerBlockY + 6, 10, 10);
-    ctx.fillStyle = '#e7a821';
-    ctx.fillRect(iconsX + 2, playerBlockY + 7, 6, 8);
-
-    // Кількість життів
-    ctx.fillStyle = '#000';
-    ctx.font = 'bold 12px monospace';
-    ctx.fillText(String(this.player.lives), iconsX + 14, playerBlockY + 16);
+    // ─── Блок P2 ──────────────────────────────────────────────────────
+    this._renderPlayerBlock(ctx, this.player2, iconsX, CANVAS_H - BORDER - 80, 'II', '#00a800');
 
     // ─── Прапор з номером рівня ─────────────────────────────────────────
     const flagY = CANVAS_H - BORDER - 44;
@@ -340,6 +340,30 @@ export class Game {
     ctx.textAlign = 'center';
     ctx.fillText('1', iconsX + 8, flagY + 38);
     ctx.textAlign = 'left';
+  }
+
+  /**
+   * Малює блок гравця на sidebar (IP лейбл + іконка танка + життя)
+   */
+  _renderPlayerBlock(ctx, player, x, y, label, tankColor) {
+    // Лейбл ("IP" або "IIP")
+    ctx.fillStyle = '#000';
+    ctx.font = 'bold 10px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText(label, x, y);
+    ctx.fillStyle = enemyBasicColor;
+    ctx.fillText('P', x + label.length * 7, y);
+
+    // Іконка танка
+    ctx.fillStyle = '#000';
+    ctx.fillRect(x, y + 6, 10, 10);
+    ctx.fillStyle = tankColor;
+    ctx.fillRect(x + 2, y + 7, 6, 8);
+
+    // Кількість життів
+    ctx.fillStyle = '#000';
+    ctx.font = 'bold 12px monospace';
+    ctx.fillText(String(player.lives), x + 14, y + 16);
   }
 
   // ─── Overlay екрани ───────────────────────────────────────────────────────

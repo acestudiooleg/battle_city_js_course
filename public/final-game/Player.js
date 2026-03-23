@@ -1,44 +1,65 @@
 /**
- * 🟡 Клас Player — танк гравця
+ * 🟡🟢 Клас Player — танк гравця (P1 або P2)
  *
  * Відповідає за:
- * - Зчитування вводу від InputManager
+ * - Зчитування вводу (P1: WASD+Space, P2: Arrows+Enter)
  * - Керування життями та відродженням
  * - Відображення щита невразливості (мигання після spawn)
  */
 import { Tank } from './Tank.js';
-import { PLAYER_SPAWN, PLAYER_LIVES, PLAYER_SPEED, RESPAWN_DELAY, SPAWN_FLASH_DURATION } from './constants.js';
+import { PLAYER1_SPAWN, PLAYER2_SPAWN, PLAYER_LIVES, PLAYER_SPEED, RESPAWN_DELAY, SPAWN_FLASH_DURATION } from './constants.js';
 import { playerYellow } from './colors.js';
-import { PLAYER_SPRITE } from './SpriteSheet.js';
+import { PLAYER1_SPRITE, PLAYER2_SPRITE } from './SpriteSheet.js';
 
 export class Player extends Tank {
-  constructor() {
-    const { tx, ty } = PLAYER_SPAWN;
-    super(tx * 16, ty * 16, playerYellow, PLAYER_SPEED, 1);
+  /**
+   * @param {number} playerNum - 1 або 2
+   */
+  constructor(playerNum = 1) {
+    const spawn  = playerNum === 1 ? PLAYER1_SPAWN : PLAYER2_SPAWN;
+    const sprite = playerNum === 1 ? PLAYER1_SPRITE : PLAYER2_SPRITE;
+    const color  = playerNum === 1 ? playerYellow : '#00a800';
 
-    // Спрайт гравця (жовтий, star level 0)
-    this.spriteX = PLAYER_SPRITE.x;
-    this.spriteY = PLAYER_SPRITE.y;
+    super(spawn.tx * 16, spawn.ty * 16, color, PLAYER_SPEED, 1);
 
-    this.lives         = PLAYER_LIVES;
-    this.inputManager  = null;
+    this.playerNum = playerNum;
+    this.spawn     = spawn;
+
+    // Спрайт
+    this.spriteX = sprite.x;
+    this.spriteY = sprite.y;
+
+    this.lives = PLAYER_LIVES;
+
+    // Функції вводу (встановлюються через setInputManager)
+    this._getMovement = null;
+    this._isShoot     = null;
 
     // Стан відродження
-    this.isRespawning   = false;
-    this.respawnTimer   = 0;
+    this.isRespawning = false;
+    this.respawnTimer = 0;
 
     // Щит (невразливість після spawn)
-    this.shieldActive   = true;
-    this.shieldTimer    = SPAWN_FLASH_DURATION;
-    this.shieldFlash    = 0;
+    this.shieldActive = true;
+    this.shieldTimer  = SPAWN_FLASH_DURATION;
+    this.shieldFlash  = 0;
 
     // Гравець стріляє швидше ніж вороги
     this.shootCooldown = 400;
   }
 
-  /** Встановлює InputManager */
+  /**
+   * Встановлює InputManager та прив'язує відповідні методи вводу
+   * @param {InputManager} im
+   */
   setInputManager(im) {
-    this.inputManager = im;
+    if (this.playerNum === 1) {
+      this._getMovement = () => im.getMovementP1();
+      this._isShoot     = () => im.isShootP1();
+    } else {
+      this._getMovement = () => im.getMovementP2();
+      this._isShoot     = () => im.isShootP2();
+    }
   }
 
   /**
@@ -64,14 +85,14 @@ export class Player extends Tank {
       if (this.shieldTimer <= 0) this.shieldActive = false;
     }
 
-    if (!this.alive || !this.inputManager) return;
+    if (!this.alive || !this._getMovement) return;
 
     // Рух
-    const dir = this.inputManager.getMovement();
+    const dir = this._getMovement();
     if (dir) this.move(dir, dt, canMove);
 
     // Постріл
-    if (this.inputManager.isShoot()) {
+    if (this._isShoot()) {
       this.shoot(now, 'player');
     }
 
@@ -83,7 +104,7 @@ export class Player extends Tank {
    * @returns {boolean} - true якщо більше немає життів (game over)
    */
   hit() {
-    if (this.shieldActive) return false; // щит захищає
+    if (this.shieldActive) return false;
 
     this.alive = false;
     this.lives--;
@@ -101,9 +122,8 @@ export class Player extends Tank {
   }
 
   _doRespawn() {
-    const { tx, ty } = PLAYER_SPAWN;
-    this.x           = tx * 16;
-    this.y           = ty * 16;
+    this.x           = this.spawn.tx * 16;
+    this.y           = this.spawn.ty * 16;
     this.direction   = 'up';
     this.alive       = true;
     this.isRespawning = false;
@@ -117,7 +137,6 @@ export class Player extends Tank {
   /** Малювання (з ефектом мигання щита) */
   render(ctx, ox, oy) {
     if (this.isRespawning) return;
-    // Під час щита — мигає
     if (this.shieldActive && this.shieldFlash > 5) return;
     super.render(ctx, ox, oy);
 

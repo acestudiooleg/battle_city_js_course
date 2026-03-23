@@ -1,11 +1,10 @@
 /**
  * ⌨️ Клас InputManager — зчитування вводу з клавіатури
  *
- * Підтримує:
- * - WASD / Стрілки для руху
- * - SPACE для стрільби
- * - P для паузи
- * - R для рестарту
+ * Підтримує двох гравців:
+ * - P1: WASD для руху, Space для стрільби
+ * - P2: Стрілки для руху, Enter для стрільби
+ * - P — пауза, R — рестарт (спільні)
  */
 export class InputManager {
   constructor() {
@@ -30,19 +29,39 @@ export class InputManager {
     document.addEventListener('keyup', this._onUp);
   }
 
-  /** Напрямок руху: повертає 'up'|'down'|'left'|'right' або null */
-  getMovement() {
-    if (this.held['ArrowUp']    || this.held['KeyW']) return 'up';
-    if (this.held['ArrowDown']  || this.held['KeyS']) return 'down';
-    if (this.held['ArrowLeft']  || this.held['KeyA']) return 'left';
-    if (this.held['ArrowRight'] || this.held['KeyD']) return 'right';
+  // ─── P1: WASD + Space ────────────────────────────────────────────────────
+
+  /** Напрямок руху P1 */
+  getMovementP1() {
+    if (this.held['KeyW']) return 'up';
+    if (this.held['KeyS']) return 'down';
+    if (this.held['KeyA']) return 'left';
+    if (this.held['KeyD']) return 'right';
     return null;
   }
 
-  /** Чи натиснута клавіша стрільби (утримувана) */
-  isShoot() {
+  /** Чи стріляє P1 */
+  isShootP1() {
     return !!this.held['Space'];
   }
+
+  // ─── P2: Arrows + Enter ──────────────────────────────────────────────────
+
+  /** Напрямок руху P2 */
+  getMovementP2() {
+    if (this.held['ArrowUp'])    return 'up';
+    if (this.held['ArrowDown'])  return 'down';
+    if (this.held['ArrowLeft'])  return 'left';
+    if (this.held['ArrowRight']) return 'right';
+    return null;
+  }
+
+  /** Чи стріляє P2 */
+  isShootP2() {
+    return !!this.held['Enter'] || !!this.held['NumpadEnter'];
+  }
+
+  // ─── Спільні ─────────────────────────────────────────────────────────────
 
   /** Чи щойно натиснута пауза */
   justPause() {
@@ -64,7 +83,7 @@ export class InputManager {
     return [
       'ArrowUp','ArrowDown','ArrowLeft','ArrowRight',
       'KeyW','KeyA','KeyS','KeyD',
-      'Space','KeyP','KeyR',
+      'Space','Enter','NumpadEnter','KeyP','KeyR',
     ].includes(code);
   }
 

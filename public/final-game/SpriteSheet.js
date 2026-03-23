@@ -49,8 +49,9 @@ export const spriteSheet = new _SpriteSheet();
  */
 export const DIR_COL = { up: 0, left: 2, down: 4, right: 6 };
 
-/** Рядки для гравця (x_base = 0, кожен рядок = 16px) */
-export const PLAYER_SPRITE = { x: 0, y: 0 };  // star level 0
+/** Рядки для гравців (x_base = 0, кожен рядок = 16px) */
+export const PLAYER1_SPRITE = { x: 0, y: 0 };    // P1 жовтий, star level 0
+export const PLAYER2_SPRITE = { x: 0, y: 128 };   // P2 зелений, star level 0
 
 /** Рядки для ворогів (x_base = 128) */
 export const ENEMY_SPRITES = {

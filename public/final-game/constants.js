@@ -59,7 +59,8 @@ export const EAGLE_TX = 12;
 export const EAGLE_TY = 24;
 
 // Точки появи гравців (верхній лівий кут 2×2 танка)
-export const PLAYER_SPAWN = { tx: 8, ty: 24 };
+export const PLAYER1_SPAWN = { tx: 8,  ty: 24 };  // ліворуч від штабу
+export const PLAYER2_SPAWN = { tx: 16, ty: 24 };  // праворуч від штабу
 
 // Точки появи ворогів
 export const ENEMY_SPAWN_POINTS = [
