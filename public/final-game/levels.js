@@ -32,7 +32,7 @@ export const LEVEL_1 = [
 export const TILE_MATERIAL = ['', 'brick', 'concrete', 'water', 'forest'];
 
 // HP за числовим кодом
-export const TILE_HP = [0, 4, 99, 99, 99];
+export const TILE_HP = [0, 1, 99, 99, 99];
 
 /**
  * Розгортає 13×13 блокову карту у список тайлових об'єктів 26×26.

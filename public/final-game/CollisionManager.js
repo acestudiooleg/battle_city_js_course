@@ -65,9 +65,14 @@ export class CollisionManager {
       const tile = this.field.bulletHitWall(bx, by, b.width, b.height);
       if (tile) {
         b.active = false;
-        const destroyed = this.field.damageTile(tile, 1);
-        const type = tile.material === 'concrete' ? 'small' : destroyed ? 'medium' : 'small';
-        this.onExplosion(b.x, b.y, type);
+        if (tile.material === 'brick') {
+          // NES-стиль: руйнуємо пару тайлів з боку влучання
+          this.field.destroyBrickPair(tile, b.direction);
+          this.onExplosion(b.x, b.y, 'small');
+        } else {
+          // Бетон — не руйнується, просто вибух
+          this.onExplosion(b.x, b.y, 'small');
+        }
         this.onSound('explodeS');
         continue;
       }

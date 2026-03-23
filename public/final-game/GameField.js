@@ -139,6 +139,50 @@ export class GameField {
     return false;
   }
 
+  /** Знайти тайл за тайловими координатами */
+  findWallAt(tx, ty) {
+    return this.walls.find(t => t.tx === tx && t.ty === ty) || null;
+  }
+
+  /**
+   * NES-стиль: куля руйнує 2 тайли з того боку, звідки летить.
+   * Блок 32×32 = 4 тайли (2×2):
+   *   [TL] [TR]    tx%2=0  tx%2=1
+   *   [BL] [BR]    ty%2=0  ty%2=1
+   *
+   * Куля ↓ (down) → руйнує верхню пару (ty%2=0)
+   * Куля ↑ (up)   → руйнує нижню пару (ty%2=1)
+   * Куля → (right) → руйнує ліву пару  (tx%2=0)
+   * Куля ← (left)  → руйнує праву пару (tx%2=1)
+   */
+  destroyBrickPair(hitTile, bulletDir) {
+    if (hitTile.material !== 'brick') return false;
+
+    const { tx, ty } = hitTile;
+    let partnerTx, partnerTy;
+
+    if (bulletDir === 'up' || bulletDir === 'down') {
+      // Горизонтальна пара: той самий ty, інший tx в межах блоку
+      partnerTx = (tx % 2 === 0) ? tx + 1 : tx - 1;
+      partnerTy = ty;
+    } else {
+      // Вертикальна пара: той самий tx, інший ty в межах блоку
+      partnerTx = tx;
+      partnerTy = (ty % 2 === 0) ? ty + 1 : ty - 1;
+    }
+
+    // Знищити влучений тайл
+    this.damageTile(hitTile, hitTile.hp);
+
+    // Знищити партнера (якщо існує і це цегла)
+    const partner = this.findWallAt(partnerTx, partnerTy);
+    if (partner && partner.material === 'brick') {
+      this.damageTile(partner, partner.hp);
+    }
+
+    return true;
+  }
+
   destroyEagle() { this.eagle.alive = false; }
   isEagleDestroyed() { return !this.eagle.alive; }
 

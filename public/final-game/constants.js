@@ -42,7 +42,7 @@ export const ENEMY_FAST_SPEED = 2.0;
 export const BULLET_SPEED    = 5;
 
 // HP матеріалів
-export const BRICK_HP    = 4;   // 4 влучання
+export const BRICK_HP    = 1;   // 1 влучання (NES: знищується парами по 2 тайли)
 export const CONCRETE_HP = 99;  // невразливий
 
 // Затримки (мс)
