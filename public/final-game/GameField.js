@@ -18,7 +18,6 @@ import {
   fieldBg, borderBg,
   brickFull, brickHalf, brickLow,
   concreteCol, waterCol, forestCol,
-  eagleAlive, eagleDead,
 } from './colors.js';
 import {
   spriteSheet,
@@ -269,25 +268,23 @@ export class GameField {
 
     // Fallback
     if (e.alive) {
-      ctx.fillStyle = eagleAlive;
-      ctx.fillRect(dx + 2, dy + 2, s - 4, s - 4);
-      ctx.fillStyle = '#d8a000';
-      ctx.beginPath();
-      ctx.moveTo(dx + s / 2, dy + 4);
-      ctx.lineTo(dx + 4, dy + s - 4);
-      ctx.lineTo(dx + s - 4, dy + s - 4);
-      ctx.closePath();
-      ctx.fill();
+      ctx.fillStyle = '#7c7c7c';
+      ctx.fillRect(dx + 4, dy + 4, s - 8, s - 8);
+      ctx.fillStyle = '#e04038';
+      ctx.font = `${s * 0.6}px monospace`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('\u2655', dx + s / 2, dy + s / 2);
     } else {
-      ctx.fillStyle = eagleDead;
-      ctx.fillRect(dx + 2, dy + 2, s - 4, s - 4);
+      ctx.fillStyle = '#3c3c3c';
+      ctx.fillRect(dx + 4, dy + 4, s - 8, s - 8);
       ctx.strokeStyle = '#e04038';
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 3;
       ctx.beginPath();
-      ctx.moveTo(dx + 4, dy + 4);
-      ctx.lineTo(dx + s - 4, dy + s - 4);
-      ctx.moveTo(dx + s - 4, dy + 4);
-      ctx.lineTo(dx + 4, dy + s - 4);
+      ctx.moveTo(dx + 6, dy + 6);
+      ctx.lineTo(dx + s - 6, dy + s - 6);
+      ctx.moveTo(dx + s - 6, dy + 6);
+      ctx.lineTo(dx + 6, dy + s - 6);
       ctx.stroke();
     }
   }
