@@ -91,7 +91,17 @@ export class Game {
 
   start() {
     this.running = true;
-    this.sound.play('intro', 0.5);
+
+    // Інтро музика — браузери блокують autoplay до першої дії користувача,
+    // тому відтворюємо при першому натисканні клавіші
+    const playIntro = () => {
+      this.sound.play('intro', 0.5);
+      document.removeEventListener('keydown', playIntro);
+      document.removeEventListener('click', playIntro);
+    };
+    document.addEventListener('keydown', playIntro);
+    document.addEventListener('click', playIntro);
+
     requestAnimationFrame((t) => this._loop(t));
   }
 
@@ -103,8 +113,13 @@ export class Game {
 
     this._handleMeta();
 
-    if (!this.paused && !this.gameOver && !this.victory) {
-      this._update(dt, now);
+    if (!this.paused && !this.victory) {
+      if (this.gameOver) {
+        // Game Over — тільки анімація тексту + вибухи, гра заморожена
+        this._updateGameOverAnim(dt);
+      } else {
+        this._update(dt, now);
+      }
     }
 
     this._render();
@@ -201,7 +216,18 @@ export class Game {
       this.victory = true;
     }
 
-    // Game Over — текст підіймається
+  }
+
+  /** Оновлення анімації Game Over (текст піднімається знизу) */
+  _updateGameOverAnim(dt) {
+    // Анімація води продовжується
+    this.field.update(dt);
+
+    // Вибухи продовжують догорати
+    for (const ex of this.explosions) ex.update(dt);
+    this.explosions = this.explosions.filter((ex) => ex.isActive);
+
+    // Текст "GAME OVER" піднімається знизу до центру
     if (this.gameOverRising) {
       this.gameOverY -= 1.5;
       if (this.gameOverY < FIELD_H / 2 - 20) {
