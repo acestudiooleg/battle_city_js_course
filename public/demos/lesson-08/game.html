@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Урок 8 — Вибухи</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        background: #1a1a2e;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+      canvas {
+        display: block;
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+        max-width: 100%;
+        max-height: 100vh;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="gameCanvas" width="608" height="448"></canvas>
+    <script type="module" src="main.js"></script>
+  </body>
+</html>

@@ -19,9 +19,9 @@
 | 3 | `lessons/03-drawing-tank/` | 5 файлів (3-1 — 3-5) | ✅ Готово |
 | 4 | `lessons/04-movement/` | 5 файлів (4-1 — 4-5) | ✅ Готово |
 | 5 | `lessons/05-shooting/` | 5 файлів (5-1 — 5-5) | ✅ Готово |
-| 6 | `lessons/06-game-field/` | — | ❌ Не створено |
-| 7 | `lessons/07-collisions/` | — | ❌ Не створено |
-| 8 | `lessons/08-explosions/` | — | ❌ Не створено |
+| 6 | `lessons/06-game-field/` | 4 файли (6-1 — 6-4) | ✅ Готово |
+| 7 | `lessons/07-collisions/` | 5 файлів (7-1 — 7-5) | ✅ Готово |
+| 8 | `lessons/08-explosions/` | 4 файли (8-1 — 8-4) | ✅ Готово |
 | 9 | `lessons/09-eagle-gamestate/` | — | ❌ Не створено |
 | 10 | `lessons/10-enemies/` | — | ❌ Не створено |
 | 11 | `lessons/11-sprites/` | — | ❌ Не створено |
@@ -38,7 +38,10 @@
 | 3 | `public/demos/lesson-03/` | ✅ Готово (game.html, main.js, constants.js, colors.js, Tank.js, Player.js) |
 | 4 | `public/demos/lesson-04/` | ✅ Готово (game.html, main.js, Tank.js, Player.js, InputManager.js, constants.js, colors.js) |
 | 5 | `public/demos/lesson-05/` | ✅ Готово (game.html, main.js, Tank.js, Player.js, Bullet.js, InputManager.js, constants.js, colors.js) |
-| 6–14 | `public/demos/lesson-06/` ... | ❌ Не створено |
+| 6 | `public/demos/lesson-06/` | ✅ Готово (+levels.js, GameField.js) |
+| 7 | `public/demos/lesson-07/` | ✅ Готово (+CollisionManager.js) |
+| 8 | `public/demos/lesson-08/` | ✅ Готово (+Explosion.js, destroyBrickPair) |
+| 9–14 | `public/demos/lesson-09/` ... | ❌ Не створено |
 
 ### Інші файли
 
@@ -76,15 +79,13 @@ lessons/{NN}-{folder-name}/{N}-{M}-{topic-name}.md
 
 ## Наступний крок
 
-**Створити День 6: Ігрове поле з даних** — 4 підуроки + демо.
+**Створити День 9: Штаб та стан гри** — 4 підуроки + демо.
 
-Дивись `course-roadmap.md` → "День 6" для деталей:
-- 6.1: Формат карти: 13×13 блоків, коди матеріалів
-- 6.2: `levels.js`: масив LEVEL_1, buildTileList()
-- 6.3: `GameField.js`: побудова рівня, малювання стін
-- 6.4: Вода (анімація) та ліс (z-index поверх танків)
-
-Демо має містити: все з lesson-05 + levels.js, GameField.js, оновлений main.js
+Дивись `course-roadmap.md` → "День 9" для деталей:
+- 9.1: Орел (штаб), позиція, спрайт alive/dead, захисна стінка
+- 9.2: bulletHitEagle(), destroyEagle(), великий вибух
+- 9.3: Game Over анімація (текст знизу вгору)
+- 9.4: Перемога, пауза (P), рестарт (R)
 
 ---
 
