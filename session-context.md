@@ -35,7 +35,8 @@
 |------|-------|--------|
 | 1 | `public/demos/lesson-01/` | ✅ Готово (game.html, main.js, styles.css, variables.css) |
 | 2 | `public/demos/lesson-02/` | ✅ Готово (game.html, main.js, constants.js, colors.js) |
-| 3–14 | `public/demos/lesson-03/` ... | ❌ Не створено |
+| 3 | `public/demos/lesson-03/` | ✅ Готово (game.html, main.js, constants.js, colors.js, Tank.js, Player.js) |
+| 4–14 | `public/demos/lesson-04/` ... | ❌ Не створено |
 
 ### Інші файли
 
@@ -73,16 +74,16 @@ lessons/{NN}-{folder-name}/{N}-{M}-{topic-name}.md
 
 ## Наступний крок
 
-**Створити День 3: Малюємо танк** — 5 підуроків + демо.
+**Створити День 4: Рух танка** — 5 підуроків + демо.
 
-Дивись `course-roadmap.md` → "День 3" для деталей:
-- 3.1: Що таке ООП (клас, конструктор, методи)
-- 3.2: `Tank.js` (властивості)
-- 3.3: `render()` (корпус, гусениці)
-- 3.4: `_drawBarrel()` (дуло за напрямком)
-- 3.5: `Player.js` (жовтий танк на полі)
+Дивись `course-roadmap.md` → "День 4" для деталей:
+- 4.1: `InputManager.js` (слухачі keydown/keyup, масив held[])
+- 4.2: Ігровий цикл (requestAnimationFrame, deltaTime, clamp)
+- 4.3: `Tank.move()` (обчислення позиції, обмеження межами)
+- 4.4: `Tank.snapToGrid()` (вирівнювання по сітці при повороті)
+- 4.5: Анімація гусениць при русі (animFrame/animTimer)
 
-Демо має містити: constants.js, colors.js, Tank.js, Player.js, main.js, game.html
+Демо має містити: все з lesson-03 + InputManager.js, оновлені main.js та Player.js
 
 ---
 
