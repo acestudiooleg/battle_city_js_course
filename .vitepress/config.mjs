@@ -89,11 +89,11 @@ export default defineConfig({
             text: 'День 4: Рух танка',
             collapsed: true,
             items: [
-              { text: '4.1: InputManager', link: '/lessons/04-movement/4-1' },
-              { text: '4.2: Ігровий цикл', link: '/lessons/04-movement/4-2' },
-              { text: '4.3: Рух танка', link: '/lessons/04-movement/4-3' },
-              { text: '4.4: Grid Snapping', link: '/lessons/04-movement/4-4' },
-              { text: '4.5: Анімація гусениць', link: '/lessons/04-movement/4-5' },
+              { text: '4.1: Слухаємо клавіатуру', link: '/lessons/04-movement/4-1-input-manager' },
+              { text: '4.2: Ігровий цикл', link: '/lessons/04-movement/4-2-game-loop' },
+              { text: '4.3: Метод move()', link: '/lessons/04-movement/4-3-tank-move' },
+              { text: '4.4: Snap to Grid', link: '/lessons/04-movement/4-4-snap-to-grid' },
+              { text: '4.5: Анімація гусениць', link: '/lessons/04-movement/4-5-tread-animation' },
             ],
           },
           {

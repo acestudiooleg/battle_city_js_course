@@ -29,31 +29,40 @@ lesson-03/
 ```js
 // Tank.js — базовий клас для всіх танків
 
-import { TILE, TANK_SIZE, FIELD_W, FIELD_H } from './constants.js';
-import { darkGray } from './colors.js';
+import { TILE, TANK_SIZE, FIELD_W, FIELD_H } from './constants.js'; // розміри гри
+import { darkGray } from './colors.js'; // колір гусениць та дула
 
+/**
+ * Базовий клас Tank — шаблон для всіх танків у грі.
+ * Player та Enemy будуть успадковувати цей клас.
+ */
 export class Tank {
+    /**
+     * Створює новий танк.
+     * @param {number} fx    — X-позиція на ігровому полі (в пікселях)
+     * @param {number} fy    — Y-позиція на ігровому полі (в пікселях)
+     * @param {string} color — колір корпусу (наприклад, '#f8f858')
+     * @param {number} speed — швидкість руху (пікселів за кадр, за замовчуванням 2)
+     * @param {number} hp    — здоров'я (скільки влучань витримає, за замовчуванням 1)
+     */
     constructor(fx, fy, color, speed = 2, hp = 1) {
-        // Позиція у координатах поля (не Canvas!)
-        this.x = fx;
-        this.y = fy;
+        // Позиція у координатах ПОЛЯ (не Canvas!)
+        this.x = fx;   // горизонтальна позиція
+        this.y = fy;   // вертикальна позиція
 
-        // Розмір (завжди 32×32)
-        this.width  = TANK_SIZE;
-        this.height = TANK_SIZE;
+        // Розмір танка (завжди 2×2 тайли = 32×32 пікселі)
+        this.width  = TANK_SIZE;  // 32
+        this.height = TANK_SIZE;  // 32
 
-        // Зовнішній вигляд
-        this.color = color;
+        this.color = color;       // колір корпусу танка
 
         // Напрямок: 'up' | 'down' | 'left' | 'right'
-        this.direction = 'up';
+        this.direction = 'up';    // початковий напрямок — вгору
 
-        // Швидкість (пікселів за кадр)
-        this.speed = speed;
+        this.speed = speed;       // швидкість (пікселів за кадр)
 
-        // Здоров'я
-        this.hp    = hp;
-        this.alive = true;
+        this.hp    = hp;          // поточне здоров'я
+        this.alive = true;        // чи живий танк (false = знищений)
 
         // Анімація гусениць (0 або 1 — два кадри)
         this.animFrame = 0;

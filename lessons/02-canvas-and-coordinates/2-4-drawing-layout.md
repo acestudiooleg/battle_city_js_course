@@ -44,46 +44,54 @@ import { black, borderBg, sidebarBg, sidebarText,
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+/**
+ * Головна функція малювання — викликається один раз при запуску.
+ * Малює три шари: рамку, ігрове поле та sidebar.
+ */
 function draw() {
     // 1️⃣ Заливаємо ВСЕ сірим — це рамка
-    ctx.fillStyle = borderBg;
-    ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+    ctx.fillStyle = borderBg;           // сірий колір рамки
+    ctx.fillRect(0, 0, CANVAS_W, CANVAS_H); // покриваємо весь Canvas
 
     // 2️⃣ Малюємо чорне ігрове поле поверх
-    ctx.fillStyle = black;
-    ctx.fillRect(FIELD_X, FIELD_Y, FIELD_W, FIELD_H);
+    ctx.fillStyle = black;              // чорний фон поля
+    ctx.fillRect(FIELD_X, FIELD_Y, FIELD_W, FIELD_H); // 416×416 з відступом 16px
 
     // 3️⃣ Малюємо sidebar (бічну панель)
     // Вона вже сіра від кроку 1, але ми позначимо її текстом
-    const sidebarX = FIELD_X + FIELD_W + BORDER;
-    ctx.fillStyle = sidebarText;
-    ctx.font = '14px monospace';
-    ctx.textAlign = 'left';
-    ctx.fillText('SIDEBAR', sidebarX + 10, 30);
+    const sidebarX = FIELD_X + FIELD_W + BORDER; // правий край поля + рамка
+    ctx.fillStyle = sidebarText;        // колір тексту sidebar
+    ctx.font = '14px monospace';        // моноширинний шрифт
+    ctx.textAlign = 'left';             // вирівнювання по лівому краю
+    ctx.fillText('SIDEBAR', sidebarX + 10, 30); // текст із відступом 10px
 
     // 4️⃣ Малюємо сітку тайлів (для наочності!)
     drawGrid();
 }
 
+/**
+ * Малює сітку 26×26 на ігровому полі.
+ * Кожна клітинка — TILE (16px). Сітка допомагає бачити координати.
+ */
 function drawGrid() {
-    ctx.strokeStyle = '#1a1a1a';  // Ледь помітний сірий
-    ctx.lineWidth = 0.5;
+    ctx.strokeStyle = '#1a1a1a';  // Ледь помітний сірий (майже чорний)
+    ctx.lineWidth = 0.5;         // Тонка лінія (пів пікселя)
 
-    // Вертикальні лінії
+    // Вертикальні лінії (27 ліній для 26 колонок)
     for (let col = 0; col <= 26; col++) {
-        const x = FIELD_X + col * TILE;
-        ctx.beginPath();
-        ctx.moveTo(x, FIELD_Y);
-        ctx.lineTo(x, FIELD_Y + FIELD_H);
-        ctx.stroke();
+        const x = FIELD_X + col * TILE; // X-координата лінії на Canvas
+        ctx.beginPath();                // починаємо нову лінію
+        ctx.moveTo(x, FIELD_Y);        // верхня точка
+        ctx.lineTo(x, FIELD_Y + FIELD_H); // нижня точка
+        ctx.stroke();                   // малюємо лінію
     }
 
-    // Горизонтальні лінії
+    // Горизонтальні лінії (27 ліній для 26 рядків)
     for (let row = 0; row <= 26; row++) {
-        const y = FIELD_Y + row * TILE;
+        const y = FIELD_Y + row * TILE; // Y-координата лінії на Canvas
         ctx.beginPath();
-        ctx.moveTo(FIELD_X, y);
-        ctx.lineTo(FIELD_X + FIELD_W, y);
+        ctx.moveTo(FIELD_X, y);         // ліва точка
+        ctx.lineTo(FIELD_X + FIELD_W, y); // права точка
         ctx.stroke();
     }
 }

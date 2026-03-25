@@ -29,50 +29,66 @@
 Відкрий `Tank.js` та додай після конструктора:
 
 ```js
+    /**
+     * Малює танк на Canvas.
+     * @param {CanvasRenderingContext2D} ctx — контекст для малювання
+     * @param {number} ox — зсув поля по X (= FIELD_X, зазвичай 16px)
+     * @param {number} oy — зсув поля по Y (= FIELD_Y, зазвичай 16px)
+     */
     render(ctx, ox, oy) {
-        if (!this.alive) return;
+        if (!this.alive) return; // мертвий танк не малюємо
 
-        // Координати відносно ігрового поля (з урахуванням зсуву рамки) X
-        const sx = Math.round(this.x) + ox;
-        // Координати відносно ігрового поля (з урахуванням зсуву рамки) Y
-        const sy = Math.round(this.y) + oy;
-        // Розмір танка (32px)
-        const sz = this.width; // 32
+        // Переводимо координати поля → координати Canvas
+        // this.x — позиція на полі, ox — зсув рамки
+        const sx = Math.round(this.x) + ox; // screenX = fieldX + offset
+        const sy = Math.round(this.y) + oy; // screenY = fieldY + offset
+        const sz = this.width;               // розмір танка (32px)
 
-        ctx.save();
-        // Малюємо гусениці
-        this._drawTreads(ctx, sx, sy, sz);
-        // Малюємо корпус
-        ctx.fillStyle = this.color;
-        ctx.fillRect(sx + 4, sy + 4, sz - 8, sz - 8);
-        // Малюємо дуло
-        this._drawBarrel(ctx, sx, sy, sz);
-        ctx.restore();
+        ctx.save();   // зберігаємо стан Canvas (колір, шрифт тощо)
+
+        this._drawTreads(ctx, sx, sy, sz);   // 1. гусениці (під корпусом)
+
+        ctx.fillStyle = this.color;          // 2. корпус (колір танка)
+        ctx.fillRect(sx + 4, sy + 4, sz - 8, sz - 8); // відступ 4px від гусениць
+
+        this._drawBarrel(ctx, sx, sy, sz);   // 3. дуло (поверх корпусу)
+
+        ctx.restore(); // відновлюємо стан Canvas
     }
 
     /**
-      Малює гусениці танка. Викликається з render().
-      - ctx: контекст для малювання
-      - sx, sy: координати танка на Canvas (з урахуванням зсуву)
-      - sz: розмір танка (32px)
-    */
+     * Малює гусениці танка (два блоки з кожного боку).
+     * Анімація: af (0 або 1) зсуває секції гусениць на 4px.
+     * @param {CanvasRenderingContext2D} ctx — контекст для малювання
+     * @param {number} sx — X-координата на Canvas
+     * @param {number} sy — Y-координата на Canvas
+     * @param {number} sz — розмір танка (32px)
+     */
     _drawTreads(ctx, sx, sy, sz) {
-        ctx.fillStyle = darkGray;
-        const af = this.animFrame; // 0 або 1
+        ctx.fillStyle = darkGray;        // колір гусениць — темно-сірий
+        const af = this.animFrame;       // кадр анімації: 0 або 1
 
         if (this.direction === 'up' || this.direction === 'down') {
-            // Ліва гусениця
+            // Вертикальний рух — гусениці ЛІВОРУЧ та ПРАВОРУЧ
+
+            // Ліва гусениця: верхня секція (зсув залежить від af)
             ctx.fillRect(sx,          sy + af * 4,            4, sz / 2 - 2);
+            // Ліва гусениця: нижня секція (протилежний зсув)
             ctx.fillRect(sx,          sy + sz / 2 + (1-af)*4, 4, sz / 2 - 2);
-            // Права гусениця
+            // Права гусениця: верхня секція
             ctx.fillRect(sx + sz - 4, sy + af * 4,            4, sz / 2 - 2);
+            // Права гусениця: нижня секція
             ctx.fillRect(sx + sz - 4, sy + sz / 2 + (1-af)*4, 4, sz / 2 - 2);
         } else {
-            // Верхня гусениця
+            // Горизонтальний рух — гусениці ЗВЕРХУ та ЗНИЗУ
+
+            // Верхня гусениця: ліва секція
             ctx.fillRect(sx + af * 4,           sy,           sz / 2 - 2, 4);
+            // Верхня гусениця: права секція
             ctx.fillRect(sx + sz/2 + (1-af)*4,  sy,           sz / 2 - 2, 4);
-            // Нижня гусениця
+            // Нижня гусениця: ліва секція
             ctx.fillRect(sx + af * 4,           sy + sz - 4,  sz / 2 - 2, 4);
+            // Нижня гусениця: права секція
             ctx.fillRect(sx + sz/2 + (1-af)*4,  sy + sz - 4,  sz / 2 - 2, 4);
         }
     }

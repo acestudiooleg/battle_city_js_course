@@ -40,39 +40,37 @@
 
 ```js
     /**
-    Малює дуло танка. Викликається з render().
-    - ctx: контекст для малювання
-    - sx, sy: координати танка на Canvas (з урахуванням зсуву)
-    - sz: розмір танка (32px)
-    */
-    _
+     * Малює дуло танка у напрямку руху. Викликається з render().
+     * @param {CanvasRenderingContext2D} ctx — контекст для малювання
+     * @param {number} sx — X-координата танка на Canvas
+     * @param {number} sy — Y-координата танка на Canvas
+     * @param {number} sz — розмір танка (32px)
+     */
     _drawBarrel(ctx, sx, sy, sz) {
-        ctx.fillStyle = darkGray;
+        ctx.fillStyle = darkGray; // дуло того ж кольору, що й гусениці
 
-        // Довжина дула — 55% від розміру танка
-        const barrelLen = sz * 0.55;
-        // Ширина дула — 20% від розміру танка
-        const barrelW   = sz * 0.2;
+        const barrelLen = sz * 0.55; // довжина дула ≈ 17px (55% від 32)
+        const barrelW   = sz * 0.2;  // ширина дула ≈ 6px (20% від 32)
 
-        // Центр дула (горизонтальний або вертикальний)
-        const cx = sx + sz / 2 - barrelW / 2;
-        const cy = sy + sz / 2 - barrelW / 2;
+        // Центр танка мінус половина ширини дула
+        const cx = sx + sz / 2 - barrelW / 2; // горизонтальний центр
+        const cy = sy + sz / 2 - barrelW / 2; // вертикальний центр
 
         switch (this.direction) {
             case 'up':
-                // Дуло виступає ВГОРУ від корпусу
+                // Дуло виступає ВГОРУ: від верхнього краю танка вгору
                 ctx.fillRect(cx, sy - barrelLen, barrelW, barrelLen);
                 break;
             case 'down':
-                // Дуло виступає ВНИЗ
+                // Дуло виступає ВНИЗ: від нижнього краю танка вниз
                 ctx.fillRect(cx, sy + sz, barrelW, barrelLen);
                 break;
             case 'left':
-                // Дуло виступає ВЛІВО
+                // Дуло виступає ВЛІВО: від лівого краю танка вліво
                 ctx.fillRect(sx - barrelLen, cy, barrelLen, barrelW);
                 break;
             case 'right':
-                // Дуло виступає ВПРАВО
+                // Дуло виступає ВПРАВО: від правого краю танка вправо
                 ctx.fillRect(sx + sz, cy, barrelLen, barrelW);
                 break;
         }

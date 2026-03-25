@@ -17,7 +17,7 @@
 | 1 | `lessons/01-getting-started/` | 6 файлів (1-1 — 1-6) | ✅ Готово |
 | 2 | `lessons/02-canvas-and-coordinates/` | 5 файлів (2-1 — 2-5) | ✅ Готово |
 | 3 | `lessons/03-drawing-tank/` | 5 файлів (3-1 — 3-5) | ✅ Готово |
-| 4 | `lessons/04-movement/` | — | ❌ Не створено |
+| 4 | `lessons/04-movement/` | 5 файлів (4-1 — 4-5) | ✅ Готово |
 | 5 | `lessons/05-shooting/` | — | ❌ Не створено |
 | 6 | `lessons/06-game-field/` | — | ❌ Не створено |
 | 7 | `lessons/07-collisions/` | — | ❌ Не створено |
@@ -36,7 +36,8 @@
 | 1 | `public/demos/lesson-01/` | ✅ Готово (game.html, main.js, styles.css, variables.css) |
 | 2 | `public/demos/lesson-02/` | ✅ Готово (game.html, main.js, constants.js, colors.js) |
 | 3 | `public/demos/lesson-03/` | ✅ Готово (game.html, main.js, constants.js, colors.js, Tank.js, Player.js) |
-| 4–14 | `public/demos/lesson-04/` ... | ❌ Не створено |
+| 4 | `public/demos/lesson-04/` | ✅ Готово (game.html, main.js, Tank.js, Player.js, InputManager.js, constants.js, colors.js) |
+| 5–14 | `public/demos/lesson-05/` ... | ❌ Не створено |
 
 ### Інші файли
 
@@ -74,16 +75,18 @@ lessons/{NN}-{folder-name}/{N}-{M}-{topic-name}.md
 
 ## Наступний крок
 
-**Створити День 4: Рух танка** — 5 підуроків + демо.
+**Останнє оновлення:** Додано JSDoc та inline-коментарі до коду в уроках 2, 3, 4.
 
-Дивись `course-roadmap.md` → "День 4" для деталей:
-- 4.1: `InputManager.js` (слухачі keydown/keyup, масив held[])
-- 4.2: Ігровий цикл (requestAnimationFrame, deltaTime, clamp)
-- 4.3: `Tank.move()` (обчислення позиції, обмеження межами)
-- 4.4: `Tank.snapToGrid()` (вирівнювання по сітці при повороті)
-- 4.5: Анімація гусениць при русі (animFrame/animTimer)
+**Створити День 5: Стрільба** — 5 підуроків + демо.
 
-Демо має містити: все з lesson-03 + InputManager.js, оновлені main.js та Player.js
+Дивись `course-roadmap.md` → "День 5" для деталей:
+- 5.1: `Bullet.js` (позиція, напрямок, швидкість, update, render)
+- 5.2: `Tank.shoot()` (створення кулі від дула, кулдаун)
+- 5.3: Зв'язок Input → Player → shoot (Space = стрільба)
+- 5.4: Куля за межами поля — деактивація
+- 5.5: Масив bullets[], оновлення та очистка мертвих куль
+
+Демо має містити: все з lesson-04 + Bullet.js, оновлені Tank.js та main.js
 
 ---
 

@@ -11,21 +11,26 @@
 ```js
 // Player.js — танк гравця (жовтий)
 
-import { Tank } from './Tank.js';
-import { TILE } from './constants.js';
-import { playerYellow } from './colors.js';
+import { Tank } from './Tank.js';        // базовий клас танка
+import { TILE } from './constants.js';   // розмір тайла (16px)
+import { playerYellow } from './colors.js'; // жовтий колір гравця
 
+/**
+ * Клас Player — танк гравця.
+ * Успадковує render(), _drawTreads(), _drawBarrel() від Tank.
+ * Задає лише свої параметри: колір, позицію спавну, швидкість.
+ */
 export class Player extends Tank {
     constructor() {
-        // Спавн: тайл (8, 24) у координатах поля
-        const spawnX = 8 * TILE;
-        const spawnY = 24 * TILE;
+        // Позиція спавну: тайл (8, 24) — ліворуч від штабу
+        const spawnX = 8 * TILE;   // 8 * 16 = 128px від лівого краю поля
+        const spawnY = 24 * TILE;  // 24 * 16 = 384px від верхнього краю
 
-        // Tank(x, y, color, speed, hp)
+        // Викликаємо конструктор батьківського класу Tank
+        // super(x, y, колір, швидкість, здоров'я)
         super(spawnX, spawnY, playerYellow, 2, 1);
 
-        // Гравець стартує дивлячись вгору
-        this.direction = 'up';
+        this.direction = 'up'; // гравець стартує дивлячись вгору
     }
 }
 ```
@@ -54,30 +59,34 @@ class Player extends Tank {
 ```js
 // main.js — Урок 3: Малюємо танк
 
-import { CANVAS_W, CANVAS_H, FIELD_X, FIELD_Y, FIELD_W, FIELD_H, BORDER } from './constants.js';
+import { CANVAS_W, CANVAS_H, FIELD_X, FIELD_Y, FIELD_W, FIELD_H } from './constants.js';
 import { black, borderBg } from './colors.js';
-import { Player } from './Player.js';
+import { Player } from './Player.js';     // наш жовтий танк
 
+// Отримуємо Canvas та контекст для малювання
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-// Створюємо гравця
+// Створюємо об'єкт гравця (new → викликає конструктор Player)
 const player = new Player();
 
+/**
+ * Малює весь ігровий екран: рамку, поле та танк.
+ */
 function draw() {
-    // 1. Фон (рамка)
+    // 1. Сірий фон (стає рамкою навколо чорного поля)
     ctx.fillStyle = borderBg;
     ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
 
-    // 2. Чорне ігрове поле
+    // 2. Чорне ігрове поле (малюється поверх сірого)
     ctx.fillStyle = black;
     ctx.fillRect(FIELD_X, FIELD_Y, FIELD_W, FIELD_H);
 
-    // 3. Малюємо танк гравця
+    // 3. Танк гравця (передаємо зсув поля для правильних координат)
     player.render(ctx, FIELD_X, FIELD_Y);
 }
 
-draw();
+draw(); // запускаємо малювання
 ```
 
 ---
@@ -108,4 +117,18 @@ Canvas (0,0)
 - ✅ Створив `Player.js` через успадкування `extends`
 - ✅ Побачив жовтий танк на ігровому полі!
 
-**Наступний урок — танк рухається!** 🚗💨
+---
+
+## 🔄 Що буде далі?
+
+У наступному уроці ми:
+- ⌨️ Створимо `InputManager` для зчитування клавіатури
+- 🔄 Напишемо повноцінний ігровий цикл з `deltaTime`
+- 🚗 Навчимо танк рухатися по полю через WASD
+- 📐 Додамо вирівнювання по сітці при повороті
+
+---
+
+## ДЕМО
+
+[Подивитись ТУТ як має виглядати твій результат](/battle_city_js_course/demos/lesson-03/game.html){target="_blank"}
