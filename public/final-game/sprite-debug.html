@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Sprite Sheet Debug</title>
+<style>
+body { background: #222; color: #fff; font: 12px monospace; margin: 20px; }
+#wrap { position: relative; display: inline-block; }
+canvas { image-rendering: pixelated; border: 1px solid #555; }
+#info { position: fixed; top: 10px; right: 10px; background: #000; padding: 10px; border: 1px solid #555; }
+</style>
+</head>
+<body>
+<h3>battlecity_general.png — 400×256 (hover for coordinates)</h3>
+<div id="wrap">
+  <canvas id="c" width="800" height="512"></canvas>
+</div>
+<div id="info">Move mouse over image</div>
+<script>
+const c = document.getElementById('c');
+const ctx = c.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+const info = document.getElementById('info');
+const img = new Image();
+img.onload = () => {
+  // Draw at 2× scale
+  ctx.drawImage(img, 0, 0, 800, 512);
+  // Grid 16px (= 32px at 2× scale)
+  ctx.strokeStyle = 'rgba(255,255,0,0.3)';
+  ctx.lineWidth = 0.5;
+  for (let x = 0; x <= 800; x += 32) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 512); ctx.stroke();
+  }
+  for (let y = 0; y <= 512; y += 32) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(800, y); ctx.stroke();
+  }
+  // 8px sub-grid (= 16px at 2×)
+  ctx.strokeStyle = 'rgba(255,255,0,0.1)';
+  for (let x = 0; x <= 800; x += 16) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 512); ctx.stroke();
+  }
+  for (let y = 0; y <= 512; y += 16) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(800, y); ctx.stroke();
+  }
+};
+img.src = '../assets/battlecity_general.png';
+
+c.addEventListener('mousemove', (e) => {
+  const rect = c.getBoundingClientRect();
+  const sx = Math.floor((e.clientX - rect.left) / 2);
+  const sy = Math.floor((e.clientY - rect.top) / 2);
+  const col = Math.floor(sx / 16);
+  const row = Math.floor(sy / 16);
+  const col8 = Math.floor(sx / 8);
+  const row8 = Math.floor(sy / 8);
+  info.innerHTML = `
+    <b>Pixel:</b> (${sx}, ${sy})<br>
+    <b>16×16 cell:</b> col=${col} row=${row} → (${col*16}, ${row*16})<br>
+    <b>8×8 cell:</b> col=${col8} row=${row8} → (${col8*8}, ${row8*8})
+  `;
+});
+</script>
+</body>
+</html>
