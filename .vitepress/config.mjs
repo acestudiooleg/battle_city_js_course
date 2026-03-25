@@ -78,11 +78,11 @@ export default defineConfig({
             text: 'День 3: Малюємо танк',
             collapsed: true,
             items: [
-              { text: '3.1: Знайомство з ООП', link: '/lessons/03-tank-class/3-1' },
-              { text: '3.2: Клас Tank', link: '/lessons/03-tank-class/3-2' },
-              { text: '3.3: Малюємо корпус', link: '/lessons/03-tank-class/3-3' },
-              { text: '3.4: Дуло за напрямком', link: '/lessons/03-tank-class/3-4' },
-              { text: '3.5: Танк гравця (Player)', link: '/lessons/03-tank-class/3-5' },
+              { text: '3.1: Знайомство з ООП', link: '/lessons/03-drawing-tank/3-1-oop-intro' },
+              { text: '3.2: Клас Tank — властивості', link: '/lessons/03-drawing-tank/3-2-tank-class-properties' },
+              { text: '3.3: render() — корпус та гусениці', link: '/lessons/03-drawing-tank/3-3-render-body-treads' },
+              { text: '3.4: _drawBarrel() — дуло', link: '/lessons/03-drawing-tank/3-4-draw-barrel' },
+              { text: '3.5: Player.js — танк гравця', link: '/lessons/03-drawing-tank/3-5-player-class' },
             ],
           },
           {
