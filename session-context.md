@@ -25,9 +25,9 @@
 | 9 | `lessons/09-eagle-gamestate/` | 4 файли (9-1 — 9-4) | ✅ Готово |
 | 10 | `lessons/10-enemies/` | 5 файлів (10-1 — 10-5) | ✅ Готово |
 | 11 | `lessons/11-sprites/` | 5 файлів (11-1 — 11-5) | ✅ Готово |
-| 12 | `lessons/12-sound-ui/` | — | ❌ Не створено |
-| 13 | `lessons/13-powerups-multiplayer/` | — | ❌ Не створено |
-| 14 | `lessons/14-title-final/` | — | ❌ Не створено |
+| 12 | `lessons/12-sound-ui/` | 4 файли (12-1 — 12-4) | ✅ Готово |
+| 13 | `lessons/13-powerups-multiplayer/` | 5 файлів (13-1 — 13-5) | ✅ Готово |
+| 14 | `lessons/14-title-final/` | 4 файли (14-1 — 14-4) | ✅ Готово |
 
 ### Демо-папки (інтерактивні приклади)
 
@@ -44,7 +44,9 @@
 | 9 | `public/demos/lesson-09/` | ✅ Готово (+Player lives/respawn/shield, CollisionManager v2) |
 | 10 | `public/demos/lesson-10/` | ✅ Готово (+Enemy.js, spawn system) |
 | 11 | `public/demos/lesson-11/` | ✅ Готово (+SpriteSheet.js, NES sprites) |
-| 12–14 | `public/demos/lesson-12/` ... | ❌ Не створено |
+| 12 | `public/demos/lesson-12/` | ✅ Готово (+SoundManager.js, NES sidebar) |
+| 13 | `public/demos/lesson-13/` | ✅ Готово (+PowerUp.js, 2 players) |
+| 14 | `public/demos/lesson-14/` | ✅ Готово (= final game with title screen) |
 
 ### Інші файли
 
@@ -80,15 +82,14 @@ lessons/{NN}-{folder-name}/{N}-{M}-{topic-name}.md
 
 ---
 
-## Наступний крок
+## Статус
 
-**Створити День 12: Звуки та UI** — 4 підуроки + демо.
+**КУРС ЗАВЕРШЕНО!** Всі 14 уроків (66 підуроків) + 14 демо створені.
 
-Дивись `course-roadmap.md` → "День 12" для деталей:
-- 12.1: SoundManager.js — завантаження mp3, play(), setEngineSound()
-- 12.2: Підключення звуків до подій
-- 12.3: Sidebar в NES-стилі
-- 12.4: CSS масштаб 2×
+Наступні кроки:
+- Перевірити всі демо на працездатність
+- Прорев'ювити якість уроків
+- Публікація
 
 ---
 
