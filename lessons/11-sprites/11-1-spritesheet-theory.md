@@ -61,7 +61,7 @@
 
 ## 🖼️ Ось як виглядає наш спрайт-лист:
 
-<img src="/battle_city_js_course/assets/battlecity_general.png" alt="Спрайт-лист Battle City" style="width: 100%; image-rendering: pixelated; image-rendering: crisp-edges; border: 2px solid #333; background: #000;" />
+<img src="/assets/battlecity_general.png" alt="Спрайт-лист Battle City" style="width: 100%; image-rendering: pixelated; image-rendering: crisp-edges; border: 2px solid #333; background: #000;" />
 
 На цій картинці 400×256 пікселів — все що потрібно для гри. Зліва — танки гравців, по центру — танки ворогів, справа — тайли, орел, вибухи та артефакти.
 

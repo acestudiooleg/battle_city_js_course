@@ -5,6 +5,8 @@ export default defineConfig({
   title: 'BattleCity JS Course',
   description: 'Марафон з розробки класичної гри "Танчики" на JavaScript',
   base: '/battle_city_js_course/',
+  ignoreDeadLinks: true,
+  srcExclude: ['**/lessons/*_backup.md'],
   locales: {
     root: {
       label: 'Українська',
