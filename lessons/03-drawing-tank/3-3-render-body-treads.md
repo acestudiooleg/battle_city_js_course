@@ -32,18 +32,30 @@
     render(ctx, ox, oy) {
         if (!this.alive) return;
 
+        // Координати відносно ігрового поля (з урахуванням зсуву рамки) X
         const sx = Math.round(this.x) + ox;
+        // Координати відносно ігрового поля (з урахуванням зсуву рамки) Y
         const sy = Math.round(this.y) + oy;
+        // Розмір танка (32px)
         const sz = this.width; // 32
 
         ctx.save();
+        // Малюємо гусениці
         this._drawTreads(ctx, sx, sy, sz);
+        // Малюємо корпус
         ctx.fillStyle = this.color;
         ctx.fillRect(sx + 4, sy + 4, sz - 8, sz - 8);
+        // Малюємо дуло
         this._drawBarrel(ctx, sx, sy, sz);
         ctx.restore();
     }
 
+    /**
+      Малює гусениці танка. Викликається з render().
+      - ctx: контекст для малювання
+      - sx, sy: координати танка на Canvas (з урахуванням зсуву)
+      - sz: розмір танка (32px)
+    */
     _drawTreads(ctx, sx, sy, sz) {
         ctx.fillStyle = darkGray;
         const af = this.animFrame; // 0 або 1
@@ -73,7 +85,7 @@
 ### Параметри методу
 
 ```js
-render(ctx, ox, oy)
+render(ctx, ox, oy);
 ```
 
 - **`ctx`** — "олівець" для малювання. Ми передаємо його ззовні, коли викликаємо метод
@@ -98,8 +110,8 @@ Canvas (0,0) ─── лівий верхній кут вікна
 Щоб намалювати танк на Canvas, треба додати ці 16px рамки:
 
 ```js
-const sx = this.x + ox;   // 128 + 16 = 144  ← позиція на Canvas
-const sy = this.y + oy;   // 384 + 16 = 400
+const sx = this.x + ox; // 128 + 16 = 144  ← позиція на Canvas
+const sy = this.y + oy; // 384 + 16 = 400
 ```
 
 ### Чому `Math.round()`?
