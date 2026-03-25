@@ -18,7 +18,7 @@
 | 2 | `lessons/02-canvas-and-coordinates/` | 5 файлів (2-1 — 2-5) | ✅ Готово |
 | 3 | `lessons/03-drawing-tank/` | 5 файлів (3-1 — 3-5) | ✅ Готово |
 | 4 | `lessons/04-movement/` | 5 файлів (4-1 — 4-5) | ✅ Готово |
-| 5 | `lessons/05-shooting/` | — | ❌ Не створено |
+| 5 | `lessons/05-shooting/` | 5 файлів (5-1 — 5-5) | ✅ Готово |
 | 6 | `lessons/06-game-field/` | — | ❌ Не створено |
 | 7 | `lessons/07-collisions/` | — | ❌ Не створено |
 | 8 | `lessons/08-explosions/` | — | ❌ Не створено |
@@ -37,7 +37,8 @@
 | 2 | `public/demos/lesson-02/` | ✅ Готово (game.html, main.js, constants.js, colors.js) |
 | 3 | `public/demos/lesson-03/` | ✅ Готово (game.html, main.js, constants.js, colors.js, Tank.js, Player.js) |
 | 4 | `public/demos/lesson-04/` | ✅ Готово (game.html, main.js, Tank.js, Player.js, InputManager.js, constants.js, colors.js) |
-| 5–14 | `public/demos/lesson-05/` ... | ❌ Не створено |
+| 5 | `public/demos/lesson-05/` | ✅ Готово (game.html, main.js, Tank.js, Player.js, Bullet.js, InputManager.js, constants.js, colors.js) |
+| 6–14 | `public/demos/lesson-06/` ... | ❌ Не створено |
 
 ### Інші файли
 
@@ -75,18 +76,15 @@ lessons/{NN}-{folder-name}/{N}-{M}-{topic-name}.md
 
 ## Наступний крок
 
-**Останнє оновлення:** Додано JSDoc та inline-коментарі до коду в уроках 2, 3, 4.
+**Створити День 6: Ігрове поле з даних** — 4 підуроки + демо.
 
-**Створити День 5: Стрільба** — 5 підуроків + демо.
+Дивись `course-roadmap.md` → "День 6" для деталей:
+- 6.1: Формат карти: 13×13 блоків, коди матеріалів
+- 6.2: `levels.js`: масив LEVEL_1, buildTileList()
+- 6.3: `GameField.js`: побудова рівня, малювання стін
+- 6.4: Вода (анімація) та ліс (z-index поверх танків)
 
-Дивись `course-roadmap.md` → "День 5" для деталей:
-- 5.1: `Bullet.js` (позиція, напрямок, швидкість, update, render)
-- 5.2: `Tank.shoot()` (створення кулі від дула, кулдаун)
-- 5.3: Зв'язок Input → Player → shoot (Space = стрільба)
-- 5.4: Куля за межами поля — деактивація
-- 5.5: Масив bullets[], оновлення та очистка мертвих куль
-
-Демо має містити: все з lesson-04 + Bullet.js, оновлені Tank.js та main.js
+Демо має містити: все з lesson-05 + levels.js, GameField.js, оновлений main.js
 
 ---
 

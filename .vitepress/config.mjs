@@ -100,11 +100,11 @@ export default defineConfig({
             text: 'День 5: Стрільба',
             collapsed: true,
             items: [
-              { text: '5.1: Клас Bullet', link: '/lessons/05-shooting/5-1' },
-              { text: '5.2: Метод shoot()', link: '/lessons/05-shooting/5-2' },
-              { text: '5.3: Стрільба гравця', link: '/lessons/05-shooting/5-3' },
-              { text: '5.4: Кулі за межами поля', link: '/lessons/05-shooting/5-4' },
-              { text: '5.5: Масив куль', link: '/lessons/05-shooting/5-5' },
+              { text: '5.1: Клас Bullet', link: '/lessons/05-shooting/5-1-bullet-class' },
+              { text: '5.2: Tank.shoot()', link: '/lessons/05-shooting/5-2-tank-shoot' },
+              { text: '5.3: Input → Стрільба', link: '/lessons/05-shooting/5-3-input-shoot' },
+              { text: '5.4: Деактивація за межами', link: '/lessons/05-shooting/5-4-bullet-bounds' },
+              { text: '5.5: Малюємо кулі', link: '/lessons/05-shooting/5-5-render-bullets' },
             ],
           },
           {
