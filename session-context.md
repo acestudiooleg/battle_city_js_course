@@ -16,7 +16,7 @@
 |------|-------|----------|--------|
 | 1 | `lessons/01-getting-started/` | 6 файлів (1-1 — 1-6) | ✅ Готово |
 | 2 | `lessons/02-canvas-and-coordinates/` | 5 файлів (2-1 — 2-5) | ✅ Готово |
-| 3 | `lessons/03-tank-class/` | — | ❌ Не створено |
+| 3 | `lessons/03-drawing-tank/` | 5 файлів (3-1 — 3-5) | ✅ Готово |
 | 4 | `lessons/04-movement/` | — | ❌ Не створено |
 | 5 | `lessons/05-shooting/` | — | ❌ Не створено |
 | 6 | `lessons/06-game-field/` | — | ❌ Не створено |
