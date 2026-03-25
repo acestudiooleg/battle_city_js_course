@@ -201,6 +201,16 @@ export default defineConfig({
               { text: '14.4: Підсумок курсу', link: '/lessons/14-title-final/14-4-summary' },
             ],
           },
+          {
+            text: 'Бонус: Публікація гри',
+            collapsed: true,
+            items: [
+              { text: '15.1: Що таке Git і GitHub', link: '/lessons/15-bonus-deploy/15-1-what-is-git' },
+              { text: '15.2: Підготовка файлів', link: '/lessons/15-bonus-deploy/15-2-prepare-files' },
+              { text: '15.3: Завантажуємо на GitHub', link: '/lessons/15-bonus-deploy/15-3-push-to-github' },
+              { text: '15.4: GitHub Pages', link: '/lessons/15-bonus-deploy/15-4-github-pages' },
+            ],
+          },
         ],
       },
     ],
